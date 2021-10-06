@@ -1,0 +1,16 @@
+FROM sfmdocker/inscholaris_base_python:1.55
+
+ENV PYTHONUNBUFFERED 1
+ENV FLASK_ENV staging
+
+ARG GIT_ACCESS_TOKEN
+
+WORKDIR /app
+
+COPY requirements.txt /app/requirements.txt
+
+RUN pip install -r requirements.txt
+
+COPY . /app
+
+CMD ["python", "manage.py", "run"]
