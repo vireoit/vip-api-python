@@ -23,7 +23,4 @@ class MetaData(Resource):
         """
         Return all jobs
         """
-
-
-
         return Response.error(err.messages, HttpStatusCode.BAD_REQUEST)
