@@ -1,5 +1,4 @@
 from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
 from flask_restx import Api
 from flask_marshmallow import Marshmallow
 from .status_constants import HttpStatusCode, BusinessErrorCode
