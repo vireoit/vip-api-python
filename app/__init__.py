@@ -6,7 +6,6 @@ from .response import Response
 from flask_pymongo import PyMongo
 
 
-db = PyMongo()
 ma = Marshmallow()
 
 
@@ -16,9 +15,10 @@ def create_app(env=None):
 
     app = Flask(__name__)
     app.config.from_object(config_by_name[env or 'test'])
-    db.init_app(app)
-    ma.init_app(app)
+    mongo_db = PyMongo(app)
 
+    mongo_db.init_app(app)
+    ma.init_app(app)
 
     from flask import Blueprint
 
@@ -52,6 +52,5 @@ def create_app(env=None):
             str(error),
         )
 
-
-    return app
+    return app, mongo_db
 
