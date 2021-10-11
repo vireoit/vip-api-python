@@ -7,7 +7,7 @@ from flask_pymongo import PyMongo
 
 
 ma = Marshmallow()
-
+mongo_db = PyMongo()
 
 def create_app(env=None):
     from app.config import config_by_name
@@ -15,7 +15,6 @@ def create_app(env=None):
 
     app = Flask(__name__)
     app.config.from_object(config_by_name[env or 'test'])
-    mongo_db = PyMongo(app)
 
     mongo_db.init_app(app)
     ma.init_app(app)
