@@ -7,6 +7,7 @@ from flask_pymongo import PyMongo
 
 
 ma = Marshmallow()
+mongo_db = PyMongo()
 
 
 def create_app(env=None):
@@ -14,9 +15,7 @@ def create_app(env=None):
     from app.routes import register_routes
 
     app = Flask(__name__)
-    app.config.from_object(config_by_name[env or 'test'])
-    mongo_db = PyMongo(app)
-
+    app.config.from_object(config_by_name[env or 'dev'])
     mongo_db.init_app(app)
     ma.init_app(app)
 
