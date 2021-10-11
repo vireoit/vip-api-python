@@ -17,9 +17,8 @@ class MetaData(Resource):
     """
     Class for handle CoOpJobs end points
     """
-    @permission_required("GET_CONFIG")
     def get(self):
         """
         Return all jobs
         """
-        return Response.error(err.messages, HttpStatusCode.BAD_REQUEST)
+        return Response.error("", HttpStatusCode.BAD_REQUEST)
