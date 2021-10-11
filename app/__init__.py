@@ -30,7 +30,7 @@ def create_app(env=None):
 
     register_routes(api, app)
 
-    app.register_blueprint(api_v1, url_prefix="/configurations")
+    app.register_blueprint(api_v1, url_prefix="/vip")
 
     @app.route("/health")
     def health():

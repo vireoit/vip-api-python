@@ -6,20 +6,30 @@ from marshmallow import ValidationError
 from flask import Response as flask_response
 from app.response import Response
 from app.status_constants import HttpStatusCode
-
+from app.subjects.delegates import SubjectDelegate
 import json
 
 api = Namespace("VIP", description="Namespace for VIP API Services")
 
 
-@api.route("/metadata")
+@api.route("/subject/export")
 class MetaData(Resource):
     """
-    Class for handle CoOpJobs end points
+    Class for export files
     """
-    @permission_required("GET_CONFIG")
-    def get(self):
+    def post(self):
         """
-        Return all jobs
+        Return all subjects
         """
-        return Response.error(err.messages, HttpStatusCode.BAD_REQUEST)
+        claims = get_jwt()
+
+        payload = request.json
+        data = {
+
+            'export_fields': payload['export_fields'] if 'export_fields' in payload else [],
+        }
+        program = SubjectDelegate.export_subjects(filters=data, user_identity=claims)
+        return Response.success(response_data={},
+                                status_code=HttpStatusCode.OK,
+                                message="subjects")
+
