@@ -51,3 +51,4 @@ def create_app(env=None):
         )
 
     return app, mongo_db
+
