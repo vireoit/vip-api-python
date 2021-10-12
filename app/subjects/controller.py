@@ -2,6 +2,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restx import Namespace, Resource
 from marshmallow import ValidationError
 from flask import request
+from flask import Response as flask_response
+from flask import make_response
 from app.response import Response
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.status_constants import HttpStatusCode
@@ -9,17 +11,15 @@ from app.exceptions import FileNotSelected, FileUploadException, FileFormatExcep
 from app.utils import file_service_util
 # from app import constants
 from app.subjects.delegates import SubjectImportDelegate
+from app.subjects.delegates import SubjectDelegate
+import json
 
 api = Namespace("Subject", description="Namespace for Subject")
 
 
-"""
-API for subject import
-"""
-
-@api.route("v1/subject/import")
+@api.route("/subject/import")
 class Employer(Resource):
-    @jwt_required
+    #@jwt_required
     def post(self):
         payload = request.files
         try:
@@ -44,3 +44,30 @@ class Employer(Resource):
                     message=response['message'])
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message=list(err.messages.values())[0][0])
+
+@api.route("/subject/export")
+class MetaData(Resource):
+    """
+    Class for export files
+    """
+    # @jwt_required()
+    def post(self):
+        """
+        Return all subjects
+        """
+        claims = ""
+
+        payload = request.json
+        data = {
+
+            'export_fields': payload['export_fields'] if 'export_fields' in payload else [],
+        }
+        resp = make_response('subjects.xls')
+        resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
+        resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
+        return resp
+
+        # return Response.success(response_data={},
+        #                         status_code=HttpStatusCode.OK,
+        #                         message="subjects")
+

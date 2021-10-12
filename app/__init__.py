@@ -14,8 +14,7 @@ def create_app(env=None):
     from app.routes import register_routes
 
     app = Flask(__name__)
-    app.config.from_object(config_by_name[env or 'test'])
-
+    app.config.from_object(config_by_name[env or 'dev'])
     mongo_db.init_app(app)
     ma.init_app(app)
 
@@ -24,12 +23,12 @@ def create_app(env=None):
     api_v1 = Blueprint('api_v1', __name__)
 
     api = Api(api_v1,
-              title="In Scholaris API",
-              version="0.1.0", )
+              title="Vireo API(Python)",
+              version="0.1.0", description="Contact Vireo Integrative program")
 
     register_routes(api, app)
 
-    app.register_blueprint(api_v1, url_prefix="/configurations")
+    app.register_blueprint(api_v1, url_prefix="/vip")
 
     @app.route("/health")
     def health():
@@ -52,4 +51,3 @@ def create_app(env=None):
         )
 
     return app, mongo_db
-
