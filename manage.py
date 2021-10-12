@@ -1,12 +1,9 @@
 import os
-from datetime import datetime
 from flask_script import Manager
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from app import create_app
 from flask_cors import CORS
-
-from app.notifications import Notification as notify
 
 env = os.getenv("FLASK_ENV") or "dev"
 print(f"Active environment: * {env} *")
@@ -18,7 +15,7 @@ migrate = Migrate(app, mongo_db)
 
 manager = Manager(app)
 
-# jwt = JWTManager(app)
+jwt = JWTManager(app)
 
 # CORS enabling
 
@@ -31,13 +28,10 @@ def run():
 
 
 @manager.command
-def notify_password_expiry():
-    notify.password_expiry(mongo_db)
-
-
-@manager.command
-def expire_password():
-    notify.password_expiry(mongo_db)
+def do_expire_users():
+    users = mongo_db.db.Subjects.find({})
+    for user in users:
+        print("users", user["Email"])
 
 
 if __name__ == "__main__":
