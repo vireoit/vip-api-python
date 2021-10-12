@@ -18,7 +18,7 @@ migrate = Migrate(app, mongo_db)
 
 manager = Manager(app)
 
-jwt = JWTManager(app)
+# jwt = JWTManager(app)
 
 # CORS enabling
 
@@ -27,7 +27,7 @@ CORS(app)
 
 @manager.command
 def run():
-    app.run(debug=True, host="0.0.0.0", ssl_context=('cert/inscholaris_cert.pem', 'cert/inscholaris_key.pem'))
+    app.run(debug=True, host="0.0.0.0", ssl_context=('cert/vip_cert.pem', 'cert/vip_key.pem'))
 
 
 @manager.command
