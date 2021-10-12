@@ -24,8 +24,8 @@ def create_app(env=None):
     api_v1 = Blueprint('api_v1', __name__)
 
     api = Api(api_v1,
-              title="In Scholaris API",
-              version="0.1.0", )
+              title="Vireo API(Python)",
+              version="0.1.0", description="Contact Vireo Integrative program")
 
     register_routes(api, app)
 
