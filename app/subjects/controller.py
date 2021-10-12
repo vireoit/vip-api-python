@@ -18,7 +18,7 @@ api = Namespace("Subject", description="Namespace for Subject")
 
 
 @api.route("/subject/import")
-class Employer(Resource):
+class SubjectImport(Resource):
     #@jwt_required
     def post(self):
         payload = request.files
