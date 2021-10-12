@@ -8,7 +8,7 @@ class BaseConfig:
     CONFIG_NAME = "base"
     DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    JWT_SECRET_KEY = ""
+    JWT_SECRET_KEY = "{2FBA4000-290B-4F0B-AF53-3A2AD3C08DDD}"
 
 
 class DevelopmentConfig(BaseConfig):

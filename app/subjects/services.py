@@ -14,3 +14,11 @@ class SubjectService:
         data_file = export_table_data(all_data)
         return data_file
 
+    @staticmethod
+    def pain_details(data, user_identity):
+        print(data)
+        query_data = mongo_db.db.Subjects.find({}, data)
+        print(print(query_data))
+        print(list(query_data))
+
+

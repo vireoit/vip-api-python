@@ -38,3 +38,29 @@ class SubjectExport(Resource):
         return resp
 
 
+@api.route("/subject/pain")
+class SubjectExport(Resource):
+    """
+    Class for export files
+    """
+    # @jwt_required()
+    def get(self):
+        """
+        Return all subjects
+        """
+        claims = ""
+        parameters = {
+            'subject': "",
+            'date': "",
+        }
+
+        if 'subject' in request.args and request.args.get('subject'):
+            parameters['subject'] = request.args.get('subject')
+        if 'date' in request.args and request.args.get('date'):
+            parameters['date'] = request.args.get('date')
+
+        data = SubjectDelegate.pain_details(filters=parameters, user_identity=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Company profile and jobs")
+
+
