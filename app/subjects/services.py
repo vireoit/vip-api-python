@@ -5,7 +5,6 @@ from app import mongo_db
 class SubjectService:
     @staticmethod
     def export_subjects(data, user_identity):
-        # print(tuple(data.get('export_fields')))
         data = data.get('export_fields')
         data = tuple(data)
         query_data = list(mongo_db.db.Subjects.find({}, data))
