@@ -36,11 +36,11 @@ class Employer(Resource):
                 else:
                     raise FileFormatException(param_name='types are csv/xlsx')
             if response['value'] == True:
-                return Response.success(response_data={}, status_code=HttpStatusCode.OK, message=response['messages'])
+                return Response.success(response_data={}, status_code=HttpStatusCode.OK, message=response['message'])
             else:
-                if not response['messages']:
-                    response['messages'] = "Subject import failed"
+                if not response['message']:
+                    response['message'] = "Subject import failed"
                 return Response.error(error_data=response['error_data'], status_code=HttpStatusCode.BAD_REQUEST, 
-                    message=response['messages'])
+                    message=response['message'])
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message=list(err.messages.values())[0][0])

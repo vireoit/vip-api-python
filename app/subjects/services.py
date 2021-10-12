@@ -27,9 +27,9 @@ class SubjectImportService:
                 mongo_db.db.Subjects.insert_many(payload)
             else:
                 pass
-            return {"messages": "Subject imported successfully", "value": True}
+            return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
-            return {"messages": "Subject imported failed", "value": False, "error_data": err.messages}
+            return {"message": "Subject imported failed", "value": False, "error_data": err.messages}
     
     @staticmethod
     def import_subject_xlsx_file(file):
@@ -51,6 +51,6 @@ class SubjectImportService:
                 mongo_db.db.Subjects.insert_many(payload)
             else:
                 pass
-            return {"messages": "Subject imported successfully", "value": True}
+            return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
-            return {"messages": "Subject imported failed", "value": False, "error_data": err.messages}
+            return {"message": "Subject imported failed", "value": False, "error_data": err.messages}
