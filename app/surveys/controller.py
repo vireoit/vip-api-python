@@ -32,8 +32,9 @@ class SurveyReportExport(Resource):
             'questionList': payload['question_list'] if 'question_list' in payload else []
         }
         SurveyDelegate.export_survey_reports(filters=data, parameters=parameters)
-        resp = make_response('survey_report.xls')
+        resp = make_response('survey_reports.xls')
+        resp.data = open("survey_reports.xls", "rb").read()
         resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
-        resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
+        resp.headers['Content-Disposition'] = 'attachment;filename=survey_reports.xls'
         return resp
 
