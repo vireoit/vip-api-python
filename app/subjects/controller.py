@@ -64,6 +64,8 @@ class SubjectExport(Resource):
         }
         SubjectDelegate.export_subjects(filters=data,user_identity=claims)
         resp = make_response('subjects.xls')
+        resp.data = open("subjects.xls", "rb").read()
+
         resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
         resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
         return resp
@@ -74,7 +76,7 @@ class SubjectExport(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     def get(self):
         """
         Return all subjects
