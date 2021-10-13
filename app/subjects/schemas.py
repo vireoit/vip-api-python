@@ -3,7 +3,7 @@ from marshmallow import post_load, fields, validate, validates,ValidationError,v
 from datetime import date, datetime
 
 
-class SubjectImportSchema(ma.SQLAlchemySchema):
+class SubjectImportSchema(ma.Schema):
     subjects = fields.List(fields.Dict, required=True)
 
     @validates_schema(skip_on_field_errors=False)
