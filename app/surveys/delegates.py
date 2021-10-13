@@ -7,4 +7,3 @@ class SurveyDelegate:
         data_file = SurveyService.export_survey_reports(filters, parameters)
         return data_file
 
-

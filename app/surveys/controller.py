@@ -33,6 +33,7 @@ class SurveyReportExport(Resource):
         }
         SurveyDelegate.export_survey_reports(filters=data, parameters=parameters)
         resp = make_response('survey_report.xls')
+        resp.data = open("survey_report.xls", "rb").read()
         resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
         resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
         return resp
