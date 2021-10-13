@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class Notification:
 
     PASSWORD_EXPIRE_ALERT_DAYS = 88
