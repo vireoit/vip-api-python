@@ -12,9 +12,14 @@ from app.utils import file_service_util
 # from app import constants
 from app.subjects.delegates import SubjectImportDelegate
 from app.subjects.delegates import SubjectDelegate
-import json
+from flask_restx import Api, Resource, fields
+
 
 api = Namespace("Subject", description="Namespace for Subject")
+
+export_fields = api.model('ExportFields', {
+    'export_fields': fields.List(fields.String)
+})
 
 
 @api.route("/subject/import")
@@ -45,12 +50,15 @@ class SubjectImport(Resource):
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message=list(err.messages.values())[0][0])
 
+
 @api.route("/subject/export")
+# @api.doc(params={'export_fields': "array of fields"})
 class SubjectExport(Resource):
     """
     Class for export files
     """
     # @jwt_required()
+    @api.expect(export_fields)
     def post(self):
         """
         Return all subjects
@@ -72,6 +80,7 @@ class SubjectExport(Resource):
 
 
 @api.route("/subject/pain")
+@api.doc(params={'subject': 'ID of the Subject - 60bb10c89cf5432080d40346 ', "date": "%m-%d-%Y"})
 class SubjectExport(Resource):
     """
     Class for export files
