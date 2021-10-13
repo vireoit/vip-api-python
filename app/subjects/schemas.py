@@ -12,7 +12,10 @@ class SubjectImportSchema(ma.Schema):
         for data_dict in subjects:
             email = data_dict.get('Email')
             phone = data_dict.get('Phone')
+            print(email, phone)
+            if email is None and phone is None:
+                raise ValidationError("Email and Phone field should not be empty", field_name="Email")
             if not email:
                 raise ValidationError("Email is mandatory", field_name="Email")
             if not phone:
-                raise ValidationError("Phone is mandatory", field_name="Phone")
+                raise ValidationError("Phone number is mandatory", field_name="Phone")

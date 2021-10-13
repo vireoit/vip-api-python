@@ -37,7 +37,8 @@ class SubjectImportService:
                 pass
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
-            return {"message": "Subject imported failed", "value": False, "error_data": err.messages}
+            error = err.messages
+            return {"message": "Subject imported failed", "value": False, "error_data": next(iter(error.values()))}
     
     @staticmethod
     def import_subject_xlsx_file(file):
@@ -61,7 +62,8 @@ class SubjectImportService:
                 pass
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
-            return {"message": "Subject imported failed", "value": False, "error_data": err.messages}
+            error = err.messages
+            return {"message": "Subject imported failed", "value": False, "error_data": next(iter(error.values()))}
 
 
 class SubjectService:
