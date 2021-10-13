@@ -45,6 +45,7 @@ class SubjectImport(Resource):
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message=list(err.messages.values())[0][0])
 
+
 @api.route("/subject/export")
 class SubjectExport(Resource):
     """
@@ -65,18 +66,17 @@ class SubjectExport(Resource):
         SubjectDelegate.export_subjects(filters=data,user_identity=claims)
         resp = make_response('subjects.xls')
         resp.data = open("subjects.xls", "rb").read()
-
         resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
         resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
         return resp
 
 
 @api.route("/subject/pain")
-class SubjectExport(Resource):
+class PainDetails(Resource):
     """
     Class for export files
     """
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         """
         Return all subjects
@@ -94,11 +94,11 @@ class SubjectExport(Resource):
 
         data = SubjectDelegate.pain_details(filters=parameters, user_identity=claims)
         return Response.success(response_data=data,
-                                status_code=HttpStatusCode.OK, message="Company profile and jobs")
+                                status_code=HttpStatusCode.OK, message="Pain Details")
 
 
 @api.route("/subject/pain/export")
-class SubjectExport(Resource):
+class PainDetailsExport(Resource):
     """
     Class for export files
     """
