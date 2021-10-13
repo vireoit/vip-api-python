@@ -1,4 +1,4 @@
-from app.subjects.services import SubjectImportService, SubjectService
+from app.subjects.services import SubjectImportService, SubjectService, AdminListService
 
 
 class SubjectImportDelegate:
@@ -29,3 +29,9 @@ class SubjectDelegate:
         data = SubjectService.export_pain_details(filters, user_identity)
         return data
 
+class AdminListDelegate:
+    @staticmethod
+    def get_admin_list(parameters):
+        data = AdminListService.get_admin_list(parameters)
+        return data
+        
