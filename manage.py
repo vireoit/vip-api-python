@@ -34,6 +34,34 @@ def do_expire_users():
         print("users", user["Email"])
 
 
+@manager.command
+def test():
+    from bson.objectid import ObjectId
+    from datetime import datetime
+    import pytz
+
+    query_data = mongo_db.db.Logs.find({"Subject._id": ObjectId("60bb10c89cf5432080d40346")})
+    datetime_date = datetime.strptime("10-12-2021", "%m-%d-%Y")
+    start_date = datetime.strptime("2021-08-17 00", "%Y-%m-%d %H")
+    end_date = datetime.strptime("2021-08-17 23", "%Y-%m-%d %H")
+
+
+    print(end_date)
+    query_data = mongo_db.db.Logs.find({"DateOfLog": "2021-06-19", "IsActive": True})
+    query_data = mongo_db.db.Logs.find({'DateOfLog': datetime(2021, 8, 17, 18, 30, tzinfo=pytz.utc)})
+
+    query_data = mongo_db.db.Logs.find({'DateOfLog':
+                                            {'$gte': datetime(2021, 8, 17, 23, 59, tzinfo=pytz.utc),
+                                             '$lte': datetime(2021, 8, 17, 00, 00, tzinfo=pytz.utc)}})
+
+    query_data = mongo_db.db.Logs.find({"DateOfLog": {"$lte": end_date, '$gt': start_date}})
+
+
+    date = datetime_date.astimezone(pytz.utc)
+    print(list(query_data))
+    print(date)
+
+
 if __name__ == "__main__":
     manager.run()
 

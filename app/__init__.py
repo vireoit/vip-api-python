@@ -5,9 +5,9 @@ from .status_constants import HttpStatusCode, BusinessErrorCode
 from .response import Response
 from flask_pymongo import PyMongo
 
-
 ma = Marshmallow()
 mongo_db = PyMongo()
+
 
 def create_app(env=None):
     from app.config import config_by_name

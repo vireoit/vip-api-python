@@ -5,3 +5,5 @@ def register_routes(api, app, root="api"):
 
     from app.surveys import register_routes
     register_routes(api, app)
+
+

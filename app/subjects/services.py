@@ -1,11 +1,17 @@
 import os
-from uuid import uuid4
 import pandas as pd
 import json
+import pytz
+
+from uuid import uuid4
+from datetime import datetime, timezone, date
+from bson.objectid import ObjectId
+from bson.json_util import dumps, RELAXED_JSON_OPTIONS
+
 from app import ma, response, mongo_db
-from datetime import datetime, timezone
 from app.subjects.schemas import SubjectImportSchema
 from app.subjects.export import export_table_data
+from app.utils.mongo_encoder import format_cursor_obj
 
 
 class SubjectImportService:
@@ -70,3 +76,20 @@ class SubjectService:
         data_file = export_table_data(all_data)
         return data_file
 
+    @staticmethod
+    def pain_details(data, user_identity):
+        from flask import jsonify
+
+        in_date = data['date']
+        start_date = datetime.strptime(str(in_date)+" 00", "%m-%d-%Y %H")
+        end_date = datetime.strptime(str(in_date)+" 23", "%m-%d-%Y %H")
+        query_data = mongo_db.db.Logs.find_one({"DateOfLog": {"$lte": end_date, '$gt': start_date},
+                                            "Subject._id": ObjectId(data['subject']), "IsActive": True})
+
+        bs = dumps(query_data, json_options=RELAXED_JSON_OPTIONS)
+
+        return format_cursor_obj(json.loads(bs))
+
+    @staticmethod
+    def export_pain_details(data, user_identity):
+        pass

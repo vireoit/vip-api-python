@@ -45,6 +45,7 @@ class SubjectImport(Resource):
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message=list(err.messages.values())[0][0])
 
+
 @api.route("/subject/export")
 class SubjectExport(Resource):
     """
@@ -64,8 +65,59 @@ class SubjectExport(Resource):
         }
         SubjectDelegate.export_subjects(filters=data,user_identity=claims)
         resp = make_response('subjects.xls')
+        resp.data = open("subjects.xls", "rb").read()
         resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
         resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
         return resp
 
 
+@api.route("/subject/pain")
+class PainDetails(Resource):
+    """
+    Class for export files
+    """
+    # @jwt_required()
+    def get(self):
+        """
+        Return all subjects
+        """
+        claims = ""
+        parameters = {
+            'subject': "",
+            'date': "",
+        }
+
+        if 'subject' in request.args and request.args.get('subject'):
+            parameters['subject'] = request.args.get('subject')
+        if 'date' in request.args and request.args.get('date'):
+            parameters['date'] = request.args.get('date')
+
+        data = SubjectDelegate.pain_details(filters=parameters, user_identity=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Pain Details")
+
+
+@api.route("/subject/pain/export")
+class PainDetailsExport(Resource):
+    """
+    Class for export files
+    """
+    # @jwt_required()
+    def post(self):
+        """
+        Return all subjects
+        """
+        claims = ""
+
+        payload = request.json
+        data = {
+
+            'subject': payload['export_fields'] if 'export_fields' in payload else [],
+            "from_date": payload['from_date'] if 'from_date' in payload else "",
+            "to_date": payload['to_date'] if 'to_date' in payload else ""
+        }
+        SubjectDelegate.export_pain_details(filters=data,user_identity=claims)
+        resp = make_response('pain_details.xls')
+        resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
+        resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
+        return resp
