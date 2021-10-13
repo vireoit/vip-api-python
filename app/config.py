@@ -16,7 +16,7 @@ class DevelopmentConfig(BaseConfig):
     DEBUG = True
     MONGO_DBNAME = "VireoQA"
 
-    MONGO_URI = "mongodb+srv://cycloides:cycloides%40123@vireointegrative.z1tl8.mongodb.net/Vireo"
+    MONGO_URI = "mongodb+srv://cycloides:cycloides%40123@vireointegrative.z1tl8.mongodb.net/VireoQA"
     SECRET_KEY = os.getenv(
         "DEV_SECRET_KEY", "You can't see California without Marlon Widgeto's eyes"
     )
