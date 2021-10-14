@@ -120,14 +120,16 @@ class PainDetailsExport(Resource):
         payload = request.json
         data = {
 
-            'subject': payload['export_fields'] if 'export_fields' in payload else [],
+            'subject': payload['subject'] if 'subject' in payload else [],
             "from_date": payload['from_date'] if 'from_date' in payload else "",
             "to_date": payload['to_date'] if 'to_date' in payload else ""
         }
+
         SubjectDelegate.export_pain_details(filters=data,user_identity=claims)
         resp = make_response('pain_details.xls')
+        resp.data = open("pain_details.xls", "rb").read()
         resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
-        resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
+        resp.headers['Content-Disposition'] = 'attachment;filename=pain_details.xls'
         return resp
 
 @api.route("/subject/pain/export")
@@ -180,4 +182,3 @@ class MasterAdmin(Resource):
                                 status_code=HttpStatusCode.OK,
                                 message="Admin list fetched succesfully")
 
-                                

@@ -1,0 +1,68 @@
+[
+    {
+        "id": "0",
+        "class": "no-pain",
+        "title": "No Pain",
+        "description": "I have no pain"
+    },
+    {
+        "id": "1",
+        "class": "minimal",
+        "title": "Minimal",
+        "description": "My pain is hardly noticeable"
+    },
+    {
+        "id": "2",
+        "class": "mild",
+        "title": "Mild",
+        "description": "I have a low level of pain. I am aware of my pain only when I pay attention to it."
+    },
+    {
+        "id": "3",
+        "class": "uncomfortable",
+        "title": "Uncomfortable",
+        "description": "My pain bothers me but I can ignore it most of the time"
+    },
+    {
+        "id": "4",
+        "class": "moderate",
+        "title": "Moderate",
+        "description": "I am constantly aware of my pain but I can continue most activities."
+    },
+    {
+        "id": "5",
+        "class": "distracting",
+        "title": "Distracting",
+        "description": "I think about my pain most of the time. I cannot do some of the activities I need to do each day because of the pain."
+    },
+    {
+        "id": "6",
+        "class": "distressing",
+        "title": "Distressing",
+        "description": "I think about my pain all of the time. I give up many activities because of my pain."
+    },
+    {
+        "id": "7",
+        "class": "unmanageable",
+        "title": "Unmanageable",
+        "description": "I am in pain all the time. It keeps me from doing most activities."
+    },
+    {
+        "id": "8",
+        "class": "intence",
+        "title": "Intense",
+        "description": "My pain is so severe that it is hard to think of anything else. Talking and listening are difficult."
+    },
+    {
+        "id": "9",
+        "class": "severe",
+        "title": "Severe",
+        "description": "My pain is all that I can think about. I can barely talk or move because of the pain."
+    },
+    {
+        "id": "10",
+        "class": "unable-tomove",
+        "title": "Unable to Move",
+        "description": "I am in bed and can't move due to my pain.I need someone to take me to the emergency room to get help for my pain."
+    }
+]
