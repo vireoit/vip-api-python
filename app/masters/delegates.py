@@ -9,10 +9,10 @@ class AdminListDelegate:
         return data
         
 class MasterEventDelegate:
-    # @staticmethod
-    # def get_event_list(payload):
-    #     response = MasterEventService.get_event_list(payload)
-    #     return response
+    @staticmethod
+    def get_event_list(parameters):
+        response = MasterEventService.get_event_list(parameters)
+        return response
 
     @staticmethod
     def add_master_event(payload):

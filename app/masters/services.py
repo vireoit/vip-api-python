@@ -33,9 +33,21 @@ class AdminListService:
         return admin_list
 
 class MasterEventService:
-    # @staticmethod
-    # def get_event_list(payload):
-    #     pass
+    @staticmethod
+    def get_event_list(parameters):
+        sorted_by = parameters.get('order')
+        limit_by = parameters.get('limit')
+        if sorted_by == "desc":
+            order_by = -1
+        else:
+            order_by = 1
+        query_data = mongo_db.db.Events.find().sort("created_on", order_by).limit(limit_by)
+        event_list = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val  = format_cursor_obj(json.loads(bs))
+            event_list.append(val)
+        return event_list
 
     @staticmethod
     def add_master_event(payload):
