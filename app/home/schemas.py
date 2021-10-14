@@ -3,7 +3,7 @@ from marshmallow import post_load, fields, validate, validates,ValidationError,v
 from datetime import date, datetime
 
 
-class QuestionAnswer(ma.SQLAlchemySchema):
+class QuestionAnswer(ma.Schema):
     Question = fields.String(required=True, validate=[validate.Length(min=1, error="Field Required")])
     value = fields.Integer(required=True)
 
