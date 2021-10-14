@@ -92,12 +92,19 @@ class SubjectService:
 
     @staticmethod
     def export_pain_details(data, user_identity):
-        start_date = datetime.strptime(str(data['from_date']) + " 00", "%m-%d-%Y %H")
-        end_date = datetime.strptime(str(data['to_date']) + " 23", "%m-%d-%Y %H")
+        if data['from_date']:
+            start_date = datetime.strptime(str(data['from_date']) + " 00", "%m-%d-%Y %H")
+        else:
+            start_date = ""
+        if data['to_date']:
+            end_date = datetime.strptime(str(data['to_date']) + " 23", "%m-%d-%Y %H")
+        else:
+            end_date = ""
         all_subjects = []
         for subject in data['subject']:
             subject = ObjectId(subject)
             all_subjects.append(subject)
+
         query_data = mongo_db.db.Logs.find({"Subject._id": {"$in": tuple(all_subjects)}, "IsActive": True,
                                             "DateOfLog": {"$lte": end_date, '$gte': start_date}})
         print(query_data)
