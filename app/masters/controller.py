@@ -1,4 +1,3 @@
-from pymongo.message import delete
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restx import Namespace, Resource
 from marshmallow import ValidationError
