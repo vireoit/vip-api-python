@@ -19,12 +19,17 @@ class AdminListService:
     def get_admin_list(parameters):
         sorted_by = parameters.get('order')
         limit_by = parameters.get('limit')
+        search_by = parameters.get('search')
         if sorted_by == "desc":
             order_by = -1
         else:
             order_by = 1
-        query_data = mongo_db.db.Subjects.find({"$and":[{"UserType": "Admin"}, {"IsDeleted": False}]}) \
-            .sort("AddedOn", order_by).limit(limit_by)
+        if search_by is not None:
+            mongo_db.db.Subjects.create_index([('Name', 'text')])
+            query_data = mongo_db.db.Subjects.find({"$text": {"$search": search_by}})
+        else:
+            query_data = mongo_db.db.Subjects.find({"$and":[{"UserType": "Admin"}, {"IsDeleted": False}]}) \
+                .sort("AddedOn", order_by).limit(limit_by)
         admin_list = []
         for data in query_data:
             bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
@@ -37,11 +42,16 @@ class MasterEventService:
     def get_event_list(parameters):
         sorted_by = parameters.get('order')
         limit_by = parameters.get('limit')
+        search_by = parameters.get('search')
         if sorted_by == "desc":
             order_by = -1
         else:
             order_by = 1
-        query_data = mongo_db.db.Events.find().sort("created_on", order_by).limit(limit_by)
+        if search_by is not None:
+            mongo_db.db.Events.create_index([('event_type', 'text')])
+            query_data = mongo_db.db.Events.find({"$text": {"$search": search_by}})
+        else:
+            query_data = mongo_db.db.Events.find().sort("created_on", order_by).limit(limit_by)
         event_list = []
         for data in query_data:
             bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
