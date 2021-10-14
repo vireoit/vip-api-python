@@ -141,23 +141,3 @@ class SubjectService:
         data_file = export_pain_data(all_data)
         return data_file
 
-
-
-class AdminListService:
-    @staticmethod
-    def get_admin_list(parameters):
-        sorted_by = parameters.get('order')
-        limit_by = parameters.get('limit')
-        if sorted_by == "desc":
-            order_by = -1
-        else:
-            order_by = 1
-        query_data = mongo_db.db.Subjects.find({"$and":[{"UserType": "Admin"}, {"IsDeleted": False}]}) \
-            .sort("AddedOn", order_by).limit(limit_by)
-        admin_list = []
-        for data in query_data:
-            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
-            val  = format_cursor_obj(json.loads(bs))
-            admin_list.append(val)
-        return admin_list
-      

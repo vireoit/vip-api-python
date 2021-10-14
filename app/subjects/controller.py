@@ -10,7 +10,7 @@ from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
 # from app import constants
-from app.subjects.delegates import SubjectImportDelegate, AdminListDelegate
+from app.subjects.delegates import SubjectImportDelegate
 from app.subjects.delegates import SubjectDelegate
 from flask_restx import Api, Resource, fields
 
@@ -156,29 +156,4 @@ class PainDetailsExport(Resource):
         resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
         resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
         return resp
-
-@api.route("/subject/master/admin")
-class MasterAdmin(Resource):
-    # @jwt_required
-    def get(self):
-        """
-            API for list all admin subjects for master
-        """
-        parameters = {
-            'limit': 10,
-            'order': 'desc'
-        }
-        if 'limit' in request.args and request.args.get('limit'):
-            parameters['limit'] = int(request.args.get('limit'))
-        if 'page_size' in request.args and request.args.get('page_size'):
-            parameters['page_size'] = int(request.args.get('page_size'))
-        if 'order' in request.args and request.args.get('order'):
-            parameters['order'] = str(request.args.get('order'))
-        if 'search' in request.args and request.args.get('search'):
-            parameters['search'] = str(request.args.get('search'))
-        
-        admin_data = AdminListDelegate.get_admin_list(parameters)
-        return Response.success(response_data=admin_data,
-                                status_code=HttpStatusCode.OK,
-                                message="Admin list fetched succesfully")
 
