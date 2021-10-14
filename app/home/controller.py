@@ -9,6 +9,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
+from app.home.schemas import PegScore
 # from app import constants
 from app.home.delegates import PegScoreDelegate
 from flask_restx import Api, Resource, fields
@@ -27,11 +28,15 @@ class CreatePegDetails(Resource):
         """
         Create peg score of subjects
         """
-        claims = ""
-        payload = request.json
-        data = PegScoreDelegate.create_peg_score_record(payload, user_identity=claims)
-        return Response.success(response_data={},
-                                status_code=HttpStatusCode.OK, message="Peg score Successfully created")
+        try:
+            claims = ""
+            payload = request.json
+            PegScore().load(payload)
+            data = PegScoreDelegate.create_peg_score_record(payload, user_identity=claims)
+            return Response.success(response_data={},
+                                    status_code=HttpStatusCode.OK, message="Peg score Successfully created")
+        except ValidationError as err:
+            return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message="Validation Error Occurred")
 
     # @jwt_required()
     def get(self, id):
