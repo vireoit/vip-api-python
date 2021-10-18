@@ -47,7 +47,7 @@ class SubjectImportService:
         data['Notes'] = None
         data['ResetMailSentDate'] = None
         data['IsMailExpired'] = False
-        data['IsImported'] = True
+        
 
     @staticmethod
     def import_subject_csv_file(file, parameters):
@@ -78,7 +78,7 @@ class SubjectImportService:
                 mongo_db.db.Subjects.insert_many(payload)
             else:
                 pass
-            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False, "IsImported": True})	
+            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})	
             SubjectImportService.send_activation_email(inactive_subjects_query, parameters)
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
@@ -114,7 +114,7 @@ class SubjectImportService:
                 mongo_db.db.Subjects.insert_many(payload)
             else:
                 pass
-            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False, "IsImported": True})
+            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})
             SubjectImportService.send_activation_email(inactive_subjects_query, parameters)
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
