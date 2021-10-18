@@ -1,18 +1,14 @@
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restx import Namespace, Resource
 from marshmallow import ValidationError
 from flask import request
-from flask import Response as flask_response
-from flask import make_response
 from app.response import Response
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity
 from app.status_constants import HttpStatusCode
-from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
-from app.utils import file_service_util
-# from app import constants
+
 from app.masters.delegates import AdminListDelegate, MasterEventDelegate
 from app.masters.schemas import MasterEventSchema
 from flask_restx import Api, Resource, fields
+from app.flask_jwt import jwt_required
 
 
 api = Namespace("Master", description="Namespace for Master")
@@ -46,11 +42,14 @@ class MasterAdmin(Resource):
 
 @api.route("/master/event")
 class MasterEvent(Resource):
-    # @jwt_required
+
+    @jwt_required()
     def get(self):
         """
             API for list all event for master
         """
+        current_user = get_jwt_identity()
+        print("current_user", current_user)
         parameters = {
             'limit': 10,
             'order': 'desc'
