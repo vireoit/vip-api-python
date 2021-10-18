@@ -11,6 +11,7 @@ from bson.json_util import dumps, RELAXED_JSON_OPTIONS
 from app import ma, response, mongo_db
 from app.utils.mongo_encoder import format_cursor_obj
 from app.utils.data_format_service_util import list_string_to_string
+from app.masters.schemas import MedicationImportSchema
 from bson.objectid import ObjectId
 
 
@@ -77,3 +78,47 @@ class MasterEventService:
             return True
         except Exception as err:
             print(err)
+
+
+class MedicationImportService:
+
+    @staticmethod
+    def import_medication_xlsx_file(file):
+        try:
+            # Name
+            #
+            # IsActive
+            #
+            # CreatedOn
+            #
+            # LastUpdatedOn
+
+            data = pd.read_excel(file.read())
+            data['CreatedOn'] = datetime.utcnow()
+            data['LastUpdatedOn'] = datetime.utcnow()
+            data['IsActive'] = True
+            data.columns = data.columns.str.replace(' ', '')
+            data.drop_duplicates(subset=['Name'], keep="first", inplace=True)
+            payload = json.loads(data.to_json(orient='records'))
+            MedicationImportSchema().load({"medication": payload})
+            repeat_list = payload[:]
+            for item in repeat_list:
+                if item['IsVireoProduct'] == "yes" or item['IsVireoProduct'] == "Yes":
+                    item['IsVireoProduct'] = True
+                else:
+                    item['IsVireoProduct'] = False
+
+                name = item['Name']
+                item_exist = mongo_db.db.Products.find_one({"Name": name})
+                if item_exist and (item_exist['Name'] == name):
+                    payload.remove(item)
+
+            print(payload)
+            if payload:
+                mongo_db.db.Products.insert_many(payload)
+            else:
+                pass
+            return {"message": "Medication imported successfully", "value": True}
+        except Exception as err:
+            error = err.messages
+            return {"message": "Medication imported failed", "value": False, "error_data": next(iter(error.values()))}
