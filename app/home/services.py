@@ -32,3 +32,11 @@ class PegScoreService:
 
         return format_cursor_obj(json.loads(bs))
 
+
+class OnGoingFeedbackService:
+    @staticmethod
+    def create_on_going_feedback(data, user_identity):
+        data['AddedOn'] = datetime.utcnow()
+        data['SubjectId'] = ObjectId(data['SubjectId'])
+        create_data = mongo_db.db.Feedback.insert_one(data)
+        return create_data
