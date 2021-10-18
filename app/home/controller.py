@@ -24,7 +24,7 @@ class CreatePegDetails(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self, id):
         """
         Create peg score of subjects

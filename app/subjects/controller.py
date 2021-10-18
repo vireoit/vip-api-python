@@ -5,10 +5,11 @@ from flask import request
 from flask import Response as flask_response
 from flask import make_response
 from app.response import Response
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import  get_jwt_identity
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
+from app.flask_jwt import jwt_required
 # from app import constants
 from app.subjects.delegates import SubjectImportDelegate
 from app.subjects.delegates import SubjectDelegate
@@ -24,7 +25,7 @@ export_fields = api.model('ExportFields', {
 
 @api.route("/subject/import")
 class SubjectImport(Resource):
-    #@jwt_required
+    @jwt_required()
     def post(self):
         payload = request.files
         try:
@@ -57,7 +58,7 @@ class SubjectExport(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     @api.expect(export_fields)
     def post(self):
         """
@@ -84,7 +85,7 @@ class PainDetails(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     def get(self):
         """
         Return all subjects
@@ -110,7 +111,7 @@ class PainDetailsExport(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         """
         Return all subjects
@@ -137,7 +138,7 @@ class PainDetailsExport(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         """
         Return all subjects

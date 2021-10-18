@@ -18,7 +18,7 @@ api = Namespace("Master", description="Namespace for Master")
 
 @api.route("/master/admin")
 class MasterAdmin(Resource):
-    # @jwt_required
+    @jwt_required()
     def get(self):
         """
             API for list all admin for master
@@ -70,7 +70,7 @@ class MasterEvent(Resource):
                                 status_code=HttpStatusCode.OK,
                                 message="Event list fetched succesfully")
 
-    # @jwt_required
+    @jwt_required()
     def post(self):
         """
         API to add events on master
@@ -85,7 +85,7 @@ class MasterEvent(Resource):
         except ValidationError as err:
             return Response.error(next(iter(err.messages.values())), HttpStatusCode.BAD_REQUEST, message='Event saving failed')
 
-#     @jwt_required
+    @jwt_required()
     def put(self):
         """
         API to update events on master
@@ -102,7 +102,7 @@ class MasterEvent(Resource):
         except ValidationError as err:
             return Response.error(next(iter(err.messages.values())), HttpStatusCode.BAD_REQUEST, message='Event updating failed')
     
-    # @jwt_required
+    @jwt_required()
     def delete(self):
         """
         API to delete events on master
@@ -118,7 +118,7 @@ class MasterEvent(Resource):
 
 @api.route("/master/medication/import")
 class MedicationImport(Resource):
-    #@jwt_required
+    @jwt_required()
     def post(self):
         payload = request.files
         try:
