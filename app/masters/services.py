@@ -85,14 +85,6 @@ class MedicationImportService:
     @staticmethod
     def import_medication_xlsx_file(file):
         try:
-            # Name
-            #
-            # IsActive
-            #
-            # CreatedOn
-            #
-            # LastUpdatedOn
-
             data = pd.read_excel(file.read())
             data['CreatedOn'] = datetime.utcnow()
             data['LastUpdatedOn'] = datetime.utcnow()
