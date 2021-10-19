@@ -20,10 +20,7 @@ class AdminListService:
         sorted_by = parameters.get('order')
         limit_by = parameters.get('limit')
         search_by = parameters.get('search')
-        if sorted_by == "desc":
-            order_by = -1
-        else:
-            order_by = 1
+        order_by = -1 if sorted_by == "desc" else 1
         if search_by is not None:
             mongo_db.db.Subjects.create_index([('Name', 'text')])
             query_data = mongo_db.db.Subjects.find({"$text": {"$search": search_by}})
@@ -43,10 +40,7 @@ class MasterEventService:
         sorted_by = parameters.get('order')
         limit_by = parameters.get('limit')
         search_by = parameters.get('search')
-        if sorted_by == "desc":
-            order_by = -1
-        else:
-            order_by = 1
+        order_by = -1 if sorted_by == "desc" else 1
         if search_by is not None:
             mongo_db.db.Events.create_index([('event_type', 'text')])
             query_data = mongo_db.db.Events.find({"$text": {"$search": search_by}})

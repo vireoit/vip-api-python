@@ -8,8 +8,8 @@ class SubjectImportDelegate:
         return response
 
     @staticmethod
-    def import_subject_xlsx_file(file, parameters):
-        response = SubjectImportService.import_subject_xlsx_file(file, parameters)
+    def import_subject_excel_file(file, parameters):
+        response = SubjectImportService.import_subject_excel_file(file, parameters)
         return response
 
 

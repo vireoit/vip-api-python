@@ -38,7 +38,7 @@ class SubjectImport(Resource):
                     if extension == "csv":
                         response = SubjectImportDelegate.import_subject_csv_file(file, parameters)
                     if extension == "xlsx" or extension == "xls":
-                        response = SubjectImportDelegate.import_subject_xlsx_file(file, parameters)
+                        response = SubjectImportDelegate.import_subject_excel_file(file, parameters)
                 else:
                     raise FileFormatException(param_name='types are csv/xlsx')
             if response['value'] == True:

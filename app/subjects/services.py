@@ -47,7 +47,7 @@ class SubjectImportService:
         data['Notes'] = None
         data['ResetMailSentDate'] = None
         data['IsMailExpired'] = False
-        
+
 
     @staticmethod
     def import_subject_csv_file(file, parameters):
@@ -86,7 +86,7 @@ class SubjectImportService:
             return {"message": "Subject imported failed", "value": False, "error_data": next(iter(error.values()))}
     
     @staticmethod
-    def import_subject_xlsx_file(file, parameters):
+    def import_subject_excel_file(file, parameters):
         try:
             data = pd.read_excel(file.read())
             SubjectImportService.format_file(data)
