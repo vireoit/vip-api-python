@@ -23,12 +23,12 @@ class MedicationImportSchema(ma.Schema):
     def validate_object(self, data, **kwargs):
         medication = data.get('medication')
         for data_dict in medication:
-            name = data_dict.get('Name')
+            name = data_dict.get('MedicationName')
             amount = data_dict.get('Amount')
-            is_vireo_product = data_dict.get('IsVireoProduct')
+            is_vireo_product = data_dict.get('ProductType')
             if name is None and is_vireo_product is None:
-                raise ValidationError("Name and IsVireoProduct field should not be empty", field_name="Name")
+                raise ValidationError("Medication Name and IsVireoProduct field should not be empty", field_name="Medication Name")
             if not name:
-                raise ValidationError("Name is mandatory", field_name="Name")
+                raise ValidationError("Medication Name is mandatory", field_name="Medication Name")
             if not is_vireo_product:
-                raise ValidationError("IsVireoProduct number is mandatory", field_name="IsVireoProduct")
+                raise ValidationError("Product Type number is mandatory", field_name="Product Type")
