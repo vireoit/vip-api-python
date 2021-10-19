@@ -15,3 +15,20 @@ class MasterEventSchema(ma.Schema):
         if len(event_type) > 1000:
             raise ValidationError("Event Type can contain maximum of 1000 characters", field_name="Event")
 
+
+class MedicationImportSchema(ma.Schema):
+    medication = fields.List(fields.Dict, required=True)
+
+    @validates_schema(skip_on_field_errors=False)
+    def validate_object(self, data, **kwargs):
+        medication = data.get('medication')
+        for data_dict in medication:
+            name = data_dict.get('Name')
+            amount = data_dict.get('Amount')
+            is_vireo_product = data_dict.get('IsVireoProduct')
+            if name is None and is_vireo_product is None:
+                raise ValidationError("Name and IsVireoProduct field should not be empty", field_name="Name")
+            if not name:
+                raise ValidationError("Name is mandatory", field_name="Name")
+            if not is_vireo_product:
+                raise ValidationError("IsVireoProduct number is mandatory", field_name="IsVireoProduct")

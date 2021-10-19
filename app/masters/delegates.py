@@ -1,4 +1,4 @@
-from app.masters.services import AdminListService, MasterEventService
+from app.masters.services import AdminListService, MasterEventService, MedicationImportService
 from app import response
 
 
@@ -7,7 +7,8 @@ class AdminListDelegate:
     def get_admin_list(parameters):
         data = AdminListService.get_admin_list(parameters)
         return data
-        
+
+
 class MasterEventDelegate:
     @staticmethod
     def get_event_list(parameters):
@@ -27,4 +28,11 @@ class MasterEventDelegate:
     @staticmethod
     def delete_master_event(payload):
         response = MasterEventService.delete_master_event(payload)
+        return response
+
+
+class MedicationImportDelegate:
+    @staticmethod
+    def import_medication_xlsx_file(file):
+        response = MedicationImportService.import_medication_xlsx_file(file)
         return response

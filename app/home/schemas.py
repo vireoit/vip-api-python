@@ -19,5 +19,11 @@ class PegScore(ma.Schema):
                 raise ValidationError("Field required", field_name='QuestionAnswers')
 
 
+class FeedBack(ma.Schema):
+    SubjectId = fields.String(required=True, validate=[validate.Length(min=1, error="Field Required")])
+    feedback = fields.String(required=True, validate=[validate.Length(min=1, max=1000, error="Field Required")])
+
+
+
 
 
