@@ -24,7 +24,7 @@ class CreatePegDetails(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self, id):
         """
         Create peg score of subjects
@@ -58,11 +58,12 @@ class CreatePegDetails(Resource):
 
 
 @api.route("/home/feedback")
+@api.doc(paylod={'subject': 'ID of the Subject - 60bb10c89cf5432080d40346 ', "feedback": "give your feed back"})
 class OnGoingFeedback(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         """
         Create peg score of subjects
