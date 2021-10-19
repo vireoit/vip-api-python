@@ -27,6 +27,7 @@ class SubjectImport(Resource):
     #@jwt_required
     def post(self):
         payload = request.files
+        parameters = {"authorization": request.headers.get('Authorization')}
         try:
             if 'import_file' in payload:
                 file = payload['import_file']
@@ -35,9 +36,9 @@ class SubjectImport(Resource):
                     raise FileNotSelected(param_name='import_file')
                 if file and file_service_util.allowed_document_types(file.filename):
                     if extension == "csv":
-                        response = SubjectImportDelegate.import_subject_csv_file(file)
+                        response = SubjectImportDelegate.import_subject_csv_file(file, parameters)
                     if extension == "xlsx" or extension == "xls":
-                        response = SubjectImportDelegate.import_subject_xlsx_file(file)
+                        response = SubjectImportDelegate.import_subject_excel_file(file, parameters)
                 else:
                     raise FileFormatException(param_name='types are csv/xlsx')
             if response['value'] == True:

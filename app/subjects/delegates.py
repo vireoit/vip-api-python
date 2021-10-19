@@ -3,13 +3,13 @@ from app.subjects.services import SubjectImportService, SubjectService
 
 class SubjectImportDelegate:
     @staticmethod
-    def import_subject_csv_file(file):
-        response = SubjectImportService.import_subject_csv_file(file)
+    def import_subject_csv_file(file, parameters):
+        response = SubjectImportService.import_subject_csv_file(file, parameters)
         return response
 
     @staticmethod
-    def import_subject_xlsx_file(file):
-        response = SubjectImportService.import_subject_xlsx_file(file)
+    def import_subject_excel_file(file, parameters):
+        response = SubjectImportService.import_subject_excel_file(file, parameters)
         return response
 
 

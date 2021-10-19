@@ -13,16 +13,47 @@ from app.subjects.schemas import SubjectImportSchema
 from app.subjects.export import export_table_data, export_pain_data
 from app.utils.mongo_encoder import format_cursor_obj
 from app.utils.data_format_service_util import list_string_to_string
-
+from app.utils.http_service_util import perform_http_request
+from app.base_urls import VIP_ADMIN_URL, VIP_BACKEND_URL
 
 class SubjectImportService:
     @staticmethod
-    def import_subject_csv_file(file):
+    def send_activation_email(inactive_subjects_query, parameters):
+        for sub in inactive_subjects_query:
+            bs = dumps(sub, json_options=RELAXED_JSON_OPTIONS)
+            val  = format_cursor_obj(json.loads(bs))
+            email_id = val['Email']
+            user_id = val['_id']
+            response_data = perform_http_request(f'{VIP_BACKEND_URL}/api/Mail/Activation?email={email_id}&userId={user_id}', parameters['authorization'], 
+                body={}, request_method="POST")
+        return    
+            
+    @staticmethod
+    def format_file(data):
+        data.columns = data.columns.str.replace(' ', '')
+        data.drop_duplicates(subset=['Email', 'Phone'], keep="first", inplace=True)
+        data['AddedOn'] = datetime.now().replace(microsecond=0).isoformat()
+        data['LastUpdatedOn'] = datetime.now().replace(microsecond=0).isoformat()
+        data['Password'] = ''
+        data['IsActive'] = False
+        data['UserType'] = "Patient"
+        data['IsDeleted'] = False
+        data['FitBitAccessToken'] = None
+        data['UserStatus'] = ''
+        data['ActivatedOn'] = datetime.now().replace(microsecond=0).isoformat()
+        data["Phone"] = data["Phone"].astype(str)
+        data["PostalCode"] = data["PostalCode"].astype(str)
+        data['ProfilePic'] = None
+        data['Notes'] = None
+        data['ResetMailSentDate'] = None
+        data['IsMailExpired'] = False
+
+
+    @staticmethod
+    def import_subject_csv_file(file, parameters):
         try:
             data = pd.read_csv(file.stream)
-            data['AddedOn'] = datetime.now().replace(microsecond=0).isoformat()
-            data.columns = data.columns.str.replace(' ', '')
-            data.drop_duplicates(subset=['Email', 'Phone'], keep="first", inplace=True)
+            SubjectImportService.format_file(data)
             payload = json.loads(data.to_json(orient='records'))
             repeat_list = payload[:]
             for item in repeat_list:
@@ -32,22 +63,33 @@ class SubjectImportService:
                 if item_exist and (item_exist['Email'] == email_id or item_exist['Phone'] == phone_no):
                     payload.remove(item)
             SubjectImportSchema().load({"subjects": payload})
+            for rt in payload:
+                rt['RefreshTokens'] = [{
+                    "_id": "",
+                    "Token": "",
+                    "Expires": datetime.now().replace(microsecond=0).isoformat(),
+                    "Created": datetime.now().replace(microsecond=0).isoformat(),
+                    "CreatedByIp": "",
+                    "Revoked": None,
+                    "RevokedByIp": None,
+                    "ReplacedByToken": ""
+                }]
             if payload:
                 mongo_db.db.Subjects.insert_many(payload)
             else:
                 pass
+            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})	
+            SubjectImportService.send_activation_email(inactive_subjects_query, parameters)
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
             error = err.messages
             return {"message": "Subject imported failed", "value": False, "error_data": next(iter(error.values()))}
     
     @staticmethod
-    def import_subject_xlsx_file(file):
+    def import_subject_excel_file(file, parameters):
         try:
             data = pd.read_excel(file.read())
-            data['AddedOn'] = datetime.now().replace(microsecond=0).isoformat()
-            data.columns = data.columns.str.replace(' ', '')
-            data.drop_duplicates(subset=['Email', 'Phone'], keep="first", inplace=True)
+            SubjectImportService.format_file(data)
             payload = json.loads(data.to_json(orient='records'))
             repeat_list = payload[:]
             for item in repeat_list:
@@ -57,10 +99,23 @@ class SubjectImportService:
                 if item_exist and (item_exist['Email'] == email_id or item_exist['Phone'] == phone_no):
                     payload.remove(item)
             SubjectImportSchema().load({"subjects": payload})
+            for rt in payload:
+                rt['RefreshTokens'] = [{
+                    "_id": "",
+                    "Token": "",
+                    "Expires": datetime.now().replace(microsecond=0).isoformat(),
+                    "Created": datetime.now().replace(microsecond=0).isoformat(),
+                    "CreatedByIp": "",
+                    "Revoked": None,
+                    "RevokedByIp": None,
+                    "ReplacedByToken": ""
+                }]
             if payload:
                 mongo_db.db.Subjects.insert_many(payload)
             else:
                 pass
+            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})
+            SubjectImportService.send_activation_email(inactive_subjects_query, parameters)
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
             error = err.messages
