@@ -86,28 +86,31 @@ class MedicationImportService:
     def import_medication_xlsx_file(file):
         try:
             data = pd.read_excel(file.read())
-            data['CreatedOn'] = datetime.utcnow()
-            data['LastUpdatedOn'] = datetime.utcnow()
-            data['IsActive'] = True
             data.columns = data.columns.str.replace(' ', '')
-            data.drop_duplicates(subset=['Name'], keep="first", inplace=True)
+            data.drop_duplicates(subset=['MedicationName'], keep="first", inplace=True)
             payload = json.loads(data.to_json(orient='records'))
             MedicationImportSchema().load({"medication": payload})
             repeat_list = payload[:]
             for item in repeat_list:
-                if item['IsVireoProduct'] == "yes" or item['IsVireoProduct'] == "Yes":
+                if item['ProductType'] == "Vireo health product":
                     item['IsVireoProduct'] = True
                 else:
                     item['IsVireoProduct'] = False
-
-                name = item['Name']
+                name = item['MedicationName']
                 item_exist = mongo_db.db.Products.find_one({"Name": name})
                 if item_exist and (item_exist['Name'] == name):
                     payload.remove(item)
-
-            print(payload)
             if payload:
-                mongo_db.db.Products.insert_many(payload)
+                all_data = []
+                for item in payload:
+                    item.pop('ProductType')
+                    item['Name'] = item.pop('MedicationName')
+                    item['CreatedOn'] = datetime.utcnow()
+                    item['LastUpdatedOn'] = datetime.utcnow()
+                    item['IsActive'] = True
+                    all_data.append(item)
+                print(all_data)
+                mongo_db.db.Products.insert_many(all_data)
             else:
                 pass
             return {"message": "Medication imported successfully", "value": True}
