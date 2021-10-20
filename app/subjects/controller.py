@@ -71,6 +71,8 @@ class SubjectExport(Resource):
         data = {
 
             'export_fields': payload['export_fields'] if 'export_fields' in payload else [],
+            "from_date": payload['from_date'] if 'from_date' in payload else "",
+            "to_date": payload['to_date'] if 'to_date' in payload else ""
         }
         SubjectDelegate.export_subjects(filters=data,user_identity=claims)
         resp = make_response('subjects.xls')
