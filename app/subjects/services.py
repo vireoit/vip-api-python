@@ -125,6 +125,7 @@ class SubjectImportService:
 class SubjectService:
     @staticmethod
     def export_subjects(data, user_identity):
+        pain_details = SubjectService.pain_details_fetch(data, user_identity)
         data = data.get('export_fields')
         data = tuple(data)
         query_data = list(mongo_db.db.Subjects.find({"IsDeleted": False, "UserType": "Patient",
@@ -132,7 +133,7 @@ class SubjectService:
         all_data = []
         for data in query_data:
             all_data.append(data)
-        data_file = export_table_data(all_data)
+        data_file = export_table_data(all_data, pain_details)
         return data_file
 
     @staticmethod
@@ -148,8 +149,48 @@ class SubjectService:
         return format_cursor_obj(json.loads(bs))
 
     @staticmethod
+    def pain_details_fetch(data, user_identity):
+        if data['from_date']:
+            start_date = datetime.strptime(str(data['from_date']) + " 00", "%m-%d-%Y %H")
+        else:
+            start_date = ""
+        if data['to_date']:
+            end_date = datetime.strptime(str(data['to_date']) + " 23", "%m-%d-%Y %H")
+        else:
+            end_date = ""
+        query_data = mongo_db.db.Logs.find({"IsActive": True, "DateOfLog": {"$lte": end_date, '$gte': start_date}})
+        all_data = []
+        for data in query_data:
+            data['Subject Name'] = data['Subject']['Name']
+            t = data['DateOfLog']
+            data['Date'] = t.strftime('%m/%d/%Y')
+            data['Triggers'] = list_string_to_string(data['Triggers'])
+            data['PainType'] = list_string_to_string(data['PainType'])
+            data['Sleep'] = list_string_to_string(data['Sleep'])
+            data['Treatments'] = list_string_to_string(data['Treatments'])
+            data['PainLocation'] = list_string_to_string(data['PainLocation'])
+            all_medications = []
+            if data['Medications']:
+                for value in data['Medications']:
+                    medications = value['Medication']['Name']+", " + value['Dosage']
+                    all_medications.append(medications)
+                data['Medications'] = list_string_to_string(all_medications)
+            else:
+                data['Medications'] = None
+            json_file = open("app/configuration/pain_level.json")
+            json_data = json.load(json_file)
+            list_items = [data_dict for data_dict in json_data if str(data_dict["id"]) in data['LevelOfPain']]
+            if len(list_items) > 0:
+                list_items = list_items[0]
+            data['Pain Level'] = list_items['title']+", "+list_items['description']
+            keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'Notes', 'BodySide', 'DateOfLog', 'LevelOfPain']
+            list(map(data.pop, keys))
+            all_data.append(data)
+        return all_data
+
+    @staticmethod
     def export_pain_details(data, user_identity):
-      
+
         if data['from_date']:
             start_date = datetime.strptime(str(data['from_date']) + " 00", "%m-%d-%Y %H")
         else:

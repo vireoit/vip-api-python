@@ -5,11 +5,10 @@ from flask import request
 from flask import Response as flask_response
 from flask import make_response
 from app.response import Response
-from flask_jwt_extended import  get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
-from app.flask_jwt import jwt_required
 # from app import constants
 from app.subjects.delegates import SubjectImportDelegate
 from app.subjects.delegates import SubjectDelegate
@@ -25,7 +24,7 @@ export_fields = api.model('ExportFields', {
 
 @api.route("/subject/import")
 class SubjectImport(Resource):
-    @jwt_required()
+    @jwt_required
     def post(self):
         payload = request.files
         parameters = {"authorization": request.headers.get('Authorization')}
@@ -71,6 +70,8 @@ class SubjectExport(Resource):
         data = {
 
             'export_fields': payload['export_fields'] if 'export_fields' in payload else [],
+            "from_date": payload['from_date'] if 'from_date' in payload else "",
+            "to_date": payload['to_date'] if 'to_date' in payload else ""
         }
         SubjectDelegate.export_subjects(filters=data,user_identity=claims)
         resp = make_response('subjects.xls')
