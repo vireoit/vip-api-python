@@ -24,7 +24,7 @@ export_fields = api.model('ExportFields', {
 
 @api.route("/subject/import")
 class SubjectImport(Resource):
-    @jwt_required
+    @jwt_required()
     def post(self):
         payload = request.files
         parameters = {"authorization": request.headers.get('Authorization')}
