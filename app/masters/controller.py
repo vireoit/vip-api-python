@@ -18,14 +18,18 @@ api = Namespace("Master", description="Namespace for Master")
 
 @api.route("/master/admin")
 class MasterAdmin(Resource):
+
     @jwt_required()
+    @api.doc(params={'limit': "Limit per page - Int", "order": "desc or asc", "search": "Search with event name",
+                     "page": "Page number - Int"})
     def get(self):
         """
             API for list all admin for master
         """
         parameters = {
             'limit': 10,
-            'order': 'desc'
+            'order': 'desc',
+            'page': 1
         }
         if 'limit' in request.args and request.args.get('limit'):
             parameters['limit'] = int(request.args.get('limit'))
@@ -35,6 +39,8 @@ class MasterAdmin(Resource):
             parameters['order'] = str(request.args.get('order'))
         if 'search' in request.args and request.args.get('search'):
             parameters['search'] = str(request.args.get('search'))
+        if 'page' in request.args and request.args.get('page'):
+            parameters['page'] = int(request.args.get('page'))
         
         admin_data = AdminListDelegate.get_admin_list(parameters)
         return Response.success(response_data=admin_data,
@@ -46,15 +52,17 @@ class MasterAdmin(Resource):
 class MasterEvent(Resource):
 
     @jwt_required()
+    @api.doc(params={'limit': "Limit per page - Int", "order": "desc or asc", "search": "Search with event name",
+                     "page": "Page number - Int"})
     def get(self):
         """
             API for list all event for master
         """
         current_user = get_jwt_identity()
-        print("current_user", current_user)
         parameters = {
             'limit': 10,
-            'order': 'desc'
+            'order': 'desc',
+            'page': 1
         }
         if 'limit' in request.args and request.args.get('limit'):
             parameters['limit'] = int(request.args.get('limit'))
@@ -64,7 +72,9 @@ class MasterEvent(Resource):
             parameters['order'] = str(request.args.get('order'))
         if 'search' in request.args and request.args.get('search'):
             parameters['search'] = str(request.args.get('search'))
-        
+        if 'page' in request.args and request.args.get('page'):
+            parameters['page'] = int(request.args.get('page'))
+
         event_data = MasterEventDelegate.get_event_list(parameters)
         return Response.success(response_data=event_data,
                                 status_code=HttpStatusCode.OK,

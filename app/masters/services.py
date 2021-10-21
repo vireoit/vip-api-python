@@ -21,13 +21,14 @@ class AdminListService:
         sorted_by = parameters.get('order')
         limit_by = parameters.get('limit')
         search_by = parameters.get('search')
+        page = parameters.get('page')
         order_by = -1 if sorted_by == "desc" else 1
         if search_by is not None:
             mongo_db.db.Subjects.create_index([('Name', 'text')])
-            query_data = mongo_db.db.Subjects.find({"$text": {"$search": search_by}})
+            query_data = mongo_db.db.Subjects.find({"$text": {"$search": search_by}}).skip((page-1) * limit_by).limit(limit_by)
         else:
-            query_data = mongo_db.db.Subjects.find({"$and":[{"UserType": "Admin"}, {"IsDeleted": False}]}) \
-                .sort("AddedOn", order_by).limit(limit_by)
+            query_data = mongo_db.db.Subjects.find({"$and":[{"UserType": "Admin"}, {"IsDeleted": False}]})\
+                .skip((page-1) * limit_by).limit(limit_by).sort("AddedOn", order_by).limit(limit_by)
         admin_list = []
         for data in query_data:
             bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
@@ -42,15 +43,21 @@ class MasterEventService:
         limit_by = parameters.get('limit')
         search_by = parameters.get('search')
         order_by = -1 if sorted_by == "desc" else 1
+        page = parameters.get("page")
         if search_by is not None:
             mongo_db.db.Events.create_index([('event_type', 'text')])
-            query_data = mongo_db.db.Events.find({"$text": {"$search": search_by}})
+            query_data = mongo_db.db.Events.find({"$text": {"$search": search_by}}).skip((page-1) * limit_by).limit(limit_by)
         else:
-            query_data = mongo_db.db.Events.find().sort("created_on", order_by).limit(limit_by)
+            query_data = mongo_db.db.Events.find().skip((page-1) * limit_by).limit(limit_by).sort("created_on", order_by).limit(limit_by)
+
+        allpost = mongo_db.db.Events.find().skip((page-1) * limit_by).limit(limit_by)
+        bs = dumps(allpost, json_options=RELAXED_JSON_OPTIONS)
+        print(mongo_db.db.Events.find().count())
+
         event_list = []
         for data in query_data:
             bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
-            val  = format_cursor_obj(json.loads(bs))
+            val = format_cursor_obj(json.loads(bs))
             event_list.append(val)
         return event_list
 
