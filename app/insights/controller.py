@@ -10,12 +10,41 @@ from app.flask_jwt import jwt_required
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
-from app.home.schemas import PegScore, FeedBack
+from app.insights.delegates import InsightDelegate
 # from app import constants
-from app.home.delegates import PegScoreDelegate, OnGoingFeedBack
+
 from flask_restx import Api, Resource, fields
 
-api = Namespace("Home", description="Namespace for Home")
+api = Namespace("Insights", description="Namespace for Insights")
 
+@api.route("/insights/personal/export")
+class InsightsPersonalExport(Resource):
+    """
+    Class for export files
+    """
+    # @jwt_required()
+    def post(self):
+        claims = ""
+        payload = request.json
+        InsightDelegate.export_personal_insights(parameters=payload, user_identity=claims)
+        resp = make_response('Insight-Personal-export.xls')
+        resp.data = open("Insight-Personal-export.xls", "rb").read()
+        resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
+        resp.headers['Content-Disposition'] = 'attachment;filename=Insight-Personal-export.xls'
+        return resp
 
-
+@api.route("/insights/community/export")
+class InsightsPersonalExport(Resource):
+    """
+    Class for export files
+    """
+    # @jwt_required()
+    def post(self):
+        claims = ""
+        payload = request.json
+        InsightDelegate.export_personal_insights(parameters=payload, user_identity=claims)
+        resp = make_response('Insight-Community-export.xls')
+        resp.data = open("Insight-Community-export.xls", "rb").read()
+        resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
+        resp.headers['Content-Disposition'] = 'attachment;filename=Insight-Community-export.xls'
+        return resp
