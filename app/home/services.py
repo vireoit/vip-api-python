@@ -40,3 +40,22 @@ class OnGoingFeedbackService:
         data['SubjectId'] = ObjectId(data['SubjectId'])
         create_data = mongo_db.db.Feedback.insert_one(data)
         return create_data
+
+
+class SatisfactionService:
+    @staticmethod
+    def create_Satisfaction_score_record(data, user_identity):
+        data['AddedOn'] = datetime.utcnow()
+        data['SubjectId'] = ObjectId(data['SubjectId'])
+        data['IsActive'] = True
+        create_date = mongo_db.db.Satisfaction.insert_one(data)
+        return create_date
+
+    @staticmethod
+    def satisfaction_score_details(data, user_identity):
+        query_data = list(mongo_db.db.Satisfaction.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}). \
+                          sort("AddedOn", -1))
+
+        bs = dumps(query_data[0], json_options=RELAXED_JSON_OPTIONS)
+
+        return format_cursor_obj(json.loads(bs))
