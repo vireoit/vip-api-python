@@ -21,7 +21,15 @@ class PegScore(ma.Schema):
 
 class FeedBack(ma.Schema):
     SubjectId = fields.String(required=True, validate=[validate.Length(min=1, error="Field Required")])
-    feedback = fields.String(required=True, validate=[validate.Length(min=1, max=1000, error="Field Required")])
+    Feedback = fields.Integer(required=True)
+
+    @validates_schema(skip_on_field_errors=False)
+    def validate_object(self, data, **kwargs):
+        if 'Feedback' not in data or data['Feedback'] == 0:
+            raise ValidationError("Field required", field_name='Feedback')
+        if data['Feedback'] > 5:
+            raise ValidationError("Maximum 5 star", field_name='Feedback')
+
 
 
 
