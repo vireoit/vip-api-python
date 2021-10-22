@@ -7,6 +7,7 @@ from uuid import uuid4
 from datetime import datetime, timezone, date
 from bson.objectid import ObjectId
 from bson.json_util import dumps, RELAXED_JSON_OPTIONS
+from dateutil.tz import tzutc, tzlocal
 
 from app import ma, response, mongo_db
 from app.subjects.schemas import SubjectImportSchema
@@ -139,8 +140,9 @@ class SubjectService:
     @staticmethod
     def pain_details(data, user_identity):
         in_date = data['date']
-        start_date = datetime.strptime(str(in_date)+" 00", "%m-%d-%Y %H")
-        end_date = datetime.strptime(str(in_date)+" 23", "%m-%d-%Y %H")
+        in_date = (datetime.strptime(in_date, "%m-%d-%Y").astimezone(pytz.utc)).date()
+        start_date = datetime.strptime(str(in_date)+" 00", "%Y-%m-%d %H")
+        end_date = datetime.strptime(str(in_date)+" 23", "%Y-%m-%d %H")
         query_data = mongo_db.db.Logs.find_one({"DateOfLog": {"$lte": end_date, '$gt': start_date},
                                             "Subject._id": ObjectId(data['subject']), "IsActive": True})
 
@@ -211,6 +213,8 @@ class SubjectService:
         for data in query_data:
             data['Subject Name'] = data['Subject']['Name']
             t = data['DateOfLog']
+            # print(t)
+            # print(t.astimezone(tzlocal()))
             data['Date'] = t.strftime('%m/%d/%Y')
             data['Triggers'] = list_string_to_string(data['Triggers'])
             data['PainType'] = list_string_to_string(data['PainType'])
