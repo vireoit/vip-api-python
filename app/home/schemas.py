@@ -25,6 +25,7 @@ class FeedBack(ma.Schema):
 
     @validates_schema(skip_on_field_errors=False)
     def validate_object(self, data, **kwargs):
+        print(type(data['Feedback']))
         if 'Feedback' not in data or data['Feedback'] == 0:
             raise ValidationError("Field required", field_name='Feedback')
         if data['Feedback'] > 5:
