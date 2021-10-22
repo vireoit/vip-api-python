@@ -13,53 +13,122 @@ from app import ma, response, mongo_db
 from app.utils.mongo_encoder import format_cursor_obj
 from app.utils.data_format_service_util import list_string_to_string
 from bson.objectid import ObjectId
-from app.insights.export import export_table_data_personal
-
+from app.insights.export import export_table_data_community, export_table_data_personal
+from statistics import mode
+from app.utils.http_service_util import perform_http_request
+from app.base_urls import VIP_BACKEND_URL
 
 class InsightService:
     @staticmethod
-    def extract_pain_data(query_data, json_data):
-        query_list = list(query_data)
-        sleep = query_list[0]['Sleep']
-        sum = 0
-        for data in query_list:
-            sum = sum + int(data['LevelOfPain'][0])    
-        lop = sum//len(query_list)
-        lop_list = list(str(lop))
-        for data_dict in json_data:
-            if str(data_dict["id"]) in lop_list:
-                pain_level = data_dict['title']    
-        return pain_level, sleep[0]
+    def request_others_top_pain_data(patient_id, user_identity):
+        today_list = []
+        week_list = []
+        month_list = []
+        response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopPainLoggedForOtherUsers?dateCategory=Day&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+            for tod in response_data_today['data']:
+                val = tod['name']+"("+str(tod['percentage'])+"%"+")"
+                today_list.append(val)
+        else:
+            today_list = []
+        response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopPainLoggedForOtherUsers?dateCategory=Week&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+            for week in response_data_weekly['data']:
+                val = week['name']+"("+str(week['percentage'])+"%"+")"
+                week_list.append(val)
+        else:
+            week_list = []
+        response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopPainLoggedForOtherUsers?dateCategory=Month&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+            for month in response_data_monthly['data']:
+                val = month['name']+"("+str(month['percentage'])+"%"+")"
+                month_list.append(val)
+        else:
+            month_list = []
+        return today_list, week_list, month_list
 
     @staticmethod
-    def extract_dates():
-        today_start = datetime.strptime(datetime.utcnow().strftime("%m-%d-%Y") + " 00", "%m-%d-%Y %H")
-        seven_day = (datetime.utcnow() - timedelta(days=7)).date().strftime("%m-%d-%Y")
-        seven_day_start = datetime.strptime(seven_day + " 00", "%m-%d-%Y %H")
-        thirty_day = (datetime.utcnow() - timedelta(days=30)).date().strftime("%m-%d-%Y")
-        thirty_day_start = datetime.strptime(thirty_day + " 00", "%m-%d-%Y %H")
-        today_end = datetime.strptime(datetime.utcnow().strftime("%m-%d-%Y") + " 23", "%m-%d-%Y %H")
-        return today_end, today_start, thirty_day_start, seven_day_start
+    def request_pain_data(patient_id, user_identity):
+        response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInMood?subjectId={patient_id}&frequency=Today', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_today.get('responseCode') != 200 and not response_data_today['data']:
+            response_data_today = []
+        response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInMood?subjectId={patient_id}&frequency=Weekly', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_weekly.get('responseCode') != 200 and not response_data_weekly['data']:
+            response_data_weekly = []
+        response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInMood?subjectId={patient_id}&frequency=Monthly', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_monthly.get('responseCode') != 200 and not response_data_monthly['data']:
+            response_data_monthly = []
+        return response_data_today, response_data_weekly, response_data_monthly
 
     @staticmethod
-    def export_personal_insights(parameters, user_identity):        
-        today_end, today_start, thirty_day_start, seven_day_start = InsightService.extract_dates()
-        print(today_end, today_start, thirty_day_start, seven_day_start)
-        query_data_todays = mongo_db.db.Logs.find({"IsActive": True, "DateOfLog": {"$lte": today_end, '$gte': today_start}})
-        query_data_seven_days = mongo_db.db.Logs.find({"IsActive": True, "DateOfLog": {"$lte": today_end, '$gte': seven_day_start}})
-        query_data_thirty_days = mongo_db.db.Logs.find({"IsActive": True, "DateOfLog": {"$lte": today_end, '$gte': thirty_day_start}})
-        json_file = open("app/configuration/pain_level.json")
-        json_data = json.load(json_file)
-        pain_level_today, sleep_today = InsightService.extract_pain_data(query_data_todays, json_data)
-        pain_level_last_week, sleep_last_week = InsightService.extract_pain_data(query_data_seven_days, json_data)
-        pain_level_last_month, sleep_last_month = InsightService.extract_pain_data(query_data_thirty_days, json_data)
+    def request_sleep_data(patient_id, user_identity):
+        response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInSleep?subjectId={patient_id}&frequency=Today', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+            sleep_today = sorted(response_data_today['data'], key=lambda x: x['value'], reverse=True)
+        else:
+            sleep_today = []
+        response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInSleep?subjectId={patient_id}&frequency=Weekly', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+            sleep_weekly = sorted(response_data_weekly['data'], key=lambda x: x['value'], reverse=True)
+        else:
+            sleep_weekly = []
+        response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInSleep?subjectId={patient_id}&frequency=Monthly', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+            sleep_monthly = sorted(response_data_monthly['data'], key=lambda x: x['value'], reverse=True)
+        else:
+            sleep_monthly = []
+        return sleep_today, sleep_weekly, sleep_monthly
+
+    @staticmethod
+    def export_personal_insights(parameters, user_identity): 
+        patient_id= parameters.get('patient_id')
         all_data = []
-        all_data.append({' ':'Today', 'Effect of Pain in your mood': pain_level_today, 'Effect of pain in your sleep': sleep_today})
-        all_data.append({' ':'Last 7 Days', 'Effect of Pain in your mood': pain_level_last_week, 'Effect of pain in your sleep': sleep_last_week})
-        all_data.append({' ':'Last 30 Days', 'Effect of Pain in your mood': pain_level_last_month, 'Effect of pain in your sleep': sleep_last_month})
+        pain_data_today, pain_data_weekly, pain_data_monthly = InsightService.request_pain_data(patient_id, user_identity)
+        sleep_data_today, sleep_data_weekly, sleep_data_monthly = InsightService.request_sleep_data(patient_id, user_identity)
+        all_data.append({
+            ' ':'Today', 
+            'Effect of Pain in your mood': pain_data_today['data']['moodName'] if pain_data_today else '', 
+            'Effect of pain in your sleep': sleep_data_today[0]['key'] if sleep_data_today else ''
+        })
+        all_data.append({
+            ' ':'Last 7 Days', 
+            'Effect of Pain in your mood': pain_data_weekly['data']['moodName'] if pain_data_weekly else '', 
+            'Effect of pain in your sleep': sleep_data_weekly[0]['key'] if sleep_data_weekly else ''
+        })
+        all_data.append({
+            ' ':'Last 30 Days', 
+            'Effect of Pain in your mood': pain_data_monthly['data']['moodName'] if pain_data_monthly else '', 
+            'Effect of pain in your sleep': sleep_data_monthly[0]['key'] if sleep_data_monthly else ''
+        })
         data_file = export_table_data_personal(all_data)
         return data_file
 
+
     @staticmethod
     def export_community_insights(parameters, user_identity):
-        pass
+        patient_id= parameters.get('patient_id')
+        all_data = []
+        top_pain_data_today, top_pain_data_weekly, top_pain_data_monthly = InsightService.request_others_top_pain_data(patient_id, user_identity)
+        all_data.append({
+            ' ':'Today', 
+            'Top Pain logged by other users': ",".join(top_pain_data_today) if top_pain_data_today else ''
+        })
+        all_data.append({
+            ' ':'Last 7 Days', 
+            'Top Pain logged by other users': ",".join(top_pain_data_weekly) if top_pain_data_weekly else ''
+        })
+        all_data.append({
+            ' ':'Last 30 Days', 
+            'Top Pain logged by other users': ",".join(top_pain_data_monthly) if top_pain_data_monthly else ''
+        })
+        data_file = export_table_data_community(all_data)
+        return data_file

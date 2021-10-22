@@ -22,9 +22,9 @@ class InsightsPersonalExport(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self):
-        claims = ""
+        claims = {"authorization": request.headers.get('Authorization')}
         payload = request.json
         InsightDelegate.export_personal_insights(parameters=payload, user_identity=claims)
         resp = make_response('Insight-Personal-export.xls')
@@ -38,11 +38,11 @@ class InsightsPersonalExport(Resource):
     """
     Class for export files
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self):
-        claims = ""
+        claims = {"authorization": request.headers.get('Authorization')}
         payload = request.json
-        InsightDelegate.export_personal_insights(parameters=payload, user_identity=claims)
+        InsightDelegate.export_community_insights(parameters=payload, user_identity=claims)
         resp = make_response('Insight-Community-export.xls')
         resp.data = open("Insight-Community-export.xls", "rb").read()
         resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
