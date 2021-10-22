@@ -7,6 +7,7 @@ from uuid import uuid4
 from datetime import datetime, timezone, date
 from bson.objectid import ObjectId
 from bson.json_util import dumps, RELAXED_JSON_OPTIONS
+from bson.codec_options import CodecOptions
 
 from app import ma, response, mongo_db
 from app.subjects.schemas import SubjectImportSchema
@@ -15,6 +16,7 @@ from app.utils.mongo_encoder import format_cursor_obj
 from app.utils.data_format_service_util import list_string_to_string
 from app.utils.http_service_util import perform_http_request
 from app.base_urls import VIP_ADMIN_URL, VIP_BACKEND_URL
+
 
 class SubjectImportService:
     @staticmethod
@@ -139,9 +141,16 @@ class SubjectService:
     @staticmethod
     def pain_details(data, user_identity):
         in_date = data['date']
-        start_date = datetime.strptime(str(in_date)+" 00", "%m-%d-%Y %H")
-        end_date = datetime.strptime(str(in_date)+" 23", "%m-%d-%Y %H")
-        query_data = mongo_db.db.Logs.find_one({"DateOfLog": {"$lte": end_date, '$gt': start_date},
+        start_date = datetime.strptime(str(in_date), "%m-%d-%Y")
+        end_date = datetime.strptime(str(in_date), "%m-%d-%Y")
+
+        utc_start_date = start_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
+        utc_end_date = end_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
+
+        in_start_date = datetime.strptime(str(utc_start_date)+" 00", "%m-%d-%Y %H")
+        in_end_date = datetime.strptime(str(utc_end_date)+" 23", "%m-%d-%Y %H")
+
+        query_data = mongo_db.db.Logs.find_one({"DateOfLog": {"$lte": in_end_date, '$gt': in_start_date},
                                             "Subject._id": ObjectId(data['subject']), "IsActive": True})
 
         bs = dumps(query_data, json_options=RELAXED_JSON_OPTIONS)
@@ -192,25 +201,35 @@ class SubjectService:
     def export_pain_details(data, user_identity):
 
         if data['from_date']:
-            start_date = datetime.strptime(str(data['from_date']) + " 00", "%m-%d-%Y %H")
+            start_date = datetime.strptime(str(data['from_date']), "%m-%d-%Y")
+            utc_start_date = start_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
+            in_start_date = datetime.strptime(str(utc_start_date) + " 00", "%m-%d-%Y %H")
+
         else:
-            start_date = ""
+            in_start_date = ""
+
         if data['to_date']:
-            end_date = datetime.strptime(str(data['to_date']) + " 23", "%m-%d-%Y %H")
+            end_date = datetime.strptime(str(data['to_date']), "%m-%d-%Y")
+            utc_end_date = end_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
+            in_end_date = datetime.strptime(str(utc_end_date) + " 23", "%m-%d-%Y %H")
         else:
-            end_date = ""
+            in_end_date = ""
+
         all_subjects = []
         for subject in data['subject']:
             subject = ObjectId(subject)
             all_subjects.append(subject)
 
-        query_data = mongo_db.db.Logs.find({"Subject._id": {"$in": tuple(all_subjects)}, "IsActive": True,
-                                            "DateOfLog": {"$lte": end_date, '$gte': start_date}})
-        print(query_data)
+        options = CodecOptions(tz_aware=True)
+        query_data = mongo_db.db.get_collection('Logs', codec_options=options)\
+            .find({"Subject._id": {"$in": tuple(all_subjects)},
+                   "IsActive": True,
+                   "DateOfLog": {"$lte": in_end_date, '$gte': in_start_date}})
         all_data = []
         for data in query_data:
             data['Subject Name'] = data['Subject']['Name']
-            t = data['DateOfLog']
+            t = data['DateOfLog'].astimezone()
+
             data['Date'] = t.strftime('%m/%d/%Y')
             data['Triggers'] = list_string_to_string(data['Triggers'])
             data['PainType'] = list_string_to_string(data['PainType'])
