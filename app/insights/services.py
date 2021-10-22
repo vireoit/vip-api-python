@@ -18,6 +18,7 @@ from statistics import mode
 from app.utils.http_service_util import perform_http_request
 from app.base_urls import VIP_BACKEND_URL
 
+
 class InsightService:
     @staticmethod
     def request_others_top_pain_data(patient_id, user_identity):
@@ -132,3 +133,64 @@ class InsightService:
         })
         data_file = export_table_data_community(all_data)
         return data_file
+      
+
+class PainDetailGraphService:
+    @staticmethod
+    def pain_details_graph(filters, user_identity):
+        subject = filters['subject'] if 'subject' in filters else ""
+        param = filters['param'] if 'param' in filters else ""
+        all_data = []
+        if param == "today":
+            date_today = date.today()
+            start_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+            query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
+                                                     "SubjectId": ObjectId(subject), "IsActive": True}). \
+                              sort("AddedOn", -1))
+            data = query_data[0]
+            dict={}
+            dict['score'] = data['Percentage']
+            dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
+            all_data.append(dict)
+        elif param == "week":
+            date_today = date.today()
+            week_ago = date_today - timedelta(days=7)
+            start_date = datetime.strptime(str(week_ago) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+            query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
+                                                     "SubjectId": ObjectId(subject), "IsActive": True}). \
+                              sort("AddedOn", -1))
+            for data in query_data:
+                dict = {}
+                dict['score'] = data['Percentage']
+                dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
+                all_data.append(dict)
+                subject = data['SubjectId']
+                in_date = data['AddedOn'].strftime('%Y-%m-%d')
+                for record in query_data:
+                    if record['SubjectId'] == subject and record['AddedOn'].strftime('%Y-%m-%d') == in_date:
+                        query_data.remove(record)
+
+        elif param == "month":
+            date_today = date.today()
+            month_ago = date_today - timedelta(days=30)
+            start_date = datetime.strptime(str(month_ago) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+            query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
+                                                     "SubjectId": ObjectId(subject), "IsActive": True}). \
+                              sort("AddedOn", -1))
+            all_data = []
+            for data in query_data:
+                dict = {}
+                dict['score'] = data['Percentage']
+                dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
+                all_data.append(dict)
+                subject = data['SubjectId']
+                in_date = data['AddedOn'].strftime('%Y-%m-%d')
+                for record in query_data:
+                    if record['SubjectId'] == subject and record['AddedOn'].strftime('%Y-%m-%d') == in_date:
+                        query_data.remove(record)
+
+        return all_data
+
