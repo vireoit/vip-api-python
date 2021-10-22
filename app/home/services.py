@@ -38,5 +38,6 @@ class OnGoingFeedbackService:
     def create_on_going_feedback(data, user_identity):
         data['AddedOn'] = datetime.utcnow()
         data['SubjectId'] = ObjectId(data['SubjectId'])
+        data['Feedback'] = int(data['Feedback'])
         create_data = mongo_db.db.Feedback.insert_one(data)
         return create_data
