@@ -23,6 +23,7 @@ class AdminListService:
         search_by = parameters.get('search')
         page = parameters.get('page')
         order_by = -1 if sorted_by == "desc" else 1
+        total_count = mongo_db.db.Subjects.find({"$and":[{"UserType": "Admin"}, {"IsDeleted": False}]}).count()
         if search_by is not None:
             mongo_db.db.Subjects.create_index([('Name', 'text')])
             query_data = mongo_db.db.Subjects.find({"$text": {"$search": search_by}}).skip((page-1) * limit_by).limit(limit_by)
@@ -34,7 +35,11 @@ class AdminListService:
             bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
             val  = format_cursor_obj(json.loads(bs))
             admin_list.append(val)
-        return admin_list
+        response_data = {
+            'admin_list': admin_list,
+            'total_count': total_count
+        }
+        return response_data
 
 class MasterEventService:
     @staticmethod
@@ -44,6 +49,7 @@ class MasterEventService:
         search_by = parameters.get('search')
         order_by = -1 if sorted_by == "desc" else 1
         page = parameters.get("page")
+        total_count = mongo_db.db.Events.find({}).count()
         if search_by is not None:
             mongo_db.db.Events.create_index([('event_type', 'text')])
             query_data = mongo_db.db.Events.find({"$text": {"$search": search_by}}).skip((page-1) * limit_by).limit(limit_by)
@@ -52,14 +58,16 @@ class MasterEventService:
 
         allpost = mongo_db.db.Events.find().skip((page-1) * limit_by).limit(limit_by)
         bs = dumps(allpost, json_options=RELAXED_JSON_OPTIONS)
-        print(mongo_db.db.Events.find().count())
-
         event_list = []
         for data in query_data:
             bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
             val = format_cursor_obj(json.loads(bs))
             event_list.append(val)
-        return event_list
+        response_data = {
+            'event_list': event_list,
+            'total_count': total_count
+        }
+        return response_data
 
     @staticmethod
     def add_master_event(payload):
