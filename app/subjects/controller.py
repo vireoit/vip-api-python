@@ -88,7 +88,7 @@ class PainDetails(Resource):
     """
     Class for export files
     """
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         """
         Return all subjects
@@ -114,7 +114,7 @@ class PainDetailsExport(Resource):
     """
     Class for export files
     """
-    @jwt_required()
+    # @jwt_required()
     def post(self):
         """
         Return all subjects

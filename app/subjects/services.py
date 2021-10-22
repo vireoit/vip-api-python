@@ -8,6 +8,7 @@ from datetime import datetime, timezone, date
 from bson.objectid import ObjectId
 from bson.json_util import dumps, RELAXED_JSON_OPTIONS
 from bson.codec_options import CodecOptions
+from dateutil.tz import tzutc, tzlocal
 
 from app import ma, response, mongo_db
 from app.subjects.schemas import SubjectImportSchema
@@ -140,17 +141,12 @@ class SubjectService:
 
     @staticmethod
     def pain_details(data, user_identity):
+
         in_date = data['date']
-        start_date = datetime.strptime(str(in_date), "%m-%d-%Y")
-        end_date = datetime.strptime(str(in_date), "%m-%d-%Y")
-
-        utc_start_date = start_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
-        utc_end_date = end_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
-
-        in_start_date = datetime.strptime(str(utc_start_date)+" 00", "%m-%d-%Y %H")
-        in_end_date = datetime.strptime(str(utc_end_date)+" 23", "%m-%d-%Y %H")
-
-        query_data = mongo_db.db.Logs.find_one({"DateOfLog": {"$lte": in_end_date, '$gt': in_start_date},
+        in_date = (datetime.strptime(in_date, "%m-%d-%Y").astimezone(pytz.utc)).date()
+        start_date = datetime.strptime(str(in_date)+" 00", "%Y-%m-%d %H")
+        end_date = datetime.strptime(str(in_date)+" 23", "%Y-%m-%d %H")
+        query_data = mongo_db.db.Logs.find_one({"DateOfLog": {"$lte": end_date, '$gt': start_date},
                                             "Subject._id": ObjectId(data['subject']), "IsActive": True})
 
         bs = dumps(query_data, json_options=RELAXED_JSON_OPTIONS)
@@ -255,4 +251,3 @@ class SubjectService:
             all_data.append(data)
         data_file = export_pain_data(all_data)
         return data_file
-
