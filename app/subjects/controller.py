@@ -54,7 +54,7 @@ class SubjectImport(Resource):
 
 
 @api.route("/subject/export")
-# @api.doc(params={'export_fields': "array of fields"})
+@api.doc(params={'export_fields': "array of fields"})
 class SubjectExport(Resource):
     """
     Class for export files
