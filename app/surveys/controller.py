@@ -21,7 +21,7 @@ class SurveyReportExport(Resource):
     """
     Class for export survey report
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         payload = request.json
         parameters = {"authorization": request.headers.get('Authorization')}
