@@ -22,11 +22,12 @@ class PainDetailGraphService:
             query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
                                                      "SubjectId": ObjectId(subject), "IsActive": True}). \
                               sort("AddedOn", -1))
-            data = query_data[0]
-            dict={}
-            dict['score'] = data['Percentage']
-            dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
-            all_data.append(dict)
+            if query_data:
+                data = query_data[0]
+                dict={}
+                dict['score'] = data['Percentage']
+                dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
+                all_data.append(dict)
         elif param == "week":
             date_today = date.today()
             week_ago = date_today - timedelta(days=7)
