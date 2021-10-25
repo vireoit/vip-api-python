@@ -13,7 +13,9 @@ from app.utils import file_service_util
 from app.insights.delegates import InsightDelegate
 # from app import constants
 
+
 from flask_restx import Api, Resource, fields
+
 from app.insights.delegates import PainDetailGraphDelegate
 from flask_restx import Api, Resource, fields
 
@@ -41,10 +43,10 @@ class PainDetailGraph(Resource):
             parameters['subject'] = request.args.get('subject')
         if 'param' in request.args and request.args.get('param'):
             parameters['param'] = request.args.get('param')
-
         data = PainDetailGraphDelegate.pain_details_graph(filters=parameters, user_identity=claims)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="Peg score related data")
+
 
 @api.route("/insights/personal/export")
 class InsightsPersonalExport(Resource):
