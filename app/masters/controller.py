@@ -5,7 +5,7 @@ from app.response import Response
 from flask_jwt_extended import get_jwt_identity
 from app.status_constants import HttpStatusCode
 
-from app.masters.delegates import AdminListDelegate, MasterEventDelegate, MedicationImportDelegate
+from app.masters.delegates import AdminListDelegate, MasterEventDelegate, MedicationImportDelegate, MasterEventUniqueDelegate
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
 from app.masters.schemas import MasterEventSchema
@@ -125,6 +125,24 @@ class MasterEvent(Resource):
                     status_code=HttpStatusCode.OK,
                     message="Event successfully deleted")
         
+@api.route("/master/event/check")
+class MasterEventUnique(Resource):
+    @jwt_required()
+    def get(self):
+        """
+            API to check whether an event type is unique
+        """
+        parameters = {
+            'event_type': request.args.get('event_type') if 'event_type' in request.args else ""
+        }
+        event_data = MasterEventUniqueDelegate.check_event_type_uniqueness(parameters)
+        if event_data.get('is_unique') == True:
+            return Response.success(response_data=event_data,
+                                status_code=HttpStatusCode.OK,
+                                message="Event type is available")
+        else:
+            return Response.error(event_data, HttpStatusCode.BAD_REQUEST, message='Event type already exist')
+
 
 @api.route("/master/medication/import")
 class MedicationImport(Resource):

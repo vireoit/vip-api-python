@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import json
+from pymongo.message import query
 import pytz
 
 from uuid import uuid4
@@ -98,6 +99,13 @@ class MasterEventService:
         except Exception as err:
             print(err)
 
+class MasterEventUniqueService:
+    @staticmethod
+    def check_event_type_uniqueness(parameters):
+        query_data = mongo_db.db.Events.find_one({"event_type": parameters.get('event_type')})
+        if query_data:
+            return {'is_unique': False}
+        return {'is_unique': True}
 
 class MedicationImportService:
 

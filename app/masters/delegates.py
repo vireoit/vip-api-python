@@ -1,4 +1,4 @@
-from app.masters.services import AdminListService, MasterEventService, MedicationImportService
+from app.masters.services import AdminListService, MasterEventService, MedicationImportService, MasterEventUniqueService
 from app import response
 
 
@@ -30,6 +30,11 @@ class MasterEventDelegate:
         response = MasterEventService.delete_master_event(payload)
         return response
 
+class MasterEventUniqueDelegate:
+    @staticmethod
+    def check_event_type_uniqueness(parameters):
+        response = MasterEventUniqueService.check_event_type_uniqueness(parameters)
+        return response
 
 class MedicationImportDelegate:
     @staticmethod
