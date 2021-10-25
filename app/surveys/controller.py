@@ -5,7 +5,7 @@ from flask import request
 from flask import Response as flask_response
 from flask import make_response
 from app.response import Response
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.flask_jwt import jwt_required
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util

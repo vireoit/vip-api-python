@@ -9,13 +9,13 @@ from app.surveys.export import export_table_data
 from bson.objectid import ObjectId
 import requests
 from app.utils.http_service_util import perform_http_request
-from app.base_urls import VIP_ADMIN_URL
+from app.base_urls import VIP_ADMIN_URL, VIP_BACKEND_URL
 
 class SurveyService:
     @staticmethod
     def export_survey_reports(data, parameters):
         try:
-            response_data = perform_http_request(f'{VIP_ADMIN_URL}/api/Surveys/Reports', parameters['authorization'], 
+            response_data = perform_http_request(f'{VIP_BACKEND_URL}/api/Surveys/Reports', parameters['authorization'], 
                 body=data, request_method="POST")
             if response_data.get('responseCode') == 200:
                 all_data = response_data.get('data')
