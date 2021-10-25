@@ -1,3 +1,4 @@
+from typing_extensions import ParamSpecArgs
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restx import Namespace, Resource
 from marshmallow import ValidationError
@@ -10,7 +11,7 @@ from app.flask_jwt import jwt_required
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
-from app.insights.delegates import InsightDelegate
+from app.insights.delegates import InsightDelegate, InsightJournalDelegate
 # from app import constants
 
 
@@ -79,3 +80,18 @@ class InsightsPersonalExport(Resource):
         resp.headers['Content-Type'] = 'application/vnd.ms-excel;charset=UTF-8'
         resp.headers['Content-Disposition'] = 'attachment;filename=Insight-Community-export.xls'
         return resp
+
+@api.route("/insights/personal/journal")
+class InsightJournalList(Resource):
+    """
+    Class to populate journal entries 
+    """
+    @jwt_required()
+    def get(self):
+        parameters = {
+            "patient_id": request.args.get("subject_id"),
+            "frequency": request.args.get("frequency")
+        }
+        data = InsightJournalDelegate.get_insight_journal_list(parameters=parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Journal Entries fetched successsfully")
