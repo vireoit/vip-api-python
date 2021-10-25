@@ -145,7 +145,6 @@ class InsightService:
         return data_file
       
 
-
 class PainDetailGraphService:
     @staticmethod
     def pain_details_graph(filters, user_identity):
@@ -166,12 +165,6 @@ class PainDetailGraphService:
                 dict['score'] = data['Percentage']
                 dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
                 all_data.append(dict)
-
-            data = query_data[0]
-            dict={}
-            dict['score'] = data['Percentage']
-            dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
-            all_data.append(dict)
 
         elif param == "week":
             date_today = date.today()
