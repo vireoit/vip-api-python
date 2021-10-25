@@ -32,3 +32,4 @@ class SatisfactionDelegate:
     def satisfaction_score_details(filters, user_identity):
         data = SatisfactionService.satisfaction_score_details(filters, user_identity)
         return data
+
