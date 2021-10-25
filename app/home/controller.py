@@ -100,7 +100,7 @@ class CreateSatisfactionDetails(Resource):
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message="Validation Error Occurred")
 
-    # @jwt_required()
+    @jwt_required()
     def get(self, id):
         """
         Return all subjects
