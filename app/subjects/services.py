@@ -211,6 +211,8 @@ class SubjectService:
         else:
             in_end_date = ""
 
+        print("in_start_date >>>>", in_start_date, "in_end_date >>>>>>>", in_end_date)
+
         all_subjects = []
         for subject in data['subject']:
             subject = ObjectId(subject)
