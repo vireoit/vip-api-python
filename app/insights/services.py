@@ -143,7 +143,7 @@ class InsightService:
         })
         data_file = export_table_data_community(all_data)
         return data_file
-      
+     
 
 class PainDetailGraphService:
     @staticmethod
@@ -207,3 +207,68 @@ class PainDetailGraphService:
 
         return all_data
 
+class InsightJournalService:
+    @staticmethod
+    def format_dates(frequency):
+        if frequency == "today":
+            date_today = date.today()
+            start_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        elif frequency == "week":
+            date_today = date.today()
+            week_ago = date_today - timedelta(days=7)
+            start_date = datetime.strptime(str(week_ago) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        elif frequency == "month":
+            date_today = date.today()
+            month_ago = date_today - timedelta(days=30)
+            start_date = datetime.strptime(str(month_ago) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        return start_date, end_date
+
+    @staticmethod
+    def format_journal_datas(start_date, end_date, patient_id):
+        journal_list = []
+        medication_journal_list = []
+        journal_data = mongo_db.db.Journals.find({"CreatedOn": {"$lte": end_date, '$gte': start_date},
+                                                     "Patient._id": ObjectId(patient_id), "IsActive": True})
+        medication_journal_data = mongo_db.db.MedicationJournals.find({"CreatedOn": {"$lte": end_date, '$gte': start_date},
+                                                    "Patient._id": ObjectId(patient_id), "IsActive": True})
+        for data in journal_data:
+                bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+                val = format_cursor_obj(json.loads(bs))
+                del val['Patient']
+                journal_list.append(val)
+
+        for data in medication_journal_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            del val['Patient']
+            medication_journal_list.append(val)
+        return journal_list, medication_journal_list
+
+    @staticmethod
+    def get_insight_journal_list(parameters):
+        patient_id = parameters.get('patient_id')
+        if parameters.get('frequency') == "today":
+            start_date, end_date = InsightJournalService.format_dates(frequency=parameters.get('frequency'))
+            journal_list, medication_journal_list = InsightJournalService.format_journal_datas(start_date, end_date, patient_id)
+            all_data = {
+                "journals": journal_list,
+                "medication_journals": medication_journal_list
+            }
+        elif parameters.get('frequency') == "week":
+            start_date, end_date = InsightJournalService.format_dates(frequency=parameters.get('frequency'))
+            journal_list, medication_journal_list = InsightJournalService.format_journal_datas(start_date, end_date, patient_id)
+            all_data = {
+                "journals": journal_list,
+                "medication_journals": medication_journal_list
+            }
+        elif parameters.get('frequency') == "month":
+            start_date, end_date = InsightJournalService.format_dates(frequency=parameters.get('frequency'))
+            journal_list, medication_journal_list = InsightJournalService.format_journal_datas(start_date, end_date, patient_id)
+            all_data = {
+                "journals": journal_list,
+                "medication_journals": medication_journal_list
+            }
+        return all_data
