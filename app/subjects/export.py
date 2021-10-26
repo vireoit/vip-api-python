@@ -20,8 +20,10 @@ def export_table_data(data, pain_details):
 
 def export_pain_data(data):
     df = pd.DataFrame(data)
-    if df.get("_id"):
+    try:
         del df['_id']
+    except:
+        pass
     df.to_excel('pain_details.xls', index=False)
     file = pd.read_excel('pain_details.xls')
     return file
