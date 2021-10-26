@@ -225,6 +225,7 @@ class SubjectService:
         for data in query_data:
             data['Subject Name'] = data['Subject']['Name']
             t = data['DateOfLog'].astimezone()
+            print("DateOfLog >>>>>>>>>", data['DateOfLog'], t)
 
             data['Date'] = t.strftime('%m/%d/%Y')
             data['Triggers'] = list_string_to_string(data['Triggers'])
