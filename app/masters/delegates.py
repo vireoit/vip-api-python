@@ -16,6 +16,12 @@ class MasterEventDelegate:
         return response
 
     @staticmethod
+    def list_event_list():
+        response = MasterEventService.list_event_list()
+        return response
+
+
+    @staticmethod
     def add_master_event(payload):
         response = MasterEventService.add_master_event(payload)
         return response
