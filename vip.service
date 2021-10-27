@@ -1,0 +1,24 @@
+[Unit]
+Description=VIP application
+After=network.target
+
+[Service]
+User=developer
+WorkingDirectory=/mnt/vip/dev/vip_backend_python
+ExecStart=/mnt/vip/dev/env/bin/gunicorn --certfile cert/vip_cert.pem --keyfile cert/vip_key.pem -b localhost:5005 -w 4 manage:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+sudo nano /etc/systemd/system/vip.service
+
+
+sudo systemctl start vip
+sudo systemctl status vip
+sudo nano /etc/systemd/system/vip.service
+sudo journalctl -xn
+sudo systemctl daemon-reload
+sudo systemctl enable vip.service
