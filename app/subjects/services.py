@@ -4,7 +4,7 @@ import json
 import pytz
 
 from uuid import uuid4
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone, date, timedelta
 from bson.objectid import ObjectId
 from bson.json_util import dumps, RELAXED_JSON_OPTIONS
 from bson.codec_options import CodecOptions
@@ -17,7 +17,7 @@ from app.utils.mongo_encoder import format_cursor_obj
 from app.utils.data_format_service_util import list_string_to_string
 from app.utils.http_service_util import perform_http_request
 from app.base_urls import VIP_ADMIN_URL, VIP_BACKEND_URL
-
+from statistics import mode
 
 class SubjectImportService:
     @staticmethod
@@ -129,15 +129,114 @@ class SubjectService:
     @staticmethod
     def export_subjects(data, user_identity):
         pain_details = SubjectService.pain_details_fetch(data, user_identity)
+        insights = data.get('personal_insights')
         data = data.get('export_fields')
+        if insights == True:
+            insights_data = SubjectService.get_personal_insights()
+        else:
+            insights_data = []
         data = tuple(data)
         query_data = list(mongo_db.db.Subjects.find({"IsDeleted": False, "UserType": "Patient",
                                                      "IsActive": True}, data))
         all_data = []
         for data in query_data:
             all_data.append(data)
-        data_file = export_table_data(all_data, pain_details)
+        data_file = export_table_data(all_data, pain_details, insights_data)
         return data_file
+
+    @staticmethod
+    def add_multiple_pains(lop_list):
+        lop_list = sum([int(i) for i in lop_list])
+        return lop_list
+
+    @staticmethod
+    def extract_pain_data(query_data, json_data):
+        query_list = list(query_data)
+        if query_list:
+            sum = 0
+            sleep_list = []
+            for data in query_list:
+                sleep_list.append(data['Sleep'][0])
+                sum = sum + int(SubjectService.add_multiple_pains(data['LevelOfPain']))
+            sleep = mode(sleep_list)   
+            lop = sum//len(query_list)
+            lop_list = list(str(lop))
+            for data_dict in json_data:
+                if str(data_dict["id"]) in lop_list:
+                    pain_level = data_dict['title']
+            return pain_level, sleep
+        else:
+            return "", ""
+
+    @staticmethod
+    def format_dates(frequency):
+        if frequency == "Today":
+            date_today = date.today()
+            start_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        elif frequency == "Weekly":
+            date_today = date.today()
+            week_ago = date_today - timedelta(days=7)
+            start_date = datetime.strptime(str(week_ago) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        elif frequency == "Monthly":
+            date_today = date.today()
+            month_ago = date_today - timedelta(days=30)
+            start_date = datetime.strptime(str(month_ago) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        return start_date, end_date
+
+    @staticmethod
+    def format_insight_datas(start_date, end_date, subs_id):
+        insight = mongo_db.db.Logs.find({"AddedOn": {"$lte": end_date, '$gte': start_date}, "IsActive": True, "Subject._id": ObjectId(subs_id)})
+        return insight
+
+    @staticmethod
+    def get_personal_insights():
+        json_file = open("app/configuration/pain_level.json")
+        response_list = []
+        json_data = json.load(json_file)
+        try:
+            total_subs = mongo_db.db.Subjects.find({"IsActive": True})
+            for subs in total_subs:
+                subs_id = subs['_id']
+                subs_name = subs['Name']
+
+                start_date, end_date = SubjectService.format_dates("Today")
+                todays_insight = SubjectService.format_insight_datas(start_date, end_date, subs_id)
+                pain_level_today, sleep_today = SubjectService.extract_pain_data(todays_insight, json_data)
+
+                start_date, end_date = SubjectService.format_dates("Weekly")
+                weekly_insight = SubjectService.format_insight_datas(start_date, end_date, subs_id)
+                pain_level_last_week, sleep_last_week = SubjectService.extract_pain_data(weekly_insight, json_data)
+
+                start_date, end_date = SubjectService.format_dates("Monthly")
+                monthly_insight = SubjectService.format_insight_datas(start_date, end_date, subs_id)
+                pain_level_last_month, sleep_last_month = SubjectService.extract_pain_data(monthly_insight, json_data)
+ 
+                if (pain_level_today and sleep_today) or (
+                    pain_level_last_week and sleep_last_week) or (
+                    pain_level_last_month and sleep_last_month):
+                    pain_mood_data = {
+                        "Subject Name": subs_name,
+                        "Values":"Effect of pain in your mood",
+                        "Today": pain_level_today if pain_level_today else "",
+                        "Last 7 days": pain_level_last_week if pain_level_last_week else "",
+                        "Last 30 days": pain_level_last_month if pain_level_last_month else ""
+                    }
+                    pain_sleep_data = {
+                        "Subject Name":subs_name,
+                        "Values":"Effect of pain in your sleep",
+                        "Today": sleep_today if sleep_today else "",
+                        "Last 7 days": sleep_last_week if sleep_last_week else "",
+                        "Last 30 days": sleep_last_month if sleep_last_month else ""
+                    }
+                    response_list.append(pain_mood_data)
+                    response_list.append(pain_sleep_data)
+            return response_list
+        except:
+            return []
+    
 
     @staticmethod
     def pain_details(data, user_identity):
