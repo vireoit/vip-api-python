@@ -15,6 +15,10 @@ class InsightDelegate:
         data = InsightService.export_community_insights(parameters, user_identity)
         return data
 
+    @staticmethod
+    def create_adverse_event(payload, user_identity):
+        data = InsightService.create_adverse_event(payload, user_identity)
+        return data
 
 
 class PainDetailGraphDelegate:

@@ -154,3 +154,16 @@ class MedicationImport(Resource):
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message=list(err.messages.values())[0][0])
 
+
+@api.route("/master/events")
+class ListMasterEvent(Resource):
+
+    @jwt_required()
+    def get(self):
+        """
+            API for list all event for master
+        """
+        event_data = MasterEventDelegate.list_event_list()
+        return Response.success(response_data=event_data,
+                                status_code=HttpStatusCode.OK,
+                                message="Event list fetched succesfully")
