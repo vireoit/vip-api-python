@@ -199,7 +199,7 @@ class SubjectService:
         if data['from_date']:
             start_date = datetime.strptime(str(data['from_date']), "%m-%d-%Y")
             utc_start_date = start_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
-            in_start_date = datetime.strptime(str(utc_start_date) + " 00", "%m-%d-%Y %H")
+            in_start_date = datetime.strptime(str(utc_start_date) + " 00:00:01", "%m-%d-%Y %H:%M:%S")
 
         else:
             in_start_date = ""
@@ -207,9 +207,11 @@ class SubjectService:
         if data['to_date']:
             end_date = datetime.strptime(str(data['to_date']), "%m-%d-%Y")
             utc_end_date = end_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
-            in_end_date = datetime.strptime(str(utc_end_date) + " 23", "%m-%d-%Y %H")
+            in_end_date = datetime.strptime(str(utc_end_date) + " 23:59", "%m-%d-%Y %H:%M")
         else:
             in_end_date = ""
+
+        print("in_start_date >>>>", in_start_date, "in_end_date >>>>>>>", in_end_date)
 
         all_subjects = []
         for subject in data['subject']:
@@ -225,6 +227,7 @@ class SubjectService:
         for data in query_data:
             data['Subject Name'] = data['Subject']['Name']
             t = data['DateOfLog'].astimezone()
+            print("DateOfLog >>>>>>>>>", data['DateOfLog'], t)
 
             data['Date'] = t.strftime('%m/%d/%Y')
             data['Triggers'] = list_string_to_string(data['Triggers'])
