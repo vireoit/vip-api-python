@@ -88,7 +88,15 @@ class ResourceConfigurationService:
 class ResourceConfigurationUniqueService:
     @staticmethod
     def check_resources_configuration_uniqueness(parameters):
-        query_data = mongo_db.db.Resources.find_one({"resource_title": parameters.get('resource_title')})
-        if query_data:
-            return {'is_unique': False}
-        return {'is_unique': True}
+        if parameters.get('resource_title'):
+            resource_query_data = mongo_db.db.Resources.find_one({"resource_title": parameters.get('resource_title')})
+            if resource_query_data:
+                return {'is_unique': False, 'key': 'Resource title'}
+            else:
+                return {'is_unique': True, 'key': 'Resource title'}
+        if parameters.get('link'):
+            link_query_data = mongo_db.db.Resources.find_one({"link": parameters.get('link')})
+            if link_query_data:
+                return {'is_unique': False, 'key': 'Link'}
+            else:
+                return {'is_unique': True, 'key': 'Link'}
