@@ -69,7 +69,6 @@ class SatisfactionService:
 
         bs = dumps(satisfaction_query_data[0], json_options=RELAXED_JSON_OPTIONS)
 
-        print(peg_query_data)
         if peg_query_data and satisfaction_query_data:
             recommendation = SatisfactionService.recommendation(peg_query_data[0], satisfaction_query_data[0])
         else:
