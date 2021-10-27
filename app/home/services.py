@@ -75,10 +75,10 @@ class SatisfactionService:
             recommendation = "No recommendations"
         satisfaction = format_cursor_obj(json.loads(bs))
         satisfaction['recommendation'] = recommendation
-        if peg_query_data:
-            satisfaction['peg_score'] = peg_query_data[0]['Percentage']
-        else:
-            satisfaction['peg_score'] = 0
+        # if peg_query_data:
+        #     satisfaction['peg_score'] = peg_query_data[0]['Percentage']
+        # else:
+        #     satisfaction['peg_score'] = 0
         return satisfaction
 
 
