@@ -11,6 +11,8 @@ from app.flask_jwt import jwt_required
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
+from app.insights.delegates import InsightDelegate
+from app.insights.schemas import EventSchema
 from app.insights.delegates import InsightDelegate, InsightJournalDelegate
 # from app import constants
 
@@ -65,6 +67,7 @@ class InsightsPersonalExport(Resource):
         resp.headers['Content-Disposition'] = 'attachment;filename=Insight-Personal-export.xls'
         return resp
 
+
 @api.route("/insights/community/export")
 class InsightsPersonalExport(Resource):
     """
@@ -81,6 +84,28 @@ class InsightsPersonalExport(Resource):
         resp.headers['Content-Disposition'] = 'attachment;filename=Insight-Community-export.xls'
         return resp
 
+
+
+@api.route("/insights/personal/adverse-event")
+class CreateRewardConfiguration(Resource):
+    """
+    Class for save adverse event
+    """
+    # @jwt_required()
+    def post(self):
+        try:
+            """
+            Store adverse event
+            """
+            claims = ""
+            payload = request.json
+            EventSchema().load(payload)
+            data = InsightDelegate.create_adverse_event(payload, user_identity=claims)
+            return Response.success(response_data=data,
+                                    status_code=HttpStatusCode.OK, message="Adverse event created")
+        except ValidationError as err:
+            return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message="Validation Error Occurred")
+
 @api.route("/insights/personal/journal")
 class InsightJournalList(Resource):
     """
@@ -95,3 +120,4 @@ class InsightJournalList(Resource):
         data = InsightJournalDelegate.get_insight_journal_list(parameters=parameters)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="Journal Entries fetched successsfully")
+

@@ -143,7 +143,17 @@ class InsightService:
         })
         data_file = export_table_data_community(all_data)
         return data_file
-     
+
+
+    @staticmethod
+    def create_adverse_event(data, user_identity):
+        data['StartDate'] = datetime.strptime(str(data['StartDate']), "%Y-%m-%d")
+        data['AddedOn'] = datetime.utcnow()
+        data['IsActive'] = True
+        data['SubjectId'] = ObjectId(data['SubjectId'])
+        create_data = mongo_db.db.AdverseEvent.insert_one(data)
+
+
 
 class PainDetailGraphService:
     @staticmethod

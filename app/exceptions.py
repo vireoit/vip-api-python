@@ -22,4 +22,11 @@ class FileTypeException(Exception):
     def __init__(self, param_name, message="Please upload the required file type."):
         self.message = message
         super().__init__(self.message)
-        
+
+
+class UserDoesNotExist(Exception):
+
+    def __init__(self, message="User does not exist"):
+        self.message = message
+
+        super().__init__(self.message)

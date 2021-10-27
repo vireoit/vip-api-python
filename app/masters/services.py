@@ -99,6 +99,24 @@ class MasterEventService:
         except Exception as err:
             print(err)
 
+
+    @staticmethod
+    def list_event_list():
+
+        query_data = list(mongo_db.db.Events.find())
+        # bs = dumps(query_data, json_options=RELAXED_JSON_OPTIONS)
+        event_list = []
+        for data in query_data:
+            dict = {}
+            dict['_id'] = data['_id']
+            dict['event_type'] = data['event_type']
+            bs = dumps(dict, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            event_list.append(val)
+
+        return event_list
+
+
 class MasterEventUniqueService:
     @staticmethod
     def check_event_type_uniqueness(parameters):
@@ -106,6 +124,7 @@ class MasterEventUniqueService:
         if query_data:
             return {'is_unique': False}
         return {'is_unique': True}
+
 
 class MedicationImportService:
 

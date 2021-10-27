@@ -50,5 +50,8 @@ def create_app(env=None):
             str(error),
         )
 
+    from .exception_handlers import register_error_handlers
+    register_error_handlers(api)
+
     return app, mongo_db
 
