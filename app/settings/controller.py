@@ -130,12 +130,13 @@ class MasterEventUnique(Resource):
             API to check whether resource configuration settings is unique
         """
         parameters = {
-            'resource_title': request.args.get('resource_title') if 'resource_title' in request.args else ""
+            'resource_title': request.args.get('resource_title') if 'resource_title' in request.args else "",
+            'link': request.args.get('link') if 'link' in request.args else ""
         }
         event_data = ResourceConfigurationUniqueDelegate.check_resources_configuration_uniqueness(parameters)
         if event_data.get('is_unique') == True:
             return Response.success(response_data=event_data,
                                 status_code=HttpStatusCode.OK,
-                                message="Resource title is available")
+                                message="{0} is available".format(event_data['key']))
         else:
-            return Response.error(event_data, HttpStatusCode.BAD_REQUEST, message='Resource title already exist')
+            return Response.error(event_data, HttpStatusCode.BAD_REQUEST, message='{0} already exist'.format(event_data['key']))
