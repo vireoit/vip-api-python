@@ -69,7 +69,11 @@ class SatisfactionService:
 
         bs = dumps(satisfaction_query_data[0], json_options=RELAXED_JSON_OPTIONS)
 
-        recommendation = SatisfactionService.recommendation(peg_query_data[0], satisfaction_query_data[0])
+        print(peg_query_data)
+        if peg_query_data and satisfaction_query_data:
+            recommendation = SatisfactionService.recommendation(peg_query_data[0], satisfaction_query_data[0])
+        else:
+            recommendation = "No recommendations"
         satisfaction = format_cursor_obj(json.loads(bs))
         satisfaction['recommendation'] = recommendation
         satisfaction['peg_score'] = peg_query_data[0]['Percentage']
