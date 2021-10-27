@@ -86,6 +86,7 @@ tomli==1.2.1
 traitlets==5.1.0
 typing-extensions==3.10.0.2
 urllib3==1.25.10
+validators==0.18.2
 wcwidth==0.2.5
 Werkzeug==1.0.1
 xlrd==2.0.1
