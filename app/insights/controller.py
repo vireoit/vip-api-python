@@ -1,3 +1,4 @@
+from typing_extensions import ParamSpecArgs
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_restx import Namespace, Resource
 from marshmallow import ValidationError
@@ -12,6 +13,7 @@ from app.exceptions import FileNotSelected, FileUploadException, FileFormatExcep
 from app.utils import file_service_util
 from app.insights.delegates import InsightDelegate
 from app.insights.schemas import EventSchema
+from app.insights.delegates import InsightDelegate, InsightJournalDelegate
 # from app import constants
 
 
@@ -83,6 +85,7 @@ class InsightsPersonalExport(Resource):
         return resp
 
 
+
 @api.route("/insights/personal/adverse-event")
 class CreateRewardConfiguration(Resource):
     """
@@ -102,3 +105,19 @@ class CreateRewardConfiguration(Resource):
                                     status_code=HttpStatusCode.OK, message="Adverse event created")
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message="Validation Error Occurred")
+
+@api.route("/insights/personal/journal")
+class InsightJournalList(Resource):
+    """
+    Class to populate journal entries 
+    """
+    @jwt_required()
+    def get(self):
+        parameters = {
+            "patient_id": request.args.get("subject_id"),
+            "frequency": request.args.get("frequency")
+        }
+        data = InsightJournalDelegate.get_insight_journal_list(parameters=parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Journal Entries fetched successsfully")
+

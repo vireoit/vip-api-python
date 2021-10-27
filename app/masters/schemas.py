@@ -12,8 +12,8 @@ class MasterEventSchema(ma.Schema):
         event_type = data.get('event_type')
         if event_type is None:
             raise ValidationError("Event Type should not be empty", field_name="Event")
-        if len(event_type) > 1000:
-            raise ValidationError("Event Type can contain maximum of 1000 characters", field_name="Event")
+        if len(event_type) > 50:
+            raise ValidationError("Event Type can contain maximum of 50 characters", field_name="Event")
 
 
 class MedicationImportSchema(ma.Schema):

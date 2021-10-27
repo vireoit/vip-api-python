@@ -1,6 +1,6 @@
 from app.insights.services import PainDetailGraphService
 
-from app.insights.services import InsightService, PainDetailGraphService
+from app.insights.services import InsightService, PainDetailGraphService, InsightJournalService
 from app import response
 
 
@@ -15,9 +15,17 @@ class InsightDelegate:
         data = InsightService.export_community_insights(parameters, user_identity)
         return data
 
+
     @staticmethod
     def create_adverse_event(payload, user_identity):
         data = InsightService.create_adverse_event(payload, user_identity)
+        return data
+
+
+class InsightJournalDelegate:
+    @staticmethod
+    def get_insight_journal_list(parameters):
+        data = InsightJournalService.get_insight_journal_list(parameters)
         return data
 
 
