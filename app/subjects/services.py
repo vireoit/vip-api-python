@@ -99,6 +99,8 @@ class SubjectImportService:
             for item in repeat_list:
                 email_id = item['Email']
                 phone_no = item['Phone']
+                if phone_no[0] != "+":
+                    item['Phone'] = "+1" +"-("+phone_no[0:3]+")"+" "+phone_no[3:6]+"-"+phone_no[6:]
                 item_exist = mongo_db.db.Subjects.find_one({"$or":[{"Email": email_id}, {"Phone": phone_no}]})
                 if item_exist and (item_exist['Email'] == email_id or item_exist['Phone'] == phone_no):
                     payload.remove(item)
