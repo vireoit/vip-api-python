@@ -35,21 +35,19 @@ class SubjectImportService:
     def format_file(data):
         data.columns = data.columns.str.replace(' ', '')
         data.drop_duplicates(subset=['Email', 'Phone'], keep="first", inplace=True)
-        data['AddedOn'] = datetime.now().replace(microsecond=0).isoformat()
-        data['LastUpdatedOn'] = datetime.now().replace(microsecond=0).isoformat()
         data['Password'] = ''
         data['IsActive'] = False
         data['UserType'] = "Patient"
         data['IsDeleted'] = False
         data['FitBitAccessToken'] = None
         data['UserStatus'] = ''
-        data['ActivatedOn'] = datetime.now().replace(microsecond=0).isoformat()
         data["Phone"] = data["Phone"].astype(str)
         data["PostalCode"] = data["PostalCode"].astype(str)
         data['ProfilePic'] = None
         data['Notes'] = None
         data['ResetMailSentDate'] = None
         data['IsMailExpired'] = False
+        data['LastPasswordUpdatedDate'] = None
 
 
     @staticmethod
@@ -67,11 +65,14 @@ class SubjectImportService:
                     payload.remove(item)
             SubjectImportSchema().load({"subjects": payload})
             for rt in payload:
+                rt['ActivatedOn'] = datetime.utcnow()
+                rt['AddedOn'] = datetime.utcnow()
+                rt['LastUpdatedOn'] = datetime.utcnow()
                 rt['RefreshTokens'] = [{
                     "_id": "",
                     "Token": "",
-                    "Expires": datetime.now().replace(microsecond=0).isoformat(),
-                    "Created": datetime.now().replace(microsecond=0).isoformat(),
+                    "Expires": datetime.utcnow(),
+                    "Created": datetime.utcnow(),
                     "CreatedByIp": "",
                     "Revoked": None,
                     "RevokedByIp": None,
@@ -103,11 +104,14 @@ class SubjectImportService:
                     payload.remove(item)
             SubjectImportSchema().load({"subjects": payload})
             for rt in payload:
+                rt['ActivatedOn'] = datetime.utcnow()
+                rt['AddedOn'] = datetime.utcnow()
+                rt['LastUpdatedOn'] = datetime.utcnow()
                 rt['RefreshTokens'] = [{
                     "_id": "",
                     "Token": "",
-                    "Expires": datetime.now().replace(microsecond=0).isoformat(),
-                    "Created": datetime.now().replace(microsecond=0).isoformat(),
+                    "Expires": datetime.utcnow(),
+                    "Created": datetime.utcnow(),
                     "CreatedByIp": "",
                     "Revoked": None,
                     "RevokedByIp": None,
