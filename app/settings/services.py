@@ -38,8 +38,7 @@ class ResourceConfigurationService:
         page = parameters.get("page")
         total_count = mongo_db.db.Resources.find({}).count()
         if search_by is not None:
-            mongo_db.db.Resources.create_index([('resource_title', 'text')])
-            query_data = mongo_db.db.Resources.find({"$text": {"$search": search_by}}).skip((page-1) * limit_by).limit(limit_by)
+            query_data = mongo_db.db.Resources.find({"resource_title": {"$regex": "{0}".format(search_by), '$options' : 'i'}}).skip((page-1) * limit_by).limit(limit_by)
         else:
             query_data = mongo_db.db.Resources.find().skip((page-1) * limit_by).limit(limit_by).sort("created_on", order_by).limit(limit_by)
 
