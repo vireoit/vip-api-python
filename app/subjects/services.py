@@ -255,18 +255,27 @@ class SubjectService:
     @staticmethod
     def pain_details_fetch(data, user_identity):
         if data['from_date']:
-            start_date = datetime.strptime(str(data['from_date']) + " 00", "%m-%d-%Y %H")
+            start_date = datetime.strptime(str(data['from_date']), "%m-%d-%Y")
+            utc_start_date = start_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
+            in_start_date = datetime.strptime(str(utc_start_date) + " 00:00:01", "%m-%d-%Y %H:%M:%S")
+
         else:
-            start_date = ""
+            in_start_date = ""
+
         if data['to_date']:
-            end_date = datetime.strptime(str(data['to_date']) + " 23", "%m-%d-%Y %H")
+            end_date = datetime.strptime(str(data['to_date']), "%m-%d-%Y")
+            utc_end_date = end_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
+            in_end_date = datetime.strptime(str(utc_end_date) + " 23:59", "%m-%d-%Y %H:%M")
         else:
-            end_date = ""
-        query_data = mongo_db.db.Logs.find({"IsActive": True, "DateOfLog": {"$lte": end_date, '$gte': start_date}})
+            in_end_date = ""
+
+        options = CodecOptions(tz_aware=True)
+        query_data = mongo_db.db.get_collection('Logs', codec_options=options)\
+            .find({"IsActive": True, "DateOfLog": {"$lte": in_end_date, '$gte': in_start_date}})
         all_data = []
         for data in query_data:
             data['Subject Name'] = data['Subject']['Name']
-            t = data['DateOfLog']
+            t = data['DateOfLog'].astimezone()
             data['Date'] = t.strftime('%m/%d/%Y')
             data['Triggers'] = list_string_to_string(data['Triggers'])
             data['PainType'] = list_string_to_string(data['PainType'])
@@ -349,7 +358,9 @@ class SubjectService:
             list_items = [data_dict for data_dict in json_data if str(data_dict["id"]) in data['LevelOfPain']]
             if len(list_items) > 0:
                 list_items = list_items[0]
-            data['Pain Level'] = list_items['title']+", "+list_items['description']
+                data['Pain Level'] = list_items['title']+", "+list_items['description']
+            else:
+                data['Pain Level'] = None
             keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'Notes', 'BodySide', 'DateOfLog', 'LevelOfPain']
             list(map(data.pop, keys))
             all_data.append(data)
