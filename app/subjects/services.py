@@ -286,7 +286,9 @@ class SubjectService:
             list_items = [data_dict for data_dict in json_data if str(data_dict["id"]) in data['LevelOfPain']]
             if len(list_items) > 0:
                 list_items = list_items[0]
-            data['Pain Level'] = list_items['title']+", "+list_items['description']
+                data['Pain Level'] = list_items['title']+", "+list_items['description']
+            else:
+                data['Pain Level'] = None
             keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'Notes', 'BodySide', 'DateOfLog', 'LevelOfPain']
             list(map(data.pop, keys))
             all_data.append(data)
