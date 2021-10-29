@@ -26,8 +26,7 @@ class AdminListService:
         order_by = -1 if sorted_by == "desc" else 1
         total_count = mongo_db.db.Subjects.find({"$and":[{"UserType": "Admin"}, {"IsDeleted": False}]}).count()
         if search_by is not None:
-            mongo_db.db.Subjects.create_index([('Name', 'text')])
-            query_data = mongo_db.db.Subjects.find({"$text": {"$search": search_by}}).skip((page-1) * limit_by).limit(limit_by)
+            query_data = mongo_db.db.Subjects.find({"Name": {"$regex": "{0}".format(search_by), '$options' : 'i'}}).skip((page-1) * limit_by).limit(limit_by)
         else:
             query_data = mongo_db.db.Subjects.find({"$and":[{"UserType": "Admin"}, {"IsDeleted": False}]})\
                 .skip((page-1) * limit_by).limit(limit_by).sort("AddedOn", order_by).limit(limit_by)
@@ -52,8 +51,7 @@ class MasterEventService:
         page = parameters.get("page")
         total_count = mongo_db.db.Events.find({}).count()
         if search_by is not None:
-            mongo_db.db.Events.create_index([('event_type', 'text')])
-            query_data = mongo_db.db.Events.find({"$text": {"$search": search_by}}).skip((page-1) * limit_by).limit(limit_by)
+            query_data = mongo_db.db.Events.find({"event_type": {"$regex": "{0}".format(search_by), '$options' : 'i'}}).skip((page-1) * limit_by).limit(limit_by)
         else:
             query_data = mongo_db.db.Events.find().skip((page-1) * limit_by).limit(limit_by).sort("created_on", order_by).limit(limit_by)
 

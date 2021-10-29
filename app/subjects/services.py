@@ -35,21 +35,19 @@ class SubjectImportService:
     def format_file(data):
         data.columns = data.columns.str.replace(' ', '')
         data.drop_duplicates(subset=['Email', 'Phone'], keep="first", inplace=True)
-        data['AddedOn'] = datetime.now().replace(microsecond=0).isoformat()
-        data['LastUpdatedOn'] = datetime.now().replace(microsecond=0).isoformat()
         data['Password'] = ''
         data['IsActive'] = False
         data['UserType'] = "Patient"
         data['IsDeleted'] = False
         data['FitBitAccessToken'] = None
         data['UserStatus'] = ''
-        data['ActivatedOn'] = datetime.now().replace(microsecond=0).isoformat()
         data["Phone"] = data["Phone"].astype(str)
         data["PostalCode"] = data["PostalCode"].astype(str)
         data['ProfilePic'] = None
         data['Notes'] = None
         data['ResetMailSentDate'] = None
         data['IsMailExpired'] = False
+        data['LastPasswordUpdatedDate'] = None
 
 
     @staticmethod
@@ -62,16 +60,21 @@ class SubjectImportService:
             for item in repeat_list:
                 email_id = item['Email']
                 phone_no = item['Phone']
+                if phone_no[0] != "+":
+                    item['Phone'] = "+1" +"-("+phone_no[0:3]+")"+" "+phone_no[3:6]+"-"+phone_no[6:]
                 item_exist = mongo_db.db.Subjects.find_one({"$or":[{"Email": email_id}, {"Phone": phone_no}]})
                 if item_exist and (item_exist['Email'] == email_id or item_exist['Phone'] == phone_no):
                     payload.remove(item)
             SubjectImportSchema().load({"subjects": payload})
             for rt in payload:
+                rt['ActivatedOn'] = datetime.utcnow()
+                rt['AddedOn'] = datetime.utcnow()
+                rt['LastUpdatedOn'] = datetime.utcnow()
                 rt['RefreshTokens'] = [{
                     "_id": "",
                     "Token": "",
-                    "Expires": datetime.now().replace(microsecond=0).isoformat(),
-                    "Created": datetime.now().replace(microsecond=0).isoformat(),
+                    "Expires": datetime.utcnow(),
+                    "Created": datetime.utcnow(),
                     "CreatedByIp": "",
                     "Revoked": None,
                     "RevokedByIp": None,
@@ -98,16 +101,21 @@ class SubjectImportService:
             for item in repeat_list:
                 email_id = item['Email']
                 phone_no = item['Phone']
+                if phone_no[0] != "+":
+                    item['Phone'] = "+1" +"-("+phone_no[0:3]+")"+" "+phone_no[3:6]+"-"+phone_no[6:]
                 item_exist = mongo_db.db.Subjects.find_one({"$or":[{"Email": email_id}, {"Phone": phone_no}]})
                 if item_exist and (item_exist['Email'] == email_id or item_exist['Phone'] == phone_no):
                     payload.remove(item)
             SubjectImportSchema().load({"subjects": payload})
             for rt in payload:
+                rt['ActivatedOn'] = datetime.utcnow()
+                rt['AddedOn'] = datetime.utcnow()
+                rt['LastUpdatedOn'] = datetime.utcnow()
                 rt['RefreshTokens'] = [{
                     "_id": "",
                     "Token": "",
-                    "Expires": datetime.now().replace(microsecond=0).isoformat(),
-                    "Created": datetime.now().replace(microsecond=0).isoformat(),
+                    "Expires": datetime.utcnow(),
+                    "Created": datetime.utcnow(),
                     "CreatedByIp": "",
                     "Revoked": None,
                     "RevokedByIp": None,
