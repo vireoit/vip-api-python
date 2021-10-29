@@ -144,8 +144,7 @@ class SubjectService:
         else:
             insights_data = []
         data = tuple(data)
-        query_data = list(mongo_db.db.Subjects.find({"IsDeleted": False, "UserType": "Patient",
-                                                     "IsActive": True}, data))
+        query_data = list(mongo_db.db.Subjects.find({"IsDeleted": False, "UserType": "Patient"}, data))
         all_data = []
         for data in query_data:
             all_data.append(data)
