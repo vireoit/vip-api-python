@@ -37,9 +37,9 @@ class PegScoreService:
 class OnGoingFeedbackService:
     @staticmethod
     def create_on_going_feedback(data, user_identity):
-        data['AddedOn'] = datetime.utcnow()
-        data['SubjectId'] = ObjectId(data['SubjectId'])
-        data['Feedback'] = int(data['Feedback'])
+        data['added_on'] = datetime.utcnow()
+        data['subject_id'] = ObjectId(data['subject_id'])
+        data['feedback'] = int(data['feedback'])
         create_data = mongo_db.db.Feedback.insert_one(data)
         return create_data
 
