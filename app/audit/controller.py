@@ -23,7 +23,8 @@ audit_log_data = api.model('DataField', {
 audit_log_request_body = api.model('AuditLogRequest', {
     "module": fields.String(),
     "data": fields.Nested(audit_log_data),
-    "action": fields.String()
+    "action": fields.String(),
+    "event": fields.String()
 })
 
 
@@ -34,7 +35,7 @@ class AuditLog(Resource):
     """
     @jwt_required()
     @api.expect(audit_log_request_body)
-    def post(self, id):
+    def post(self):
         """
         Create audit log entries
         """
