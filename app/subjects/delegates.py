@@ -1,4 +1,4 @@
-from app.subjects.services import SubjectImportService, SubjectService
+from app.subjects.services import SubjectImportService, SubjectService, RewardRedemptionService
 
 
 class SubjectImportDelegate:
@@ -29,3 +29,9 @@ class SubjectDelegate:
         data = SubjectService.export_pain_details(filters, user_identity)
         return data
 
+
+class RewardRedemption:
+    @staticmethod
+    def list_accumulated_rewards(filters, user_identity):
+        data = RewardRedemptionService.list_accumulated_rewards(filters, user_identity)
+        return data

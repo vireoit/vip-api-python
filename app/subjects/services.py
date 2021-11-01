@@ -373,3 +373,67 @@ class SubjectService:
             all_data.append(data)
         data_file = export_pain_data(all_data)
         return data_file
+
+
+class RewardRedemptionService:
+    @staticmethod
+    def list_accumulated_rewards(data, user_identity):
+        all_subjects = []
+        for subject in data['subject']:
+            subject = ObjectId(subject)
+            all_subjects.append(subject)
+        event_type = data['event_type'] if data['event_type'] else []
+        if data['from_date']:
+            start_date = datetime.strptime(str(data['from_date']) + " 00:00", "%m-%d-%Y %H:%M")
+        else:
+            start_date = ""
+        if data['to_date']:
+            end_date = datetime.strptime(str(data['to_date']) + " 23:59", "%m-%d-%Y %H:%M")
+        else:
+            end_date = ""
+        query_data = list(mongo_db.db.RewardAccumulate.find().sort("AddedOn", -1))
+        if all_subjects:
+            print("subject")
+            query_data = list(mongo_db.db.RewardAccumulate.find({"SubjectId": {"$in": tuple(all_subjects)}}).\
+                sort("AddedOn", -1))
+
+        if event_type:
+            print("event")
+            query_data = list(mongo_db.db.RewardAccumulate.find({"EventType": {"$in": tuple(event_type)}}).\
+                sort("AddedOn", -1))
+
+        if all_subjects and event_type:
+            print("with event")
+            query_data = list(mongo_db.db.RewardAccumulate.find({"EventType": {"$in": tuple(event_type)},
+                                                                 "SubjectId": {"$in": tuple(all_subjects)}}). \
+                sort("AddedOn", -1))
+
+        if all_subjects and start_date and end_date:
+            print("sub date")
+            query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
+                                                                 "SubjectId": {"$in": tuple(all_subjects)}}).sort(
+                "AddedOn", -1))
+        if event_type and start_date and end_date:
+            print("event date")
+            query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
+                                                                 "EventType": {"$in": tuple(event_type)}}).sort(
+                "AddedOn", -1))
+        if start_date and end_date:
+            print("date")
+            query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date}}).sort(
+                "AddedOn", -1))
+        if all_subjects and event_type and start_date and end_date:
+            print("all filter")
+            query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
+                                                "SubjectId": {"$in": tuple(all_subjects)}, "EventType": {"$in": tuple(event_type)}}).sort("AddedOn", -1))
+
+        all_data = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            all_data.append(val)
+        return all_data
+
+
+
+
