@@ -14,7 +14,6 @@ class PegScoreService:
     def update_allowed_rewards(data):
         configured_reward = mongo_db.db.Rewards.find_one()
         query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(data['SubjectId'])})
-        print(query_data)
         if configured_reward:
             for data_dict in configured_reward['RewardConfig']:
                 if data_dict['eventType'] == "My pain score":
@@ -44,10 +43,13 @@ class PegScoreService:
     def peg_score_details(data, user_identity):
         query_data = list(mongo_db.db.Pegs.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}).\
             sort("AddedOn", -1))
+        if query_data[0]['AddedOn'] >= datetime.utcnow():
 
-        bs = dumps(query_data[0], json_options=RELAXED_JSON_OPTIONS)
-
-        return format_cursor_obj(json.loads(bs))
+            bs = dumps(query_data[0], json_options=RELAXED_JSON_OPTIONS)
+            peg_data = format_cursor_obj(json.loads(bs))
+        else:
+            peg_data = {}
+        return peg_data
 
 
 class OnGoingFeedbackService:
@@ -99,18 +101,24 @@ class SatisfactionService:
         satisfaction_query_data = list(mongo_db.db.Satisfaction.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}). \
                           sort("AddedOn", -1))
 
-        bs = dumps(satisfaction_query_data[0], json_options=RELAXED_JSON_OPTIONS)
+        created_date = satisfaction_query_data[0]
+        if created_date['AddedOn'] >= datetime.utcnow():
+            bs = dumps(satisfaction_query_data[0], json_options=RELAXED_JSON_OPTIONS)
+            satisfaction = format_cursor_obj(json.loads(bs))
+        else:
+            satisfaction = {}
 
         if peg_query_data and satisfaction_query_data:
             recommendation = SatisfactionService.recommendation(peg_query_data[0], satisfaction_query_data[0])
         else:
             recommendation = "No recommendations"
-        satisfaction = format_cursor_obj(json.loads(bs))
-        satisfaction['recommendation'] = recommendation
-        if peg_query_data:
-            satisfaction['peg_score'] = peg_query_data[0]['Percentage']
-        else:
-            satisfaction['peg_score'] = 0
+
+        if satisfaction:
+            satisfaction['recommendation'] = recommendation
+            if peg_query_data:
+                satisfaction['peg_score'] = peg_query_data[0]['Percentage']
+            else:
+                satisfaction['peg_score'] = 0
         return satisfaction
 
 

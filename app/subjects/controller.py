@@ -5,7 +5,7 @@ from flask import request
 from flask import Response as flask_response
 from flask import make_response
 from app.response import Response
-from flask_jwt_extended import  get_jwt_identity
+from flask_jwt_extended import  get_jwt_identity, get_jwt
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
@@ -166,7 +166,7 @@ class PainDetailsExport(Resource):
 @api.route("/subject/rewards")
 @api.doc(payload={'subject': 'Array of Subject IDs- 60bb10c89cf5432080d40346 ', "from_date": "%m-%d-%Y",
                   "to_date": "%m-%d-%Y", "event_type": "Array of event type names"})
-class PainDetailsExport(Resource):
+class ListRewards(Resource):
     """
     Class for list rewards
     """
@@ -187,3 +187,90 @@ class PainDetailsExport(Resource):
         data = RewardRedemption.list_accumulated_rewards(filters=data, user_identity=claims)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="Pain Details")
+
+
+@api.route("/subject/reward-redeem")
+@api.doc(payload={'subject': 'Array of Subject IDs- 60bb10c89cf5432080d40346 ', "event_type": "Array of event type names"})
+class ListRedemption(Resource):
+    """
+    Class for list Redemption
+    """
+    # @jwt_required()
+    def post(self):
+        """
+        Return all Redemption
+        """
+        claims = ""
+        payload = request.json
+        data = {
+            'subject': payload['subject'] if 'subject' in payload else "",
+            "event_type": payload['event_type'] if 'event_type' in payload else []
+        }
+
+        data = RewardRedemption.list_accumulated_reward_redemption(filters=data, user_identity=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Pain Details")
+
+
+@api.route("/subject/reward-redeem")
+@api.doc(payload={'subject': 'Array of Subject IDs- 60bb10c89cf5432080d40346 ', "event_type": "Array of event type names"})
+class ListRedemption(Resource):
+    """
+    Class for list Redemption
+    """
+    @jwt_required()
+    def post(self):
+        """
+        Return all Redemption
+        """
+        claims = ""
+        payload = request.json
+        data = {
+            'subject': payload['subject'] if 'subject' in payload else "",
+            "event_type": payload['event_type'] if 'event_type' in payload else []
+        }
+
+        data = RewardRedemption.list_accumulated_reward_redemption(filters=data, user_identity=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Redemption Details")
+
+
+@api.route("/subject/redeem")
+@api.doc(payload={'subject': 'Array of Subject IDs- 60bb10c89cf5432080d40346 ', "points": "redeem points"})
+class CreateListRedemption(Resource):
+    """
+    Class for calculate Redemption
+    """
+    @jwt_required()
+    def post(self):
+        """
+        Create all Redemption
+        """
+        try:
+            claims = get_jwt()
+            payload = request.json
+            data = RewardRedemption.reward_redemption(payload, user_identity=claims)
+            return Response.success(response_data=data,
+                                    status_code=HttpStatusCode.OK, message="Redemption Details")
+        except ValidationError as err:
+            return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message=list(err.messages.values())[0][0])
+
+    @jwt_required()
+    def get(self):
+        """
+        Create all Redemption
+        """
+        try:
+            claims = get_jwt()
+            parameters = {
+                'subject': ""
+            }
+
+            if 'subject' in request.args and request.args.get('subject'):
+                parameters['subject'] = request.args.get('subject')
+
+            data = RewardRedemption.list_reward_redemption(filters=parameters, user_identity=claims)
+            return Response.success(response_data=data,
+                                        status_code=HttpStatusCode.OK, message="Redemption Details")
+        except ValidationError as err:
+            return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message=list(err.messages.values())[0][0])
