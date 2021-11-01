@@ -1,4 +1,5 @@
-from app.home.services import PegScoreService, OnGoingFeedbackService, SatisfactionService
+from app.home.services import PegScoreService, OnGoingFeedbackService, SatisfactionService, AdminHomeStatisticsService, \
+    AdminHomeGraphService
 
 
 class PegScoreDelegate:
@@ -33,3 +34,29 @@ class SatisfactionDelegate:
         data = SatisfactionService.satisfaction_score_details(filters, user_identity)
         return data
 
+class AdminHomeDelegate:
+
+    @staticmethod
+    def get_admin_home_statistics(parameters):
+        data = AdminHomeStatisticsService.get_admin_home_statistics(parameters)
+        return data
+
+    @staticmethod
+    def get_admin_home_patients(parameters):
+        data = AdminHomeGraphService.get_admin_home_patients(parameters)
+        return data
+
+    @staticmethod
+    def get_admin_home_treatments(parameters, claims):
+        data = AdminHomeGraphService.get_admin_home_treatments(parameters, claims)
+        return data
+
+    @staticmethod
+    def get_admin_home_surveys(parameters):
+        data = AdminHomeGraphService.get_admin_home_surveys(parameters)
+        return data
+
+    @staticmethod
+    def get_admin_home_pain_type(parameters, claims):
+        data = AdminHomeGraphService.get_admin_home_pain_type(parameters, claims)
+        return data

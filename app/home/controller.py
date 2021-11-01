@@ -12,7 +12,7 @@ from app.exceptions import FileNotSelected, FileUploadException, FileFormatExcep
 from app.utils import file_service_util
 from app.home.schemas import PegScore, FeedBack, Satisfaction
 # from app import constants
-from app.home.delegates import PegScoreDelegate, OnGoingFeedBack, SatisfactionDelegate
+from app.home.delegates import PegScoreDelegate, OnGoingFeedBack, SatisfactionDelegate, AdminHomeDelegate
 from flask_restx import Api, Resource, fields
 
 api = Namespace("Home", description="Namespace for Home")
@@ -116,3 +116,59 @@ class CreateSatisfactionDetails(Resource):
         data = SatisfactionDelegate.satisfaction_score_details(filters=parameters, user_identity=claims)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="Satisfaction score details")
+
+
+@api.route("/home/admin/statistics")
+class AdminHomeStatistics(Resource):
+    @jwt_required()
+    def get(self):
+        parameters = {}
+        data = AdminHomeDelegate.get_admin_home_statistics(parameters=parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Admin home statistics fetched successsfully")
+
+@api.route("/home/admin/patients")
+class AdminHomePatientsGraph(Resource):
+    @jwt_required()
+    def get(self):
+        parameters = {
+            "frequency": request.args.get("frequency")
+        }
+        data = AdminHomeDelegate.get_admin_home_patients(parameters=parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Graph Details for patients fetched successsfully")
+
+@api.route("/home/admin/treatments")
+class AdminHomeTreatmentsGraph(Resource):
+    @jwt_required()
+    def get(self):
+        claims = {"authorization": request.headers.get('Authorization'), "subject_id": get_jwt_identity()}
+        parameters = {
+            "frequency": request.args.get("frequency")
+        }
+        data = AdminHomeDelegate.get_admin_home_treatments(parameters=parameters, claims=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Graph Details for treatments fetched successsfully")
+
+@api.route("/home/admin/surveys")
+class AdminHomeSurveysGraph(Resource):
+    @jwt_required()
+    def get(self):
+        parameters = {
+            "frequency": request.args.get("frequency")
+        }
+        data = AdminHomeDelegate.get_admin_home_surveys(parameters=parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Graph Details for surveys fetched successsfully")
+
+@api.route("/home/admin/pain_type")
+class AdminHomePainTypeGraph(Resource):
+    @jwt_required()
+    def get(self):
+        claims = {"authorization": request.headers.get('Authorization'), "subject_id": get_jwt_identity()}
+        parameters = {
+            "frequency": request.args.get("frequency")
+        }
+        data = AdminHomeDelegate.get_admin_home_pain_type(parameters=parameters, claims=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Graph Details for pain type fetched successsfully")

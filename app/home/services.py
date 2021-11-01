@@ -2,12 +2,14 @@ from app import ma, response, mongo_db
 
 import json
 import re
-
-from datetime import date, datetime
+import pytz
+from datetime import date, datetime, timedelta
 from bson.objectid import ObjectId
 from bson.json_util import dumps, RELAXED_JSON_OPTIONS
 from app.utils.mongo_encoder import format_cursor_obj
-
+from bson.codec_options import CodecOptions
+from app.utils.http_service_util import perform_http_request
+from app.base_urls import VIP_BACKEND_URL
 
 class PegScoreService:
     @staticmethod
@@ -141,5 +143,259 @@ class SatisfactionService:
                 return "No recommendations"
 
 
+class AdminHomeStatisticsService:
 
+    @staticmethod
+    def get_total_counts(model, start_date, end_date):
+        if model == "Subjects":
+            query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": start_date, '$gte': end_date}}).count()
+        elif model == "Surveys":
+            query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": start_date, '$gte': end_date}}).count()
+        elif model == "Logs":
+            query_data = mongo_db.db.Logs.find({"DateOfLog": {"$lte": start_date, '$gte': end_date}}).count()
+        elif model == "EducationalVideos":
+            query_data = mongo_db.db.EducationalVideos.find({"PostedOn": {"$lte": start_date, '$gte': end_date}}).count()
+        return query_data 
 
+    @staticmethod
+    def get_date_details(date_data_one, date_data_two):
+        start_date = datetime.strptime(str(date_data_one) + " 23", "%Y-%m-%d %H")
+        end_date = datetime.strptime(str(date_data_two) + " 00", "%Y-%m-%d %H")
+        return start_date, end_date
+
+    @staticmethod
+    def get_percentage_change(current_week_count, last_week_count):
+        if current_week_count > last_week_count:
+            change_type = "Increase"
+            percentage_change = ((current_week_count - last_week_count)/current_week_count)*100
+        elif current_week_count < last_week_count:
+            change_type = "Decrease"
+            percentage_change = ((last_week_count - current_week_count)/last_week_count)*100
+        else:
+            percentage_change = 0
+            change_type = "Unchanged"
+        return percentage_change, change_type
+
+    @staticmethod
+    def get_admin_home_statistics(parameters):
+        response_data = []
+        date_today = date.today()
+        week_ago = date_today - timedelta(days=7)
+        two_week_ago = date_today - timedelta(days=14)
+        model = "Subjects"
+        start_date, end_date = AdminHomeStatisticsService.get_date_details(date_today, week_ago)
+        current_week_count = AdminHomeStatisticsService.get_total_counts(model ,start_date, end_date)
+        start_date, end_date = AdminHomeStatisticsService.get_date_details(week_ago, two_week_ago)
+        last_week_count = AdminHomeStatisticsService.get_total_counts(model ,start_date, end_date)
+        percentage_change, change_type = AdminHomeStatisticsService.get_percentage_change(current_week_count, last_week_count)
+        response_data.append({
+            "key": "patients",
+            "percentage_change": percentage_change,
+            "count": current_week_count,
+            "change": change_type
+        })
+        model = "Surveys"
+        start_date, end_date = AdminHomeStatisticsService.get_date_details(date_today, week_ago)
+        current_week_count = AdminHomeStatisticsService.get_total_counts(model ,start_date, end_date)
+        start_date, end_date = AdminHomeStatisticsService.get_date_details(week_ago, two_week_ago)
+        last_week_count = AdminHomeStatisticsService.get_total_counts(model ,start_date, end_date)
+        percentage_change, change_type = AdminHomeStatisticsService.get_percentage_change(current_week_count, last_week_count)
+        response_data.append({
+            "key": "surveys",
+            "percentage_change": percentage_change,
+            "count": current_week_count,
+            "change": change_type
+        })
+        model = "Logs"
+        start_date, end_date = AdminHomeStatisticsService.get_date_details(date_today, week_ago)
+        current_week_count = AdminHomeStatisticsService.get_total_counts(model ,start_date, end_date)
+        start_date, end_date = AdminHomeStatisticsService.get_date_details(week_ago, two_week_ago)
+        last_week_count = AdminHomeStatisticsService.get_total_counts(model ,start_date, end_date)
+        percentage_change, change_type = AdminHomeStatisticsService.get_percentage_change(current_week_count, last_week_count)
+        response_data.append({
+            "key": "logs",
+            "percentage_change": percentage_change,
+            "count": current_week_count,
+            "change": change_type
+        })
+        model = "EducationalVideos"
+        start_date, end_date = AdminHomeStatisticsService.get_date_details(date_today, week_ago)
+        current_week_count = AdminHomeStatisticsService.get_total_counts(model ,start_date, end_date)
+        start_date, end_date = AdminHomeStatisticsService.get_date_details(week_ago, two_week_ago)
+        last_week_count = AdminHomeStatisticsService.get_total_counts(model ,start_date, end_date)
+        percentage_change, change_type = AdminHomeStatisticsService.get_percentage_change(current_week_count, last_week_count)
+        response_data.append({
+            "key": "educational_videos",
+            "percentage_change": percentage_change,
+            "count": current_week_count,
+            "change": change_type
+        })     
+        return response_data
+
+class AdminHomeGraphService:
+
+    @staticmethod
+    def format_dates(frequency):
+        if frequency == "Today":
+            date_today = date.today()
+            start_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        elif frequency == "Weekly":
+            date_today = date.today()
+            week_ago = date_today - timedelta(days=7)
+            start_date = datetime.strptime(str(week_ago) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        elif frequency == "Monthly":
+            date_today = date.today()
+            month_ago = date_today - timedelta(days=30)
+            start_date = datetime.strptime(str(month_ago) + " 00", "%Y-%m-%d %H")
+            end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        return start_date, end_date
+
+    @staticmethod
+    def get_admin_home_patients(parameters):
+        frequency = parameters.get('frequency')
+        all_data = []
+        if frequency == "Today":
+            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
+            query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).count()
+            dict={}
+            dict['patient_count'] = query_data
+            dict['date'] = start_date.strftime('%m-%d-%Y')
+            all_data.append(dict)
+
+        elif frequency == "Weekly":
+            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
+            query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).sort('AddedOn', -1)
+            l1 = []
+            for data in query_data:
+                dict = {}
+                if str(data['AddedOn'].date()) not in l1:
+                    l1.append(str(data['AddedOn'].date()))
+                    start_date = datetime.strptime(str(data['AddedOn'].date()) + " 00", "%Y-%m-%d %H")
+                    end_date = datetime.strptime(str(data['AddedOn'].date()) + " 23", "%Y-%m-%d %H")
+                    query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).count()
+                    dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
+                    dict['patient_count'] = query_data
+                    all_data.append(dict)
+               
+        elif frequency == "Monthly":
+            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
+            query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).sort('AddedOn', -1)
+            l1 = []
+            for data in query_data:
+                dict = {}
+                if str(data['AddedOn'].date()) not in l1:
+                    l1.append(str(data['AddedOn'].date()))
+                    start_date = datetime.strptime(str(data['AddedOn'].date()) + " 00", "%Y-%m-%d %H")
+                    end_date = datetime.strptime(str(data['AddedOn'].date()) + " 23", "%Y-%m-%d %H")
+                    query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).count()
+                    dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
+                    dict['patient_count'] = query_data
+                    all_data.append(dict)
+        return all_data
+
+    @staticmethod
+    def get_admin_home_treatments(parameters, claims):
+        frequency = parameters.get('frequency')
+        all_data = []
+        subject_id = claims['subject_id']
+        if frequency == "Today":
+            response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopTreatmentsForOtherUsers?dateCategory=Day&patientId={subject_id}', claims['authorization'], 
+            body={}, request_method="GET")
+            if response_data_today.get('responseCode') == 200:
+                response = response_data_today.get('data')[0:2]
+                return response
+            return []
+
+        elif frequency == "Weekly":
+            response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopTreatmentsForOtherUsers?dateCategory=Week&patientId={subject_id}', claims['authorization'], 
+            body={}, request_method="GET")
+            if response_data_today.get('responseCode') == 200:
+                response = response_data_today.get('data')[0:2]
+                return response
+            return []
+               
+        elif frequency == "Monthly":
+            response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopTreatmentsForOtherUsers?dateCategory=Month&patientId={subject_id}', claims['authorization'], 
+            body={}, request_method="GET")
+            if response_data_today.get('responseCode') == 200:
+                response = response_data_today.get('data')[0:2]
+                return response
+            return []
+
+        return all_data
+
+    @staticmethod
+    def get_admin_home_surveys(parameters):
+        frequency = parameters.get('frequency')
+        all_data = []
+        if frequency == "Today":
+            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
+            query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).count()
+            dict={}
+            dict['survey_count'] = query_data
+            dict['date'] = start_date.strftime('%m-%d-%Y')
+            all_data.append(dict)
+
+        elif frequency == "Weekly":
+            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
+            query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).sort('CreatedOn', -1)
+            l1 = []
+            for data in query_data:
+                dict = {}
+                if str(data['CreatedOn'].date()) not in l1:
+                    l1.append(str(data['CreatedOn'].date()))
+                    start_date = datetime.strptime(str(data['CreatedOn'].date()) + " 00", "%Y-%m-%d %H")
+                    end_date = datetime.strptime(str(data['CreatedOn'].date()) + " 23", "%Y-%m-%d %H")
+                    query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).count()
+                    dict['date'] = data['CreatedOn'].strftime('%m-%d-%Y')
+                    dict['survey_count'] = query_data
+                    all_data.append(dict)
+               
+        elif frequency == "Monthly":
+            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
+            query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).sort('CreatedOn', -1)
+            l1 = []
+            for data in query_data:
+                dict = {}
+                if str(data['CreatedOn'].date()) not in l1:
+                    l1.append(str(data['CreatedOn'].date()))
+                    start_date = datetime.strptime(str(data['CreatedOn'].date()) + " 00", "%Y-%m-%d %H")
+                    end_date = datetime.strptime(str(data['CreatedOn'].date()) + " 23", "%Y-%m-%d %H")
+                    query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).count()
+                    dict['date'] = data['CreatedOn'].strftime('%m-%d-%Y')
+                    dict['survey_count'] = query_data
+                    all_data.append(dict)
+        return all_data
+
+    @staticmethod
+    def get_admin_home_pain_type(parameters, claims):
+        frequency = parameters.get('frequency')
+        all_data = []
+        subject_id = claims['subject_id']
+        if frequency == "Today":
+            response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopPainLoggedForOtherUsers?dateCategory=Day&patientId={subject_id}', claims['authorization'], 
+            body={}, request_method="GET")
+            if response_data_today.get('responseCode') == 200:
+                response = response_data_today.get('data')[0:2]
+                return response
+            return []
+
+        elif frequency == "Weekly":
+            response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopPainLoggedForOtherUsers?dateCategory=Week&patientId={subject_id}', claims['authorization'], 
+            body={}, request_method="GET")
+            if response_data_today.get('responseCode') == 200:
+                response = response_data_today.get('data')[0:2]
+                return response
+            return []
+               
+        elif frequency == "Monthly":
+            response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopPainLoggedForOtherUsers?dateCategory=Month&patientId={subject_id}', claims['authorization'], 
+            body={}, request_method="GET")
+            if response_data_today.get('responseCode') == 200:
+                response = response_data_today.get('data')[0:2]
+                return response
+            return []
+
+        return all_data
