@@ -28,12 +28,24 @@ class AuditService:
         mongo_db.db.AuditLog.insert_one(data)
 
     @staticmethod
-    def get_all_logs(data, user_identity):
+    def get_all_logs(filters, user_identity):
+
+        sorted_by = filters.get('order')
+        limit_by = filters.get('limit')
+        order_by = -1 if sorted_by == "desc" else 1
+        page = filters.get("page")
 
         user = check_user_by_id(mongo_db, user_identity)
         if not user:
             raise UserDoesNotExist
 
-        query_data = list(mongo_db.db.AuditLog.find({}).sort("created_at", -1))
+        query_data = list(mongo_db.db.AuditLog.find({}).skip((page-1) * limit_by).limit(limit_by).sort("created_at", order_by).limit(limit_by))
+        total_count = mongo_db.db.AuditLog.find({}).count()
         bs = dumps(query_data, json_options=RELAXED_JSON_OPTIONS)
-        return format_cursor_obj(json.loads(bs))
+
+        response_data = {
+            'audit_logs': format_cursor_obj(json.loads(bs)),
+            'total_count': total_count
+        }
+
+        return response_data
