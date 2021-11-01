@@ -12,7 +12,7 @@ from app.utils import file_service_util
 from app.flask_jwt import jwt_required
 # from app import constants
 from app.subjects.delegates import SubjectImportDelegate
-from app.subjects.delegates import SubjectDelegate
+from app.subjects.delegates import SubjectDelegate, RewardRedemption
 from flask_restx import Api, Resource, fields
 
 
@@ -162,3 +162,28 @@ class PainDetailsExport(Resource):
         resp.headers['Content-Disposition'] = 'attachment;filename=subjects.xls'
         return resp
 
+
+@api.route("/subject/rewards")
+@api.doc(payload={'subject': 'Array of Subject IDs- 60bb10c89cf5432080d40346 ', "from_date": "%m-%d-%Y",
+                  "to_date": "%m-%d-%Y", "event_type": "Array of event type names"})
+class PainDetailsExport(Resource):
+    """
+    Class for list rewards
+    """
+    @jwt_required()
+    def post(self):
+        """
+        Return all rewards
+        """
+        claims = ""
+        payload = request.json
+        data = {
+            'subject': payload['subject'] if 'subject' in payload else [],
+            "event_type": payload['event_type'] if 'event_type' in payload else [],
+            "from_date": payload['from_date'] if 'from_date' in payload else "",
+            "to_date": payload['to_date'] if 'to_date' in payload else ""
+        }
+
+        data = RewardRedemption.list_accumulated_rewards(filters=data, user_identity=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Pain Details")

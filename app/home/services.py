@@ -11,17 +11,33 @@ from app.utils.mongo_encoder import format_cursor_obj
 
 class PegScoreService:
     @staticmethod
+    def update_allowed_rewards(data):
+        configured_reward = mongo_db.db.Rewards.find_one()
+        query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(data['SubjectId'])})
+        print(query_data)
+        if configured_reward:
+            for data_dict in configured_reward['RewardConfig']:
+                if data_dict['eventType'] == "My pain score":
+                    dict = {}
+                    dict['RewardAccumulated'] = data_dict['points']
+                    dict['SubjectId'] = ObjectId(data['SubjectId'])
+                    dict['Name'] = query_data['Name']
+                    print("dvdbhjdfv")
+                    dict['EventType'] = data_dict['eventType']
+                    dict['AddedOn'] = datetime.utcnow()
+                    create_date = mongo_db.db.RewardAccumulate.insert_one(dict)
+
+    @staticmethod
     def create_peg_score_record(data, user_identity):
         data['AddedOn'] = datetime.utcnow()
         data['SubjectId'] = ObjectId(data['SubjectId'])
         total = 0
         for record in data['QuestionAnswers']:
             total = total+record['value']
-
         data['Percentage'] = int(total/3)
         data['IsActive'] = True
         create_date = mongo_db.db.Pegs.insert_one(data)
-
+        PegScoreService.update_allowed_rewards(data)
         return create_date
 
     @staticmethod
@@ -37,14 +53,29 @@ class PegScoreService:
 class OnGoingFeedbackService:
     @staticmethod
     def create_on_going_feedback(data, user_identity):
-        data['AddedOn'] = datetime.utcnow()
-        data['SubjectId'] = ObjectId(data['SubjectId'])
-        data['Feedback'] = int(data['Feedback'])
+        data['added_on'] = datetime.utcnow()
+        data['subject_id'] = ObjectId(data['subject_id'])
+        data['feedback'] = int(data['feedback'])
         create_data = mongo_db.db.Feedback.insert_one(data)
         return create_data
 
 
 class SatisfactionService:
+    @staticmethod
+    def update_allowed_rewards(data):
+        configured_reward = mongo_db.db.Rewards.find_one()
+        query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(data['SubjectId'])})
+        if configured_reward:
+            for data_dict in configured_reward['RewardConfig']:
+                if data_dict['eventType'] == "My satisfaction score":
+                    dict = {}
+                    dict['RewardAccumulated'] = data_dict['points']
+                    dict['SubjectId'] = ObjectId(data['SubjectId'])
+                    dict['Name'] = query_data['Name']
+                    dict['EventType'] = data_dict['eventType']
+                    dict['AddedOn'] = datetime.utcnow()
+                    create_date = mongo_db.db.RewardAccumulate.insert_one(dict)
+
     @staticmethod
     def take_integer_from_string(data):
         if data == "NA":
@@ -58,6 +89,7 @@ class SatisfactionService:
         data['SubjectId'] = ObjectId(data['SubjectId'])
         data['IsActive'] = True
         create_date = mongo_db.db.Satisfaction.insert_one(data)
+        SatisfactionService.update_allowed_rewards(data)
         return create_date
 
     @staticmethod
@@ -75,10 +107,10 @@ class SatisfactionService:
             recommendation = "No recommendations"
         satisfaction = format_cursor_obj(json.loads(bs))
         satisfaction['recommendation'] = recommendation
-        # if peg_query_data:
-        #     satisfaction['peg_score'] = peg_query_data[0]['Percentage']
-        # else:
-        #     satisfaction['peg_score'] = 0
+        if peg_query_data:
+            satisfaction['peg_score'] = peg_query_data[0]['Percentage']
+        else:
+            satisfaction['peg_score'] = 0
         return satisfaction
 
 
