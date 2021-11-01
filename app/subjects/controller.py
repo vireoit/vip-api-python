@@ -164,14 +164,16 @@ class PainDetailsExport(Resource):
 
 
 @api.route("/subject/rewards")
+@api.doc(payload={'subject': 'Array of Subject IDs- 60bb10c89cf5432080d40346 ', "from_date": "%m-%d-%Y",
+                  "to_date": "%m-%d-%Y", "event_type": "Array of event type names"})
 class PainDetailsExport(Resource):
     """
     Class for list rewards
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         """
-        Return all subjects
+        Return all rewards
         """
         claims = ""
         payload = request.json
