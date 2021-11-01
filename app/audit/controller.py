@@ -51,12 +51,27 @@ class AuditLog(Resource):
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message="Validation Error Occurred")
 
     @jwt_required()
-    def get(self, id):
+    @api.doc(params={'limit': '10 - Int', "order": "asc or desc", "page": "1 or 2 or 3 , etc - Int"})
+    def get(self):
         """
         Return all logs
         """
         current_user = get_jwt_identity()
-        parameters = {}
+        parameters = {
+            'limit': 10,
+            'order': 'desc',
+            'page': 1
+        }
+
+        if 'limit' in request.args and request.args.get('limit'):
+            parameters['limit'] = int(request.args.get('limit'))
+        if 'page_size' in request.args and request.args.get('page_size'):
+            parameters['page_size'] = int(request.args.get('page_size'))
+        if 'order' in request.args and request.args.get('order'):
+            parameters['order'] = str(request.args.get('order'))
+
+        if 'page' in request.args and request.args.get('page'):
+            parameters['page'] = int(request.args.get('page'))
 
         data = AuditLogDelegate.get_all_logs(filters=parameters, user_identity=current_user)
         return Response.success(response_data=data,
