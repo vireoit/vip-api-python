@@ -1,4 +1,4 @@
-FROM sfmdocker/inscholaris_base_python:1.55
+FROM python:3.7
 
 ENV PYTHONUNBUFFERED 1
 ENV FLASK_ENV test
@@ -7,7 +7,7 @@ ARG GIT_ACCESS_TOKEN
 
 WORKDIR /app
 
-COPY requirements.txt /app/requirements.txt
+COPY requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 
