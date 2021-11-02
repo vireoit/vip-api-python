@@ -184,7 +184,7 @@ class ListRewards(Resource):
     """
     Class for list rewards
     """
-    # @jwt_required()
+    @jwt_required()
     def get(self):
         """
         Return all rewards
