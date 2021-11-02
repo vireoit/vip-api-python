@@ -3,7 +3,7 @@ from app import ma, response, mongo_db
 import json
 import re
 
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from bson.objectid import ObjectId
 from bson.json_util import dumps, RELAXED_JSON_OPTIONS
 from app.utils.mongo_encoder import format_cursor_obj
@@ -149,5 +149,79 @@ class SatisfactionService:
                 return "No recommendations"
 
 
+class RewardRedemptionService:
+    @staticmethod
+    def calculate_redemption(data):
+        total_reward_accumulated = 0
+        total_redeemed_point = 0
+        balance_reward = 0
+        if data:
+            subject = data[0]['SubjectId']
+            for data_dict in data:
+                total_reward_accumulated = total_reward_accumulated + data_dict['RewardAccumulated']
+            redemption = list(mongo_db.db.RedeemedRecord.find({"SubjectId": subject}))
+            if redemption:
+                for data_dict in redemption:
+                    total_redeemed_point = total_redeemed_point + data_dict['redeemed_points']
+            balance_reward = total_reward_accumulated - total_redeemed_point
+        return {
+            "total_reward_accumulated": total_reward_accumulated,
+            "total_redeemed_point": total_redeemed_point,
+            "balance_reward": balance_reward
+        }
 
+    @staticmethod
+    def list_accumulated_reward_redemption(data, user_identity):
+        if data['subject']:
+            subject = ObjectId(data['subject'])
+        else:
+            subject = ""
+        frequency = data['frequency'] if data['frequency'] else ""
+        redemption_data = {}
+        query_data = []
+        if subject:
+            query_data = list(mongo_db.db.RewardAccumulate.find({"SubjectId": subject}))
+            redemption_data = RewardRedemptionService.calculate_redemption(query_data)
 
+        if subject and frequency:
+            if frequency == "today":
+                query_data = list(mongo_db.db.RewardAccumulate.find({"SubjectId": subject}))
+                redemption_data = RewardRedemptionService.calculate_redemption(query_data)
+                date_today = date.today()
+                start_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
+                end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+                query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
+                                                         "SubjectId": subject, "IsActive": True}). \
+                                  sort("AddedOn", -1))
+
+            elif frequency == "week":
+                query_data = list(mongo_db.db.RewardAccumulate.find({"SubjectId": subject}))
+                redemption_data = RewardRedemptionService.calculate_redemption(query_data)
+                date_today = date.today()
+                week_ago = date_today - timedelta(days=7)
+                start_date = datetime.strptime(str(week_ago) + " 00", "%Y-%m-%d %H")
+                end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+                query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
+                                                         "SubjectId": subject}). \
+                                  sort("AddedOn", -1))
+
+            elif frequency == "month":
+                query_data = list(mongo_db.db.RewardAccumulate.find({"SubjectId": subject}))
+                redemption_data = RewardRedemptionService.calculate_redemption(query_data)
+                date_today = date.today()
+                month_ago = date_today - timedelta(days=30)
+                start_date = datetime.strptime(str(month_ago) + " 00", "%Y-%m-%d %H")
+                end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+                query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
+                                                         "SubjectId": subject}). \
+                                  sort("AddedOn", -1))
+
+        all_data = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            all_data.append(val)
+        return {
+            "reward": all_data,
+            "redemption": redemption_data
+        }

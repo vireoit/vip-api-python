@@ -1,4 +1,5 @@
-from app.home.services import PegScoreService, OnGoingFeedbackService, SatisfactionService
+from app.home.services import PegScoreService, OnGoingFeedbackService, SatisfactionService,\
+    RewardRedemptionService
 
 
 class PegScoreDelegate:
@@ -33,3 +34,9 @@ class SatisfactionDelegate:
         data = SatisfactionService.satisfaction_score_details(filters, user_identity)
         return data
 
+
+class RewardRedemption:
+    @staticmethod
+    def list_accumulated_rewards(filters, user_identity):
+        data = RewardRedemptionService.list_accumulated_reward_redemption(filters, user_identity)
+        return data
