@@ -12,6 +12,7 @@ from app.exceptions import FileNotSelected, FileUploadException, FileFormatExcep
 from app.utils import file_service_util
 from app.home.schemas import PegScore, FeedBack, Satisfaction
 # from app import constants
+from app.home.delegates import PegScoreDelegate, OnGoingFeedBack, SatisfactionDelegate, AdminHomeDelegate
 from app.home.delegates import PegScoreDelegate, OnGoingFeedBack, SatisfactionDelegate, RewardRedemption
 from flask_restx import Api, Resource, fields
 
@@ -118,6 +119,65 @@ class CreateSatisfactionDetails(Resource):
                                 status_code=HttpStatusCode.OK, message="Satisfaction score details")
 
 
+@api.route("/home/admin/statistics")
+class AdminHomeStatistics(Resource):
+    @jwt_required()
+    def get(self):
+        parameters = {}
+        data = AdminHomeDelegate.get_admin_home_statistics(parameters=parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Admin home statistics fetched successsfully")
+
+@api.route("/home/admin/patients")
+@api.doc(paylod={'frequency': 'Today/Weekly/Monthly'})
+class AdminHomePatientsGraph(Resource):
+    @jwt_required()
+    def get(self):
+        parameters = {
+            "frequency": request.args.get("frequency")
+        }
+        data = AdminHomeDelegate.get_admin_home_patients(parameters=parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Graph Details for patients fetched successsfully")
+
+@api.route("/home/admin/treatments")
+@api.doc(paylod={'frequency': 'Today/Weekly/Monthly'})
+class AdminHomeTreatmentsGraph(Resource):
+    @jwt_required()
+    def get(self):
+        claims = {"authorization": request.headers.get('Authorization'), "subject_id": get_jwt_identity()}
+        parameters = {
+            "frequency": request.args.get("frequency")
+        }
+        data = AdminHomeDelegate.get_admin_home_treatments(parameters=parameters, claims=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Graph Details for treatments fetched successsfully")
+
+@api.route("/home/admin/surveys")
+@api.doc(paylod={'frequency': 'Today/Weekly/Monthly'})
+class AdminHomeSurveysGraph(Resource):
+    @jwt_required()
+    def get(self):
+        parameters = {
+            "frequency": request.args.get("frequency")
+        }
+        data = AdminHomeDelegate.get_admin_home_surveys(parameters=parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Graph Details for surveys fetched successsfully")
+
+@api.route("/home/admin/pain_type")
+@api.doc(paylod={'frequency': 'Today/Weekly/Monthly'})
+class AdminHomePainTypeGraph(Resource):
+    @jwt_required()
+    def get(self):
+        claims = {"authorization": request.headers.get('Authorization'), "subject_id": get_jwt_identity()}
+        parameters = {
+            "frequency": request.args.get("frequency")
+        }
+        data = AdminHomeDelegate.get_admin_home_pain_type(parameters=parameters, claims=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Graph Details for pain type fetched successsfully")
+
 @api.route("/home/rewards")
 @api.doc(payload={'subject': 'Subject IDs- 60bb10c89cf5432080d40346 ', "frequency": "today, week, month"})
 class ListRewards(Resource):
@@ -138,3 +198,4 @@ class ListRewards(Resource):
         data = RewardRedemption.list_accumulated_rewards(filters=parameters, user_identity=claims)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="List of rewards")
+
