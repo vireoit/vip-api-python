@@ -1,5 +1,6 @@
 from .response import Response
 
+
 class FileNotSelected(Exception):
     def __init__(self, param_name, message="No file selected for uploading"):
         self.message = message + " " + param_name
@@ -27,6 +28,13 @@ class FileTypeException(Exception):
 class UserDoesNotExist(Exception):
 
     def __init__(self, message="User does not exist"):
+        self.message = message
+
+        super().__init__(self.message)
+
+
+class RedeemedPoint(Exception):
+    def __init__(self, message="Value is greater than the available balance"):
         self.message = message
 
         super().__init__(self.message)

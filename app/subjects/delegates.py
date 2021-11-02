@@ -35,3 +35,18 @@ class RewardRedemption:
     def list_accumulated_rewards(filters, user_identity):
         data = RewardRedemptionService.list_accumulated_rewards(filters, user_identity)
         return data
+
+    @staticmethod
+    def list_accumulated_reward_redemption(filters, user_identity):
+        data = RewardRedemptionService.list_accumulated_reward_redemption(filters, user_identity)
+        return data
+
+    @staticmethod
+    def reward_redemption(payload, user_identity):
+        data = RewardRedemptionService.reward_redemption(payload, user_identity)
+        return data
+
+    @staticmethod
+    def list_reward_redemption(filters, user_identity):
+        data = RewardRedemptionService.list_reward_redemption(filters, user_identity)
+        return data

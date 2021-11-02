@@ -152,6 +152,7 @@ class MedicationImportService:
                     item['CreatedOn'] = datetime.utcnow()
                     item['LastUpdatedOn'] = datetime.utcnow()
                     item['IsActive'] = True
+                    item['Amount'] = item['Amount'] if item['Amount'] else 0
                     all_data.append(item)
                 print(all_data)
                 mongo_db.db.Products.insert_many(all_data)

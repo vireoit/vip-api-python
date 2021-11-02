@@ -52,6 +52,7 @@ class PainDetailGraph(Resource):
 
 
 @api.route("/insights/personal/export")
+@api.doc(params={'patient_id': 'ID of the Patient - 60bb10c89cf5432080d40346 '})
 class InsightsPersonalExport(Resource):
     """
     Class for export files
@@ -69,6 +70,7 @@ class InsightsPersonalExport(Resource):
 
 
 @api.route("/insights/community/export")
+@api.doc(params={'patient_id': 'ID of the Patient - 60bb10c89cf5432080d40346 '})
 class InsightsPersonalExport(Resource):
     """
     Class for export files

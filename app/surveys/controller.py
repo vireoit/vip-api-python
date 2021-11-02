@@ -17,6 +17,7 @@ api = Namespace("Surveys", description="Namespace for Survey report export")
 
 
 @api.route("/survey/export")
+@api.doc(params={'survey_id': 'ID of the Survey', 'subject_ids': 'List of subject ids', 'question_list':'List of questions'})
 class SurveyReportExport(Resource):
     """
     Class for export survey report
@@ -27,9 +28,9 @@ class SurveyReportExport(Resource):
         parameters = {"authorization": request.headers.get('Authorization')}
         data = {
 
-            'surveyId': payload['survey_id'] if 'survey_id' in payload else " ",
-            'subjectIds': payload['subject_ids'] if 'subject_ids' in payload else [],
-            'questionList': payload['question_list'] if 'question_list' in payload else []
+            'survey_id': payload['survey_id'] if 'survey_id' in payload else " ",
+            'subject_ids': payload['subject_ids'] if 'subject_ids' in payload else [],
+            'question_list': payload['question_list'] if 'question_list' in payload else []
         }
         SurveyDelegate.export_survey_reports(filters=data, parameters=parameters)
         resp = make_response('survey_reports.xls')

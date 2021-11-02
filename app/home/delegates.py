@@ -1,5 +1,8 @@
 from app.home.services import PegScoreService, OnGoingFeedbackService, SatisfactionService, AdminHomeStatisticsService, \
     AdminHomeGraphService
+from app.home.services import PegScoreService, OnGoingFeedbackService, SatisfactionService,\
+    RewardRedemptionService
+
 
 
 class PegScoreDelegate:
@@ -33,6 +36,7 @@ class SatisfactionDelegate:
     def satisfaction_score_details(filters, user_identity):
         data = SatisfactionService.satisfaction_score_details(filters, user_identity)
         return data
+      
 
 class AdminHomeDelegate:
 
@@ -59,4 +63,10 @@ class AdminHomeDelegate:
     @staticmethod
     def get_admin_home_pain_type(parameters, claims):
         data = AdminHomeGraphService.get_admin_home_pain_type(parameters, claims)
+
+
+class RewardRedemption:
+    @staticmethod
+    def list_accumulated_rewards(filters, user_identity):
+        data = RewardRedemptionService.list_accumulated_reward_redemption(filters, user_identity)
         return data
