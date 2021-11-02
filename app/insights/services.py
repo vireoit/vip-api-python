@@ -339,12 +339,23 @@ class InsightJournalService:
 
     @staticmethod
     def format_journal_datas(start_date, end_date, patient_id):
+
         journal_list = []
         medication_journal_list = []
-        journal_data = mongo_db.db.Journals.find({"CreatedOn": {"$lte": end_date, '$gte': start_date},
-                                                     "Patient._id": ObjectId(patient_id), "IsActive": True})
-        medication_journal_data = mongo_db.db.MedicationJournals.find({"CreatedOn": {"$lte": end_date, '$gte': start_date},
-                                                    "Patient._id": ObjectId(patient_id), "IsActive": True})
+        start_date = datetime.strftime(start_date, "%m-%d-%Y")
+        start_date = datetime.strptime(str(start_date), "%m-%d-%Y")
+        utc_start_date = start_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
+        in_start_date = datetime.strptime(str(utc_start_date) + " 00:00:01", "%m-%d-%Y %H:%M:%S")
+
+        end_date = datetime.strftime(end_date, "%m-%d-%Y")
+        end_date = datetime.strptime(str(end_date), "%m-%d-%Y")
+        utc_end_date = end_date.astimezone(pytz.utc).strftime("%m-%d-%Y")
+        in_end_date = datetime.strptime(str(utc_end_date) + " 23:59:59", "%m-%d-%Y %H:%M:%S")
+
+        journal_data = mongo_db.db.Journals.find({"JournalDate": {"$lte": in_end_date, '$gte': in_start_date},
+                                                                              "Patient._id": ObjectId(patient_id), "IsActive": True})
+        medication_journal_data = mongo_db.db.MedicationJournals.find({"MedicationJournalDate": {"$lte": in_end_date, '$gte': in_start_date},
+                                                                              "Patient._id": ObjectId(patient_id), "IsActive": True})
         for data in journal_data:
                 bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
                 val = format_cursor_obj(json.loads(bs))
