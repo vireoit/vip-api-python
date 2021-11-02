@@ -31,4 +31,4 @@ class MedicationImportSchema(ma.Schema):
             if not name:
                 raise ValidationError("Medication Name is mandatory", field_name="Medication Name")
             if not is_vireo_product:
-                raise ValidationError("Product Type number is mandatory", field_name="Product Type")
+                raise ValidationError("Product Type is mandatory", field_name="Product Type")
