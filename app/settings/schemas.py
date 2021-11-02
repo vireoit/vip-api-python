@@ -39,7 +39,7 @@ class ResourceConfigurationSchema(ma.Schema):
         if len(resource_title) > 50:
             raise ValidationError("Resource Title can contain maximum of 50 characters", field_name="Resources")
         if description and len(description) > 500:
-            raise ValidationError("Description can contain maximum of 500 characters", field_name="Resources")
+            raise ValidationError("Limit exceeds", field_name="Resources")
         is_link_valid = validators.url(link)
         if is_link_valid != True:
             raise ValidationError("Please add a valid link", field_name="Resources")
