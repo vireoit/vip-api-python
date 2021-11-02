@@ -128,6 +128,7 @@ class AdminHomeStatistics(Resource):
                                 status_code=HttpStatusCode.OK, message="Admin home statistics fetched successsfully")
 
 @api.route("/home/admin/patients")
+@api.doc(paylod={'frequency': 'Today/Weekly/Monthly'})
 class AdminHomePatientsGraph(Resource):
     @jwt_required()
     def get(self):
@@ -139,6 +140,7 @@ class AdminHomePatientsGraph(Resource):
                                 status_code=HttpStatusCode.OK, message="Graph Details for patients fetched successsfully")
 
 @api.route("/home/admin/treatments")
+@api.doc(paylod={'frequency': 'Today/Weekly/Monthly'})
 class AdminHomeTreatmentsGraph(Resource):
     @jwt_required()
     def get(self):
@@ -151,6 +153,7 @@ class AdminHomeTreatmentsGraph(Resource):
                                 status_code=HttpStatusCode.OK, message="Graph Details for treatments fetched successsfully")
 
 @api.route("/home/admin/surveys")
+@api.doc(paylod={'frequency': 'Today/Weekly/Monthly'})
 class AdminHomeSurveysGraph(Resource):
     @jwt_required()
     def get(self):
@@ -162,6 +165,7 @@ class AdminHomeSurveysGraph(Resource):
                                 status_code=HttpStatusCode.OK, message="Graph Details for surveys fetched successsfully")
 
 @api.route("/home/admin/pain_type")
+@api.doc(paylod={'frequency': 'Today/Weekly/Monthly'})
 class AdminHomePainTypeGraph(Resource):
     @jwt_required()
     def get(self):
