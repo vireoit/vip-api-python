@@ -17,6 +17,7 @@ api = Namespace("Surveys", description="Namespace for Survey report export")
 
 
 @api.route("/survey/export")
+@api.doc(params={'survey_id': 'ID of the Survey', 'subject_ids': 'List of subject ids', 'question_list':'List of questions'})
 class SurveyReportExport(Resource):
     """
     Class for export survey report
