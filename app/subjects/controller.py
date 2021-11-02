@@ -186,7 +186,7 @@ class ListRewards(Resource):
 
         data = RewardRedemption.list_accumulated_rewards(filters=data, user_identity=claims)
         return Response.success(response_data=data,
-                                status_code=HttpStatusCode.OK, message="Pain Details")
+                                status_code=HttpStatusCode.OK, message="List rewards")
 
 
 @api.route("/subject/reward-redeem")

@@ -492,14 +492,3 @@ class RewardRedemptionService:
             val = format_cursor_obj(json.loads(bs))
             all_data.append(val)
         return all_data
-
-
-
-
-
-
-
-
-
-
-
