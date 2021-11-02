@@ -12,7 +12,7 @@ from app.exceptions import FileNotSelected, FileUploadException, FileFormatExcep
 from app.utils import file_service_util
 from app.home.schemas import PegScore, FeedBack, Satisfaction
 # from app import constants
-from app.home.delegates import PegScoreDelegate, OnGoingFeedBack, SatisfactionDelegate
+from app.home.delegates import PegScoreDelegate, OnGoingFeedBack, SatisfactionDelegate, RewardRedemption
 from flask_restx import Api, Resource, fields
 
 api = Namespace("Home", description="Namespace for Home")
@@ -116,3 +116,25 @@ class CreateSatisfactionDetails(Resource):
         data = SatisfactionDelegate.satisfaction_score_details(filters=parameters, user_identity=claims)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="Satisfaction score details")
+
+
+@api.route("/home/rewards")
+@api.doc(payload={'subject': 'Subject IDs- 60bb10c89cf5432080d40346 ', "frequency": "today, week, month"})
+class ListRewards(Resource):
+    """
+    Class for list rewards
+    """
+    # @jwt_required()
+    def get(self):
+        """
+        Return all rewards
+        """
+        claims = ""
+        parameters = {
+            "subject": request.args.get("subject"),
+            "frequency": request.args.get("param")
+        }
+
+        data = RewardRedemption.list_accumulated_rewards(filters=parameters, user_identity=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="List of rewards")
