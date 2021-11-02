@@ -62,6 +62,98 @@ class InsightService:
         return today_list, week_list, month_list
 
     @staticmethod
+    def request_others_top_treatment_data(patient_id, user_identity):
+        today_list = []
+        week_list = []
+        month_list = []
+        response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopTreatmentsForOtherUsers?dateCategory=Day&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+            for tod in response_data_today['data']:
+                val = tod['name']+"("+str(tod['percentage'])+"%"+")"
+                today_list.append(val)
+        else:
+            today_list = []
+        response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopTreatmentsForOtherUsers?dateCategory=Week&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+            for week in response_data_weekly['data']:
+                val = week['name']+"("+str(week['percentage'])+"%"+")"
+                week_list.append(val)
+        else:
+            week_list = []
+        response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopTreatmentsForOtherUsers?dateCategory=Month&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+            for month in response_data_monthly['data']:
+                val = month['name']+"("+str(month['percentage'])+"%"+")"
+                month_list.append(val)
+        else:
+            month_list = []
+        return today_list, week_list, month_list
+
+    @staticmethod
+    def request_others_top_pain_in_sleep_data(patient_id, user_identity):
+        today_list = []
+        week_list = []
+        month_list = []
+        response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetPainEffectSleepForOtherUsers?dateCategory=Day&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+            for tod in response_data_today['data']:
+                val = tod['name']+"("+str(tod['percentage'])+"%"+")"
+                today_list.append(val)
+        else:
+            today_list = []
+        response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetPainEffectSleepForOtherUsers?dateCategory=Week&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+            for week in response_data_weekly['data']:
+                val = week['name']+"("+str(week['percentage'])+"%"+")"
+                week_list.append(val)
+        else:
+            week_list = []
+        response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetPainEffectSleepForOtherUsers?dateCategory=Month&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+            for month in response_data_monthly['data']:
+                val = month['name']+"("+str(month['percentage'])+"%"+")"
+                month_list.append(val)
+        else:
+            month_list = []
+        return today_list, week_list, month_list
+
+    def request_others_gel_feedback_data(patient_id, user_identity):
+        today_list = []
+        week_list = []
+        month_list = []
+        response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetFeedbackOtherUsers?dateCategory=Day&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+            for tod in response_data_today['data']:
+                val = tod['name']+"("+str(tod['percentage'])+"%"+")"
+                today_list.append(val)
+        else:
+            today_list = []
+        response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetFeedbackOtherUsers?dateCategory=Week&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+            for week in response_data_weekly['data']:
+                val = week['name']+"("+str(week['percentage'])+"%"+")"
+                week_list.append(val)
+        else:
+            week_list = []
+        response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetFeedbackOtherUsers?dateCategory=Month&patientId={patient_id}', user_identity['authorization'], 
+            body={}, request_method="GET")
+        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+            for month in response_data_monthly['data']:
+                val = month['name']+"("+str(month['percentage'])+"%"+")"
+                month_list.append(val)
+        else:
+            month_list = []
+        return today_list, week_list, month_list
+
+    @staticmethod
     def request_pain_data(patient_id, user_identity):
         response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInMood?subjectId={patient_id}&frequency=Today', user_identity['authorization'], 
             body={}, request_method="GET")
@@ -129,17 +221,31 @@ class InsightService:
         patient_id= parameters.get('patient_id')
         all_data = []
         top_pain_data_today, top_pain_data_weekly, top_pain_data_monthly = InsightService.request_others_top_pain_data(patient_id, user_identity)
+        top_treatment_today, top_treatment_weekly, top_treatment_monthly = InsightService.request_others_top_treatment_data(patient_id, user_identity)
+        pain_effect_sleep_today, pain_effect_sleep_weekly, pain_effect_sleep_monthly = InsightService.request_others_top_pain_in_sleep_data(patient_id, user_identity)
+        capsule_feedback_today, capsule_feedback_weekly, capsule_feedback_monthly = InsightService.request_others_gel_feedback_data(patient_id, user_identity)
+
         all_data.append({
             ' ':'Today', 
-            'Top Pain logged by other users': ",".join(top_pain_data_today) if top_pain_data_today else ''
+            'Top Pain logged by other users': ",".join(top_pain_data_today) if top_pain_data_today else '',
+            'Top treatment logged by other users': ",".join(top_treatment_today) if top_treatment_today else '',
+            'Effect of pain in other users sleep': ",".join(pain_effect_sleep_today) if pain_effect_sleep_today else '',
+            'Soft - Gel capsule feedback from other users': ",".join(capsule_feedback_today) if capsule_feedback_today else ''
         })
+
         all_data.append({
             ' ':'Last 7 Days', 
-            'Top Pain logged by other users': ",".join(top_pain_data_weekly) if top_pain_data_weekly else ''
+            'Top Pain logged by other users': ",".join(top_pain_data_weekly) if top_pain_data_weekly else '',
+            'Top treatment logged by other users': ",".join(top_treatment_weekly) if top_treatment_weekly else '',
+            'Effect of pain in other users sleep': ",".join(pain_effect_sleep_weekly) if pain_effect_sleep_weekly else '',
+            'Soft - Gel capsule feedback from other users': ",".join(capsule_feedback_weekly) if capsule_feedback_weekly else ''
         })
         all_data.append({
             ' ':'Last 30 Days', 
-            'Top Pain logged by other users': ",".join(top_pain_data_monthly) if top_pain_data_monthly else ''
+            'Top Pain logged by other users': ",".join(top_pain_data_monthly) if top_pain_data_monthly else '',
+            'Top treatment logged by other users': ",".join(top_treatment_monthly) if top_treatment_monthly else '',
+            'Effect of pain in other users sleep': ",".join(pain_effect_sleep_monthly) if pain_effect_sleep_monthly else '',
+            'Soft - Gel capsule feedback from other users': ",".join(capsule_feedback_monthly) if capsule_feedback_monthly else ''
         })
         data_file = export_table_data_community(all_data)
         return data_file
