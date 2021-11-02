@@ -486,4 +486,3 @@ class RewardRedemptionService:
             "reward": all_data,
             "redemption": redemption_data
         }
-
