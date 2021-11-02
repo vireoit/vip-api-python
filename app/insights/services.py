@@ -1,3 +1,4 @@
+from bson import is_valid
 from app import ma, response, mongo_db
 from app.utils.mongo_encoder import format_cursor_obj
 
@@ -37,28 +38,25 @@ class InsightService:
         month_list = []
         response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopPainLoggedForOtherUsers?dateCategory=Day&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+        is_valid = response_data_today.get('responseCode') == 200 and response_data_today['data']
+        if is_valid:
             for tod in response_data_today['data']:
                 val = tod['name']+"("+str(tod['percentage'])+"%"+")"
                 today_list.append(val)
-        else:
-            today_list = []
         response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopPainLoggedForOtherUsers?dateCategory=Week&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+        is_valid = response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']
+        if is_valid:
             for week in response_data_weekly['data']:
                 val = week['name']+"("+str(week['percentage'])+"%"+")"
                 week_list.append(val)
-        else:
-            week_list = []
         response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopPainLoggedForOtherUsers?dateCategory=Month&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+        is_valid = response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']
+        if is_valid:
             for month in response_data_monthly['data']:
                 val = month['name']+"("+str(month['percentage'])+"%"+")"
                 month_list.append(val)
-        else:
-            month_list = []
         return today_list, week_list, month_list
 
     @staticmethod
@@ -68,28 +66,25 @@ class InsightService:
         month_list = []
         response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopTreatmentsForOtherUsers?dateCategory=Day&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+        is_valid = response_data_today.get('responseCode') == 200 and response_data_today['data']
+        if is_valid:
             for tod in response_data_today['data']:
                 val = tod['name']+"("+str(tod['percentage'])+"%"+")"
                 today_list.append(val)
-        else:
-            today_list = []
         response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopTreatmentsForOtherUsers?dateCategory=Week&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+        is_valid = response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']
+        if is_valid:
             for week in response_data_weekly['data']:
                 val = week['name']+"("+str(week['percentage'])+"%"+")"
                 week_list.append(val)
-        else:
-            week_list = []
         response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetTopTreatmentsForOtherUsers?dateCategory=Month&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+        is_valid = response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']
+        if is_valid:
             for month in response_data_monthly['data']:
                 val = month['name']+"("+str(month['percentage'])+"%"+")"
                 month_list.append(val)
-        else:
-            month_list = []
         return today_list, week_list, month_list
 
     @staticmethod
@@ -99,28 +94,25 @@ class InsightService:
         month_list = []
         response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetPainEffectSleepForOtherUsers?dateCategory=Day&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+        is_valid = response_data_today.get('responseCode') == 200 and response_data_today['data']
+        if is_valid:
             for tod in response_data_today['data']:
                 val = tod['name']+"("+str(tod['percentage'])+"%"+")"
                 today_list.append(val)
-        else:
-            today_list = []
         response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetPainEffectSleepForOtherUsers?dateCategory=Week&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+        is_valid = response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']
+        if is_valid:
             for week in response_data_weekly['data']:
                 val = week['name']+"("+str(week['percentage'])+"%"+")"
                 week_list.append(val)
-        else:
-            week_list = []
         response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetPainEffectSleepForOtherUsers?dateCategory=Month&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+        is_valid = response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']
+        if is_valid:
             for month in response_data_monthly['data']:
                 val = month['name']+"("+str(month['percentage'])+"%"+")"
                 month_list.append(val)
-        else:
-            month_list = []
         return today_list, week_list, month_list
 
     def request_others_gel_feedback_data(patient_id, user_identity):
@@ -129,43 +121,43 @@ class InsightService:
         month_list = []
         response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetFeedbackOtherUsers?dateCategory=Day&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+        is_valid = response_data_today.get('responseCode') == 200 and response_data_today['data']
+        if is_valid:
             for tod in response_data_today['data']:
                 val = tod['name']+"("+str(tod['percentage'])+"%"+")"
                 today_list.append(val)
-        else:
-            today_list = []
         response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetFeedbackOtherUsers?dateCategory=Week&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+        is_valid = response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']
+        if is_valid:
             for week in response_data_weekly['data']:
                 val = week['name']+"("+str(week['percentage'])+"%"+")"
                 week_list.append(val)
-        else:
-            week_list = []
         response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/CommunityInsights/GetFeedbackOtherUsers?dateCategory=Month&patientId={patient_id}', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+        is_valid = response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']
+        if is_valid:
             for month in response_data_monthly['data']:
                 val = month['name']+"("+str(month['percentage'])+"%"+")"
                 month_list.append(val)
-        else:
-            month_list = []
         return today_list, week_list, month_list
 
     @staticmethod
     def request_pain_data(patient_id, user_identity):
         response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInMood?subjectId={patient_id}&frequency=Today', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_today.get('responseCode') != 200 and not response_data_today['data']:
+        is_invalid = response_data_today.get('responseCode') != 200 and not response_data_today['data']
+        if is_invalid:
             response_data_today = []
         response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInMood?subjectId={patient_id}&frequency=Weekly', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_weekly.get('responseCode') != 200 and not response_data_weekly['data']:
+        is_invalid = response_data_weekly.get('responseCode') != 200 and not response_data_weekly['data']
+        if is_invalid:
             response_data_weekly = []
         response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInMood?subjectId={patient_id}&frequency=Monthly', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_monthly.get('responseCode') != 200 and not response_data_monthly['data']:
+        is_invalid = response_data_monthly.get('responseCode') != 200 and not response_data_monthly['data']
+        if is_invalid:
             response_data_monthly = []
         return response_data_today, response_data_weekly, response_data_monthly
 
@@ -173,19 +165,22 @@ class InsightService:
     def request_sleep_data(patient_id, user_identity):
         response_data_today = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInSleep?subjectId={patient_id}&frequency=Today', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_today.get('responseCode') == 200 and response_data_today['data']:
+        is_valid = response_data_today.get('responseCode') == 200 and response_data_today['data']
+        if is_valid:
             sleep_today = sorted(response_data_today['data'], key=lambda x: x['value'], reverse=True)
         else:
             sleep_today = []
         response_data_weekly = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInSleep?subjectId={patient_id}&frequency=Weekly', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']:
+        is_valid = response_data_weekly.get('responseCode') == 200 and response_data_weekly['data']
+        if is_valid:
             sleep_weekly = sorted(response_data_weekly['data'], key=lambda x: x['value'], reverse=True)
         else:
             sleep_weekly = []
         response_data_monthly = perform_http_request(f'{VIP_BACKEND_URL}/api/PersonalInsights/EffectsOfPainInSleep?subjectId={patient_id}&frequency=Monthly', user_identity['authorization'], 
             body={}, request_method="GET")
-        if response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']:
+        is_valid = response_data_monthly.get('responseCode') == 200 and response_data_monthly['data']
+        if is_valid:
             sleep_monthly = sorted(response_data_monthly['data'], key=lambda x: x['value'], reverse=True)
         else:
             sleep_monthly = []
