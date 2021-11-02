@@ -63,7 +63,7 @@ class AdminHomeDelegate:
     @staticmethod
     def get_admin_home_pain_type(parameters, claims):
         data = AdminHomeGraphService.get_admin_home_pain_type(parameters, claims)
-
+        return data
 
 class RewardRedemption:
     @staticmethod
