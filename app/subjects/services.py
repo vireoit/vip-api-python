@@ -21,6 +21,7 @@ from app.exceptions import RedeemedPoint
 
 from statistics import mode
 
+
 class SubjectImportService:
     @staticmethod
     def send_activation_email(inactive_subjects_query, parameters):
@@ -72,6 +73,7 @@ class SubjectImportService:
                 rt['ActivatedOn'] = datetime.utcnow()
                 rt['AddedOn'] = datetime.utcnow()
                 rt['LastUpdatedOn'] = datetime.utcnow()
+                rt['MyPreferedDispenseries'] =""
                 rt['RefreshTokens'] = [{
                     "_id": "",
                     "Token": "",

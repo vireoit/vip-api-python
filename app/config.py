@@ -23,8 +23,18 @@ class DevelopmentConfig(BaseConfig):
     )
 
 
+class QaConfig(BaseConfig):
+    CONFIG_NAME = "test"
+    DEBUG = True
+    MONGO_DBNAME = "Vireo"
+
+    MONGO_URI = "mongodb+srv://cycloides:cycloides%40123@vireointegrative.z1tl8.mongodb.net/Vireo"
+    SECRET_KEY = os.getenv(
+        "DEV_SECRET_KEY", "You can't see California without Marlon Widgeto's eyes"
+    )
+
 EXPORT_CONFIGS: List[Type[BaseConfig]] = [
-    DevelopmentConfig
+    DevelopmentConfig, QaConfig
 ]
 
 config_by_name = {cfg.CONFIG_NAME: cfg for cfg in EXPORT_CONFIGS}

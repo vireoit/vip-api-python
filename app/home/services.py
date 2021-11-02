@@ -45,8 +45,8 @@ class PegScoreService:
     def peg_score_details(data, user_identity):
         query_data = list(mongo_db.db.Pegs.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}).\
             sort("AddedOn", -1))
-        if query_data[0]['AddedOn'] >= datetime.utcnow():
-
+        check_time = query_data[0]['AddedOn'] + timedelta(days=1)
+        if check_time >= datetime.utcnow():
             bs = dumps(query_data[0], json_options=RELAXED_JSON_OPTIONS)
             peg_data = format_cursor_obj(json.loads(bs))
         else:
@@ -104,7 +104,8 @@ class SatisfactionService:
                           sort("AddedOn", -1))
 
         created_date = satisfaction_query_data[0]
-        if created_date['AddedOn'] >= datetime.utcnow():
+        check_time = created_date['AddedOn'] + timedelta(days=1)
+        if check_time >= datetime.utcnow():
             bs = dumps(satisfaction_query_data[0], json_options=RELAXED_JSON_OPTIONS)
             satisfaction = format_cursor_obj(json.loads(bs))
         else:
@@ -486,4 +487,3 @@ class RewardRedemptionService:
             "reward": all_data,
             "redemption": redemption_data
         }
-
