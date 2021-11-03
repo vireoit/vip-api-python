@@ -16,17 +16,19 @@ WantedBy=multi-user.target
 
 sudo nano /etc/systemd/system/vipqa.service
 
-
+sudo systemctl stop vipqa
+sudo fuser -k 6001/tcp
+sudo chmod -R 777 /mnt/vip/qa/vip_backend_python
+sudo systemctl status vipqa
 sudo systemctl start vipqa
 sudo systemctl status vipqa
+
 sudo journalctl -xn
 sudo systemctl daemon-reload
 sudo systemctl enable vipqa.service
-sudo fuser -k 6001/tcp
 
 pkill -f gunicorn
 ps ax|grep gunicorn
-sudo chmod -R 777 /mnt/vip/qa/vip_backend_python
 
 
 # remove specific file from git cache
