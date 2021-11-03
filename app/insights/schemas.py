@@ -6,7 +6,7 @@ from datetime import date, datetime
 class EventSchema(ma.Schema):
     EventType = fields.List(fields.String(required=True))
     StartDate = fields.Date(required=True)
-    IsOngoing = fields.Boolean(required=True)
+    IsOngoing = fields.Boolean(required=False, allow_none=True)
     IsCannabisProduct = fields.String(required=False, allow_none=True)
     TreatmentInfo = fields.String(required=False, allow_none=True)
     SubjectId = fields.String(required=True)
