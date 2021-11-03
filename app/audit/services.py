@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 from bson.json_util import dumps, RELAXED_JSON_OPTIONS
 
 from app.utils.mongo_encoder import format_cursor_obj
-from app.utils.general import check_user_by_id
+from app.utils.general import check_user_by_id, detect_device
 from app.exceptions import UserDoesNotExist
 
 
@@ -24,6 +24,7 @@ class AuditService:
         data['updated_at'] = datetime.utcnow()
         data['created_at'] = datetime.utcnow()
         data['remote_ip_address'] = request.remote_addr
+        data['device_info'] = detect_device()
 
         mongo_db.db.AuditLog.insert_one(data)
 

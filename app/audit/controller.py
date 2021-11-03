@@ -11,7 +11,7 @@ from app.flask_jwt import jwt_required
 from app.status_constants import HttpStatusCode
 from app.audit.schemas import CreateAuditLog
 from app.audit.delegates import AuditLogDelegate
-from app.utils.general import check_user_by_id
+from app.utils.general import detect_device
 
 api = Namespace("Audit Log", description="Namespace for audit log")
 
