@@ -1,4 +1,6 @@
+import re
 from bson.objectid import ObjectId
+from flask import request
 
 
 def check_user_by_id(mongo_db, user_id):
@@ -19,3 +21,21 @@ def check_user_by_id(mongo_db, user_id):
 
         return user_data
     return user
+
+
+def detect_device():
+
+    browser = request.user_agent.browser
+    version = request.user_agent.version and int(request.user_agent.version.split('.')[0])
+    platform = request.user_agent.platform
+    uas = request.user_agent.string
+
+    device_type = "Web"
+
+    if browser and version:
+
+        if re.search('Mobile', uas):
+            device_type = "Mobile"
+    device = {"browser": browser, "version": version, "platform": platform, "device_type": device_type, "user_agent": uas}
+
+    return device
