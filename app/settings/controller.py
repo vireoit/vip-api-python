@@ -75,7 +75,7 @@ class ResourceConfigurationSettings(Resource):
         resource_settings = ResourceConfigurationDelegate.get_resources_configuration_settings(parameters)
         return Response.success(response_data=resource_settings,
                                 status_code=HttpStatusCode.OK,
-                                message="Resource Configuration Settings fetched succesfully")
+                                message="Resource successfully fetched")
 
     @jwt_required()
     def post(self):
@@ -88,7 +88,7 @@ class ResourceConfigurationSettings(Resource):
             data = ResourceConfigurationDelegate.add_resources_configuration_settings(payload)
             return Response.success(response_data={},
                         status_code=HttpStatusCode.OK,
-                        message="Resource Configuration Settings successfully saved")
+                        message="Resource successfully saved")
         except ValidationError as err:
             return Response.error(next(iter(err.messages.values())), HttpStatusCode.BAD_REQUEST, message='Event saving failed')
 
@@ -105,7 +105,7 @@ class ResourceConfigurationSettings(Resource):
             data = ResourceConfigurationDelegate.update_resources_configuration_settings(payload, resource_id)
             return Response.success(response_data={},
                         status_code=HttpStatusCode.OK,
-                        message="Resource Configuration Settings successfully updated")
+                        message="Resource successfully updated")
         except ValidationError as err:
             return Response.error(next(iter(err.messages.values())), HttpStatusCode.BAD_REQUEST, message='Event updating failed')
     
@@ -120,7 +120,7 @@ class ResourceConfigurationSettings(Resource):
         data = ResourceConfigurationDelegate.delete_resources_configuration_settings(payload)
         return Response.success(response_data={},
                     status_code=HttpStatusCode.OK,
-                    message="Resource Configuration Settings successfully deleted")
+                    message="Resource successfully deleted")
         
 @api.route("/settings/resources/check")
 class MasterEventUnique(Resource):
