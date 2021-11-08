@@ -45,10 +45,13 @@ class PegScoreService:
     def peg_score_details(data, user_identity):
         query_data = list(mongo_db.db.Pegs.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}).\
             sort("AddedOn", -1))
-        check_time = query_data[0]['AddedOn'] + timedelta(days=1)
-        if check_time >= datetime.utcnow():
-            bs = dumps(query_data[0], json_options=RELAXED_JSON_OPTIONS)
-            peg_data = format_cursor_obj(json.loads(bs))
+        if query_data:
+            check_time = query_data[0]['AddedOn'] + timedelta(days=1)
+            if check_time >= datetime.utcnow():
+                bs = dumps(query_data[0], json_options=RELAXED_JSON_OPTIONS)
+                peg_data = format_cursor_obj(json.loads(bs))
+            else:
+                peg_data = {}
         else:
             peg_data = {}
         return peg_data
