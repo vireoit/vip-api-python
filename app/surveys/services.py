@@ -24,7 +24,6 @@ class SurveyService:
             response_list = []
             if is_valid:
                 all_data = response_data.get('data')
-                all_data = json.load(all_data)
                 all_data1 = all_data[:]
 
                 for data in all_data:
@@ -46,10 +45,7 @@ class SurveyService:
                     if new_tuple not in new_response_set:
                         new_response_set.add(new_tuple)
                         new_response_list.append(data)
-
             data_file = export_table_data(new_response_list)
             return data_file
         except:
             return None
-        
-        
