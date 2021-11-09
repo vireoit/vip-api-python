@@ -259,7 +259,9 @@ class InsightService:
 class PainDetailGraphService:
     @staticmethod
     def pain_details_graph(filters, user_identity):
-        subject = filters['subject'] if 'subject' in filters else ""
+        subject = ObjectId(filters['subject']) if 'subject' in filters else ""
+        if subject != ObjectId(user_identity["unique_name"]):
+            subject = ""
         param = filters['param'] if 'param' in filters else ""
         all_data = []
         if param == "today":
@@ -267,7 +269,7 @@ class PainDetailGraphService:
             start_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
             end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
             query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
-                                                     "SubjectId": ObjectId(subject), "IsActive": True}). \
+                                                     "SubjectId": subject, "IsActive": True}). \
                               sort("AddedOn", -1))
 
             if query_data:
@@ -283,7 +285,7 @@ class PainDetailGraphService:
             start_date = datetime.strptime(str(week_ago) + " 00", "%Y-%m-%d %H")
             end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
             query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
-                                                     "SubjectId": ObjectId(subject), "IsActive": True}). \
+                                                     "SubjectId": subject, "IsActive": True}). \
                               sort("AddedOn", -1))
             for data in query_data:
                 dict = {}
@@ -302,7 +304,7 @@ class PainDetailGraphService:
             start_date = datetime.strptime(str(month_ago) + " 00", "%Y-%m-%d %H")
             end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
             query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
-                                                     "SubjectId": ObjectId(subject), "IsActive": True}). \
+                                                     "SubjectId": subject, "IsActive": True}). \
                               sort("AddedOn", -1))
             all_data = []
             for data in query_data:

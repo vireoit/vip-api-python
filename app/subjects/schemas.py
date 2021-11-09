@@ -16,5 +16,5 @@ class SubjectImportSchema(ma.Schema):
                 raise ValidationError("Email and Phone field should not be empty", field_name="Email")
             if not email:
                 raise ValidationError("Email is mandatory", field_name="Email")
-            if not phone:
+            if not phone or phone == "nan":
                 raise ValidationError("Phone number is mandatory", field_name="Phone")
