@@ -26,6 +26,7 @@ api = Namespace("Insights", description="Namespace for Insights")
 
 @api.doc(params={'subject': 'ID of the Subject - 60bb10c89cf5432080d40346 ', "param": "today" "for today filter",
                  "param":"week" "for 7 days filter", "param":"month" "for 30 days filter"})
+
 @api.route("/insights/personal/pain")
 class PainDetailGraph(Resource):
     """
@@ -87,13 +88,12 @@ class InsightsPersonalExport(Resource):
         return resp
 
 
-
 @api.route("/insights/personal/adverse-event")
 class CreateRewardConfiguration(Resource):
     """
     Class for save adverse event
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         try:
             """
@@ -107,6 +107,7 @@ class CreateRewardConfiguration(Resource):
                                     status_code=HttpStatusCode.OK, message="Adverse event created")
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message="Validation Error Occurred")
+
 
 @api.route("/insights/personal/journal")
 class InsightJournalList(Resource):

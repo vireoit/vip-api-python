@@ -12,7 +12,7 @@ from app.utils import file_service_util
 from app.flask_jwt import jwt_required
 # from app import constants
 from app.subjects.delegates import SubjectImportDelegate
-from app.subjects.delegates import SubjectDelegate, RewardRedemption
+from app.subjects.delegates import SubjectDelegate, RewardRedemption, ListAdverseEvent
 from flask_restx import Api, Resource, fields
 
 
@@ -137,6 +137,7 @@ class PainDetailsExport(Resource):
         resp.headers['Content-Disposition'] = 'attachment;filename=pain_details.xls'
         return resp
 
+
 @api.route("/subject/pain/export")
 class PainDetailsExport(Resource):
     """
@@ -195,7 +196,7 @@ class ListRedemption(Resource):
     """
     Class for list Redemption
     """
-    # @jwt_required()
+    @jwt_required()
     def post(self):
         """
         Return all Redemption
@@ -274,3 +275,38 @@ class CreateListRedemption(Resource):
                                         status_code=HttpStatusCode.OK, message="Redemption Details")
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message=list(err.messages.values())[0][0])
+
+
+@api.route("/subject/adverse-event")
+class AdverseEvent(Resource):
+    """
+    Class for list adverse event
+    """
+
+    @jwt_required()
+    def post(self):
+        """
+                    API for list resource configurations
+                """
+        claims = get_jwt()
+        parameters = {
+            'limit': 10,
+            'page': 1
+        }
+        if 'limit' in request.args and request.args.get('limit'):
+            parameters['limit'] = int(request.args.get('limit'))
+        if 'page_size' in request.args and request.args.get('page_size'):
+            parameters['page_size'] = int(request.args.get('page_size'))
+        if 'page' in request.args and request.args.get('page'):
+            parameters['page'] = int(request.args.get('page'))
+
+        payload = request.json
+        data = {
+            "subjects": payload["subjects"] if "subjects" in payload else [],
+            "from_date": payload['from_date'] if 'from_date' in payload else "",
+            "to_date": payload['to_date'] if 'to_date' in payload else ""
+        }
+
+        data = ListAdverseEvent.list_adverse_event(filters=data, parameters=parameters, user_identity=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Adverse event list")

@@ -38,3 +38,10 @@ class RedeemedPoint(Exception):
         self.message = message
 
         super().__init__(self.message)
+
+
+class InvalidUser(Exception):
+    def __init__(self, message="Invalid user"):
+        self.message = message
+
+        super().__init__(self.message)

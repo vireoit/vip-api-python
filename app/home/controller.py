@@ -5,7 +5,7 @@ from flask import request
 from flask import Response as flask_response
 from flask import make_response
 from app.response import Response
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, get_jwt
 from app.flask_jwt import jwt_required
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
@@ -31,7 +31,7 @@ class CreatePegDetails(Resource):
         Create peg score of subjects
         """
         try:
-            claims = ""
+            claims = get_jwt()
             payload = request.json
             PegScore().load(payload)
             data = PegScoreDelegate.create_peg_score_record(payload, user_identity=claims)
@@ -45,7 +45,7 @@ class CreatePegDetails(Resource):
         """
         Return all subjects
         """
-        claims = ""
+        claims = get_jwt()
         parameters = {
             'subject': ""
         }
@@ -70,7 +70,7 @@ class OnGoingFeedback(Resource):
         Create peg score of subjects
         """
         try:
-            claims = ""
+            claims = get_jwt()
             payload = request.json
             FeedBack().load(payload)
             data = OnGoingFeedBack.create_on_going_feedback(payload, user_identity=claims)
@@ -92,7 +92,7 @@ class CreateSatisfactionDetails(Resource):
         Create peg score of subjects
         """
         try:
-            claims = ""
+            claims = get_jwt()
             payload = request.json
             Satisfaction().load(payload)
             data = SatisfactionDelegate.create_satisfaction_score_record(payload, user_identity=claims)
@@ -106,7 +106,7 @@ class CreateSatisfactionDetails(Resource):
         """
         Return all subjects
         """
-        claims = ""
+        claims = get_jwt()
         parameters = {
             'subject': ""
         }
