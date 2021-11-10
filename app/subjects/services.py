@@ -567,3 +567,21 @@ class AdverseEventService:
             'total_count': total_count
         }
         return response_data
+
+class RatingAndFeedbackDetailsService:
+    @staticmethod
+    def get_rating_feedback_details(parameters):
+        limit_by = parameters.get('limit')
+        page = parameters.get("page")
+        total_count = mongo_db.db.Feedback.find({}).count()
+        query_data = mongo_db.db.Feedback.find().sort("updated_on", -1).skip((page-1) * limit_by).limit(limit_by).limit(limit_by)
+        feedback_list = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            feedback_list.append(val)
+        response_data = {
+            'result': feedback_list,
+            'total_count': total_count
+        }
+        return response_data

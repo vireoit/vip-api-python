@@ -11,7 +11,7 @@ from app.exceptions import FileNotSelected, FileUploadException, FileFormatExcep
 from app.utils import file_service_util
 from app.flask_jwt import jwt_required
 # from app import constants
-from app.subjects.delegates import SubjectImportDelegate
+from app.subjects.delegates import SubjectImportDelegate, RatingAndFeedbackDetailsDelegate
 from app.subjects.delegates import SubjectDelegate, RewardRedemption, ListAdverseEvent
 from flask_restx import Api, Resource, fields
 
@@ -310,3 +310,28 @@ class AdverseEvent(Resource):
         data = ListAdverseEvent.list_adverse_event(filters=data, parameters=parameters, user_identity=claims)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="Adverse event list")
+
+
+@api.route("/subject/rating-feedback")
+@api.doc(params={})
+class RatingAndFeedbackDetails(Resource):
+    """
+    Class for listing Rating and Feedback
+    """
+    @jwt_required()
+    def get(self):
+        claims = ""
+        parameters = {
+            'limit': 10,
+            'order': 'desc',
+            'page': 1
+        }
+        if 'limit' in request.args and request.args.get('limit'):
+            parameters['limit'] = int(request.args.get('limit'))
+        if 'page' in request.args and request.args.get('page'):
+            parameters['page'] = int(request.args.get('page'))
+
+        data = RatingAndFeedbackDetailsDelegate.get_rating_feedback_details(parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK,
+                                message="Ratings and Feedbacks fetched succesfully")
