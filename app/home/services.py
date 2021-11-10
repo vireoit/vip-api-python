@@ -4,12 +4,14 @@ import json
 import re
 import pytz
 from datetime import date, datetime, timedelta
+from app.exceptions import InvalidUser
 from bson.objectid import ObjectId
 from bson.json_util import dumps, RELAXED_JSON_OPTIONS
 from app.utils.mongo_encoder import format_cursor_obj
 from bson.codec_options import CodecOptions
 from app.utils.http_service_util import perform_http_request
 from app.base_urls import VIP_BACKEND_URL
+
 
 class PegScoreService:
     @staticmethod
@@ -23,13 +25,14 @@ class PegScoreService:
                     dict['RewardAccumulated'] = data_dict['points']
                     dict['SubjectId'] = ObjectId(data['SubjectId'])
                     dict['Name'] = query_data['Name']
-                    print("dvdbhjdfv")
                     dict['EventType'] = data_dict['eventType']
                     dict['AddedOn'] = datetime.utcnow()
                     create_date = mongo_db.db.RewardAccumulate.insert_one(dict)
 
     @staticmethod
     def create_peg_score_record(data, user_identity):
+        if ObjectId(data['SubjectId']) != ObjectId(user_identity["unique_name"]):
+            raise InvalidUser
         data['AddedOn'] = datetime.utcnow()
         data['SubjectId'] = ObjectId(data['SubjectId'])
         total = 0
@@ -43,11 +46,13 @@ class PegScoreService:
 
     @staticmethod
     def peg_score_details(data, user_identity):
+        if ObjectId(data['subject']) != ObjectId(user_identity["unique_name"]):
+            raise InvalidUser
         query_data = list(mongo_db.db.Pegs.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}).\
             sort("AddedOn", -1))
         if query_data:
-            check_time = query_data[0]['AddedOn'] + timedelta(days=1)
-            if check_time >= datetime.utcnow():
+            check_time = query_data[0]['AddedOn'] + timedelta(days=1, hours=5, minutes=30)
+            if check_time >= datetime.now():
                 bs = dumps(query_data[0], json_options=RELAXED_JSON_OPTIONS)
                 peg_data = format_cursor_obj(json.loads(bs))
             else:
@@ -92,6 +97,8 @@ class SatisfactionService:
 
     @staticmethod
     def create_Satisfaction_score_record(data, user_identity):
+        if ObjectId(data['SubjectId']) != ObjectId(user_identity["unique_name"]):
+            raise InvalidUser
         data['AddedOn'] = datetime.utcnow()
         data['SubjectId'] = ObjectId(data['SubjectId'])
         data['IsActive'] = True
@@ -101,14 +108,16 @@ class SatisfactionService:
 
     @staticmethod
     def satisfaction_score_details(data, user_identity):
+        if ObjectId(data['subject']) != ObjectId(user_identity["unique_name"]):
+            raise InvalidUser
         peg_query_data = list(mongo_db.db.Pegs.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}). \
                           sort("AddedOn", -1))
         satisfaction_query_data = list(mongo_db.db.Satisfaction.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}). \
                           sort("AddedOn", -1))
         if satisfaction_query_data:
             created_date = satisfaction_query_data[0]
-            check_time = created_date['AddedOn'] + timedelta(days=1)
-            if check_time >= datetime.utcnow():
+            check_time = created_date['AddedOn'] + timedelta(days=1, hours=5, minutes=30)
+            if check_time >= datetime.now():
                 bs = dumps(satisfaction_query_data[0], json_options=RELAXED_JSON_OPTIONS)
                 satisfaction = format_cursor_obj(json.loads(bs))
             else:
