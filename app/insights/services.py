@@ -252,8 +252,9 @@ class InsightService:
         data['AddedOn'] = datetime.utcnow()
         data['IsActive'] = True
         data['SubjectId'] = ObjectId(data['SubjectId'])
+        query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(data['SubjectId'])})
+        data['Name'] = query_data['Name']
         create_data = mongo_db.db.AdverseEvent.insert_one(data)
-
 
 
 class PainDetailGraphService:

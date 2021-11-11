@@ -514,3 +514,74 @@ class RewardRedemptionService:
             val = format_cursor_obj(json.loads(bs))
             all_data.append(val)
         return all_data
+
+
+class AdverseEventService:
+    @staticmethod
+    def list_adverse_event(filters, parameters, user_identity):
+        limit_by = parameters.get('limit')
+        page = parameters.get("page")
+        order_by = -1
+        all_subjects = []
+        if 'subjects' in filters:
+            for subject in filters['subjects']:
+                subject = ObjectId(subject)
+                all_subjects.append(subject)
+
+        if filters['from_date']:
+            start_date = datetime.strptime(str(filters['from_date']) + " 00:00", "%m-%d-%Y %H:%M")
+        else:
+            start_date = ""
+        if filters['to_date']:
+            end_date = datetime.strptime(str(filters['to_date']) + " 23:59", "%m-%d-%Y %H:%M")
+        else:
+            end_date = ""
+
+        total_count = mongo_db.db.AdverseEvent.find({}).count()
+
+        query_data = list(mongo_db.db.AdverseEvent.find().skip((page - 1) * limit_by).limit(limit_by).sort("AddedOn",
+                                                                                                       order_by).limit(
+                limit_by))
+
+        if all_subjects:
+
+            total_count = mongo_db.db.AdverseEvent.find({"SubjectId": {"$in": tuple(all_subjects)}}).count()
+            query_data = list(mongo_db.db.AdverseEvent.find({"SubjectId": {"$in": tuple(all_subjects)}}).\
+                skip((page - 1) * limit_by).limit(limit_by).sort("AddedOn", order_by).limit(limit_by))
+
+        if all_subjects and start_date and end_date:
+
+            total_count = mongo_db.db.AdverseEvent.find({"SubjectId": {"$in": tuple(all_subjects)}}).count()
+            query_data = list(mongo_db.db.AdverseEvent.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
+                                                                 "SubjectId": {"$in": tuple(all_subjects)}}).\
+                              skip((page - 1) * limit_by).limit(limit_by).sort("AddedOn", order_by).limit(limit_by))
+
+        bs = dumps(query_data, json_options=RELAXED_JSON_OPTIONS)
+        resource_list = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            resource_list.append(val)
+        response_data = {
+            'adverse_list': resource_list,
+            'total_count': total_count
+        }
+        return response_data
+
+class RatingAndFeedbackDetailsService:
+    @staticmethod
+    def get_rating_feedback_details(parameters):
+        limit_by = parameters.get('limit')
+        page = parameters.get("page")
+        total_count = mongo_db.db.Feedback.find({}).count()
+        query_data = mongo_db.db.Feedback.find().sort("updated_on", -1).skip((page-1) * limit_by).limit(limit_by).limit(limit_by)
+        feedback_list = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            feedback_list.append(val)
+        response_data = {
+            'result': feedback_list,
+            'total_count': total_count
+        }
+        return response_data

@@ -1,4 +1,5 @@
-from app.subjects.services import SubjectImportService, SubjectService, RewardRedemptionService
+from app.subjects.services import SubjectImportService, SubjectService, RewardRedemptionService, AdverseEventService, \
+    RatingAndFeedbackDetailsService
 
 
 class SubjectImportDelegate:
@@ -49,4 +50,17 @@ class RewardRedemption:
     @staticmethod
     def list_reward_redemption(filters, user_identity):
         data = RewardRedemptionService.list_reward_redemption(filters, user_identity)
+        return data
+
+
+class ListAdverseEvent:
+    @staticmethod
+    def list_adverse_event(filters, parameters, user_identity):
+        data = AdverseEventService.list_adverse_event(filters, parameters, user_identity)
+        return data
+
+class RatingAndFeedbackDetailsDelegate:
+    @staticmethod
+    def get_rating_feedback_details(parameters):
+        data = RatingAndFeedbackDetailsService.get_rating_feedback_details(parameters)
         return data
