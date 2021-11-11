@@ -65,12 +65,17 @@ class PegScoreService:
 class OnGoingFeedbackService:
     @staticmethod
     def create_on_going_feedback(data, user_identity):
-        data['added_on'] = datetime.utcnow()
+        data['updated_on'] = datetime.utcnow()
         data['subject_id'] = ObjectId(data['subject_id'])
-        data['feedback'] = int(data['feedback'])
-        create_data = mongo_db.db.Feedback.insert_one(data)
+        data['feedback'] = int(data['feedback']) 
+        feedback = mongo_db.db.Feedback.find_one({"subject_id": ObjectId(data['subject_id'])})
+        if feedback:
+            create_data = mongo_db.db.Feedback.find_one_and_update({'subject_id': ObjectId(data['subject_id'])}, {'$set': data})
+        else:
+            data['added_on'] = datetime.utcnow()
+            data['updated_on'] = datetime.utcnow()
+            create_data = mongo_db.db.Feedback.insert_one(data)
         return create_data
-
 
 class SatisfactionService:
     @staticmethod
@@ -501,3 +506,35 @@ class RewardRedemptionService:
             "reward": all_data,
             "redemption": redemption_data
         }
+
+
+class AdminHomeUserRatingsService:
+    @staticmethod
+    def get_admin_home_user_ratings(parameters):
+        excellent_count, good_count, neutral_count, bad_count, worst_count = 0, 0, 0, 0, 0
+        query_data = list(mongo_db.db.Feedback.find({}))
+        total_count = len(query_data)
+        for val in query_data:
+            if val['feedback'] == 1:
+                worst_count += 1
+            elif val['feedback'] == 2:
+                bad_count += 1
+            elif val['feedback'] == 3:
+                neutral_count += 1
+            elif val['feedback'] == 4:
+                good_count += 1
+            elif val['feedback'] == 5:
+                excellent_count += 1
+        excellent = (excellent_count//total_count)*100
+        good = (good_count/total_count)*100
+        neutral = (neutral_count/total_count)*100
+        bad = (bad_count/total_count)*100
+        worst = (worst_count/total_count)*100
+        response_data = {
+            "excellent": excellent,
+            "good": good,
+            "neutral": neutral,
+            "bad": bad,
+            "worst": worst
+        }
+        return response_data
