@@ -33,6 +33,8 @@ class SubjectImportSchema(ma.Schema):
                 raise ValidationError("Mandatory fields missing", field_name="Postal")
             if state_code is None or state_code == "nan":
                 raise ValidationError("Mandatory fields missing", field_name="State Code")
-            if not email or not phone or phone == "nan" or email is None or phone is None or email == "nan":
+            if phone == "nan" or phone is None:
+                raise ValidationError("Mandatory fields missing", field_name="Phone")
+            if email == "nan" or email is None:
                 raise ValidationError("Mandatory fields missing", field_name="Email")
-            
+        
