@@ -288,6 +288,7 @@ class PainDetailGraphService:
             query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
                                                      "SubjectId": subject, "IsActive": True}). \
                               sort("AddedOn", -1))
+
             for data in query_data:
                 dict = {}
                 dict['score'] = data['Percentage']
@@ -298,6 +299,8 @@ class PainDetailGraphService:
                 for record in query_data:
                     if record['SubjectId'] == subject and record['AddedOn'].strftime('%Y-%m-%d') == in_date:
                         query_data.remove(record)
+                    else:
+                        break
 
         elif param == "month":
             date_today = date.today()
@@ -318,6 +321,8 @@ class PainDetailGraphService:
                 for record in query_data:
                     if record['SubjectId'] == subject and record['AddedOn'].strftime('%Y-%m-%d') == in_date:
                         query_data.remove(record)
+                    else:
+                        break
 
         return all_data
 
