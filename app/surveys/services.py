@@ -33,8 +33,8 @@ class SurveyService:
                 for data in all_data:
                     dict = {
                         'Subject Name': data['subjectName'],
-                        'Submitted Date': data['submittedDate'].strftime("%m-%d-%Y"),
-                        data['question']: data['answer'],
+                        'Submitted Date': data['submittedDate'].strftime("%d/%m/%Y"),
+                        data['question']: data['answer']
                     }
                     for rec in all_data1:
                         if data['subjectName'] == rec['subjectName']:
