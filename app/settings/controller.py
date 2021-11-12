@@ -33,7 +33,7 @@ class CreateRewardConfiguration(Resource):
             RewardSchema().load({"reward_configuration": payload["RewardConfig"]})
             data = RewardConfigurationDelegate.create_reward_configuration(payload, user_identity=claims)
             return Response.success(response_data=data,
-                                    status_code=HttpStatusCode.OK, message="Reward configuration created")
+                                    status_code=HttpStatusCode.OK, message="Reward points added successfully")
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message="Validation Error Occurred")
 
