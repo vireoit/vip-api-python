@@ -26,7 +26,6 @@ class SurveyService:
             response_list = []
 
             all_data = SurveyService.get_survey_questions(in_survey_id, in_subject_ids, in_question_list)
-
             if all_data:
                 # all_data = response_data.get('data')
                 all_data1 = all_data[:]
@@ -34,15 +33,15 @@ class SurveyService:
                 for data in all_data:
                     dict = {
                         'Subject Name': data['subjectName'],
-                        'Submitted Date': data['submittedDate'],
+                        'Submitted Date': data['submittedDate'].strftime("%m-%d-%Y"),
                         data['question']: data['answer'],
                     }
-                    # for rec in all_data1:
-                    #     if data['subjectName'] == rec['subjectName']:
-                    #         dict1 = {
-                    #             rec['question']: rec['answer']
-                    #         }
-                    #         dict.update(dict1)
+                    for rec in all_data1:
+                        if data['subjectName'] == rec['subjectName']:
+                            dict1 = {
+                                rec['question']: rec['answer']
+                            }
+                            dict.update(dict1)
                     response_list.append(dict)
                 new_response_set = set()
                 new_response_list = []
@@ -52,7 +51,6 @@ class SurveyService:
                         new_response_set.add(new_tuple)
                         new_response_list.append(data)
             data_file = export_table_data(new_response_list)
-            print("new_response_list >>>>>>", new_response_list)
             return data_file
         except Exception as e:
             print(e)
@@ -94,9 +92,9 @@ class SurveyService:
     @staticmethod
     def cleaned_inputs(payload):
 
-        in_survey_id = ObjectId(payload.get("surveyId"))
-        in_subject_ids = [ObjectId(subject_id) for subject_id in payload.get("subjectIds")]
-        in_question_list = [data_dict['question'] for data_dict in payload.get("questionList") if data_dict.get('question')]
+        in_survey_id = ObjectId(payload.get("survey_id"))
+        in_subject_ids = [ObjectId(subject_id) for subject_id in payload.get("subject_ids")]
+        in_question_list = [data_dict['question'] for data_dict in payload.get("question_list") if data_dict.get('question')]
 
         return in_survey_id, in_subject_ids, in_question_list
 
