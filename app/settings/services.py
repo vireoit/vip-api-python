@@ -110,20 +110,29 @@ class AuditTrialFieldsListService:
         event_list = []
         action_type_list = []
         module_list = []
+        response_list = []
         if field == "action":
             for val in total_list:
                 action_list.append(val['action'])
-            return {"action": list(set(action_list))}
+            for data in list(set(action_list)):
+                response_list.append({'key': data})
+            return {"action": response_list}
         elif field == "event":
             for val in total_list:
                 event_list.append(val['event'])
-            return {"event": list(set(event_list))}
+            for data in list(set(event_list)):
+                response_list.append({'key': data})
+            return {"event": response_list}
         elif field == "action_type":
             for val in total_list:
                 action_type_list.append(val['action_type'])
-            return {"action_type": list(set(action_type_list))}
+            for data in list(set(action_type_list)):
+                response_list.append({'key': data})
+            return {"action_type": response_list}
         elif field == "module":
             for val in total_list:
                 module_list.append(val['module'])
-            return {"module": list(set(module_list))}
+            for data in list(set(module_list)):
+                response_list.append({'key': data})
+            return {"module": response_list}
 
