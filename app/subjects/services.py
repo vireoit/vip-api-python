@@ -37,7 +37,8 @@ class SubjectImportService:
     @staticmethod
     def format_file(data):
         data.columns = data.columns.str.replace(' ', '')
-        data.drop_duplicates(subset=['Email', 'Phone'], keep="first", inplace=True)
+        data.drop_duplicates(subset=['Email'], keep="first", inplace=True)
+        data.drop_duplicates(subset=['Phone'], keep="first", inplace=True)
         data['Password'] = ''
         data['IsActive'] = False
         data['UserType'] = "Patient"
@@ -60,15 +61,15 @@ class SubjectImportService:
             SubjectImportService.format_file(data)
             payload = json.loads(data.to_json(orient='records'))
             repeat_list = payload[:]
+            SubjectImportSchema().load({"subjects": repeat_list})
             for item in repeat_list:
                 email_id = item['Email']
                 phone_no = item['Phone']
-                if phone_no[0] != "+":
+                if phone_no and phone_no[0] != "+":
                     item['Phone'] = "+1" +"-("+phone_no[0:3]+")"+" "+phone_no[3:6]+"-"+phone_no[6:]
                 item_exist = mongo_db.db.Subjects.find_one({"$or":[{"Email": email_id}, {"Phone": phone_no}]})
                 if item_exist and (item_exist['Email'] == email_id or item_exist['Phone'] == phone_no):
                     payload.remove(item)
-            SubjectImportSchema().load({"subjects": payload})
             for rt in payload:
                 rt['ActivatedOn'] = datetime.utcnow()
                 rt['AddedOn'] = datetime.utcnow()
@@ -102,15 +103,15 @@ class SubjectImportService:
             SubjectImportService.format_file(data)
             payload = json.loads(data.to_json(orient='records'))
             repeat_list = payload[:]
+            SubjectImportSchema().load({"subjects": repeat_list})
             for item in repeat_list:
                 email_id = item['Email']
                 phone_no = item['Phone']
-                if phone_no[0] != "+":
+                if phone_no and phone_no[0] != "+":
                     item['Phone'] = "+1" +"-("+phone_no[0:3]+")"+" "+phone_no[3:6]+"-"+phone_no[6:]
-                item_exist = mongo_db.db.Subjects.find_one({"$or":[{"Email": email_id}, {"Phone": phone_no}]})
-                if item_exist and (item_exist['Email'] == email_id or item_exist['Phone'] == phone_no):
+                item_exist = mongo_db.db.Subjects.find_one({"$or":[{"Email": email_id}, {"Phone": item['Phone']}]})
+                if item_exist:
                     payload.remove(item)
-            SubjectImportSchema().load({"subjects": payload})
             for rt in payload:
                 rt['ActivatedOn'] = datetime.utcnow()
                 rt['AddedOn'] = datetime.utcnow()
@@ -564,6 +565,24 @@ class AdverseEventService:
             resource_list.append(val)
         response_data = {
             'adverse_list': resource_list,
+            'total_count': total_count
+        }
+        return response_data
+
+class RatingAndFeedbackDetailsService:
+    @staticmethod
+    def get_rating_feedback_details(parameters):
+        limit_by = parameters.get('limit')
+        page = parameters.get("page")
+        total_count = mongo_db.db.Feedback.find({}).count()
+        query_data = mongo_db.db.Feedback.find().sort("updated_on", -1).skip((page-1) * limit_by).limit(limit_by).limit(limit_by)
+        feedback_list = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            feedback_list.append(val)
+        response_data = {
+            'result': feedback_list,
             'total_count': total_count
         }
         return response_data

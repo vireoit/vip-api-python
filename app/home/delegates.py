@@ -1,7 +1,7 @@
 from app.home.services import PegScoreService, OnGoingFeedbackService, SatisfactionService, AdminHomeStatisticsService, \
     AdminHomeGraphService
 from app.home.services import PegScoreService, OnGoingFeedbackService, SatisfactionService,\
-    RewardRedemptionService
+    RewardRedemptionService, AdminHomeUserRatingsService
 
 
 
@@ -70,3 +70,10 @@ class RewardRedemption:
     def list_accumulated_rewards(filters, user_identity):
         data = RewardRedemptionService.list_accumulated_reward_redemption(filters, user_identity)
         return data
+
+class AdminHomeUserRatingsDelegate:
+    @staticmethod
+    def get_admin_home_user_ratings(parameters):
+        data = AdminHomeUserRatingsService.get_admin_home_user_ratings(parameters)
+        return data
+       

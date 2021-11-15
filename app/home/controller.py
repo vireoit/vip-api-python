@@ -12,8 +12,8 @@ from app.exceptions import FileNotSelected, FileUploadException, FileFormatExcep
 from app.utils import file_service_util
 from app.home.schemas import PegScore, FeedBack, Satisfaction
 # from app import constants
-from app.home.delegates import PegScoreDelegate, OnGoingFeedBack, SatisfactionDelegate, AdminHomeDelegate
-from app.home.delegates import PegScoreDelegate, OnGoingFeedBack, SatisfactionDelegate, RewardRedemption
+from app.home.delegates import PegScoreDelegate, OnGoingFeedBack, SatisfactionDelegate, AdminHomeDelegate, \
+    AdminHomeUserRatingsDelegate, RewardRedemption
 from flask_restx import Api, Resource, fields
 
 api = Namespace("Home", description="Namespace for Home")
@@ -198,4 +198,15 @@ class ListRewards(Resource):
         data = RewardRedemption.list_accumulated_rewards(filters=parameters, user_identity=claims)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="List of rewards")
+
+
+@api.route("/home/admin/user-ratings")
+@api.doc(paylod={})
+class AdminHomeUserRatingsGraph(Resource):
+    @jwt_required()
+    def get(self):
+        parameters = {}
+        data = AdminHomeUserRatingsDelegate.get_admin_home_user_ratings(parameters=parameters)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="Graph Details for user ratings fetched successsfully")
 

@@ -11,7 +11,7 @@ from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
 from app.settings.delegates import RewardConfigurationDelegate, ResourceConfigurationDelegate,\
-    ResourceConfigurationUniqueDelegate, AuditLogList
+    ResourceConfigurationUniqueDelegate, AuditLogList,AuditTrialFieldsListDelegate
 from app.settings.schemas import RewardSchema, ResourceConfigurationSchema
 from flask_restx import Api, Resource, fields
 
@@ -144,6 +144,7 @@ class MasterEventUnique(Resource):
             return Response.error(event_data, HttpStatusCode.BAD_REQUEST, message='{0} already exist'.format(event_data['key']))
 
 
+
 @api.route("/settings/audit-log")
 class ListAuditLog(Resource):
     # @jwt_required()
@@ -179,3 +180,16 @@ class ListAuditLog(Resource):
         data = AuditLogList.list_audit_log(filters=data, parameters=parameters, user_identity=claims)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="list Audit trial")
+
+@api.route("/settings/audit_trial/fields")
+class AuditTrialFieldsList(Resource):
+    @jwt_required()
+    def get(self):
+        parameters = {
+            'field': request.args.get('field')
+        }
+        data = AuditTrialFieldsListDelegate.get_audit_trial_fields_list(parameters)
+        return Response.success(response_data=data,
+                        status_code=HttpStatusCode.OK,
+                        message="Details successfully fetched")
+
