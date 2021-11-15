@@ -67,14 +67,9 @@ class OnGoingFeedbackService:
     def create_on_going_feedback(data, user_identity):
         data['updated_on'] = datetime.utcnow()
         data['subject_id'] = ObjectId(data['subject_id'])
-        data['feedback'] = int(data['feedback']) 
-        feedback = mongo_db.db.Feedback.find_one({"subject_id": ObjectId(data['subject_id'])})
-        if feedback:
-            create_data = mongo_db.db.Feedback.find_one_and_update({'subject_id': ObjectId(data['subject_id'])}, {'$set': data})
-        else:
-            data['added_on'] = datetime.utcnow()
-            data['updated_on'] = datetime.utcnow()
-            create_data = mongo_db.db.Feedback.insert_one(data)
+        data['feedback'] = int(data['feedback'])
+        data['added_on'] = datetime.utcnow()
+        create_data = mongo_db.db.Feedback.insert_one(data)
         return create_data
 
 class SatisfactionService:
