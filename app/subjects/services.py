@@ -37,7 +37,8 @@ class SubjectImportService:
     @staticmethod
     def format_file(data):
         data.columns = data.columns.str.replace(' ', '')
-        data.drop_duplicates(subset=['Email', 'Phone'], keep="first", inplace=True)
+        data.drop_duplicates(subset=['Email'], keep="first", inplace=True)
+        data.drop_duplicates(subset=['Phone'], keep="first", inplace=True)
         data['Password'] = ''
         data['IsActive'] = False
         data['UserType'] = "Patient"

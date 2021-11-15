@@ -62,6 +62,54 @@ def test():
     print(date)
 
 
+@manager.command
+def test_nested():
+    from bson.objectid import ObjectId
+    from datetime import datetime
+    import pytz
+
+    survey_sub_query = {'_id': {'$in': [ObjectId("618cf4098523c5097c524315")]}}
+    patient_sub_query = {'Patients.DatesInfo.QuestionsAndAnswers': {'$elemMatch': {'payout_amount': {'$gte': 0}}}}
+    patient_sub_query = {'_id': {'$in': [ObjectId("618b9d75282c5e202073368e"), ObjectId("618ba92d282c5e202073368f")]},
+                         'Patients.DatesInfo.QuestionsAndAnswers.Answers': {'$elemMatch': {"Answer": {'$exists': True}}}}
+
+    patient_sub_query = {
+                         'Patients.DatesInfo.QuestionsAndAnswers.Answers': {
+                             '$elemMatch': {"Answer": {'$exists': True, '$not': {'$size': 0}}}}}
+
+    patient_sub_query = {'Patients._id': {'$in': [ObjectId("618ceb067c92cf3d385c9b0a")]}}
+
+    aggr_data = mongo_db.db.Surveys.aggregate([
+        {"$unwind": "$Patients"},
+        {"$unwind": "$Patients.DatesInfo"},
+        {"$unwind": "$Patients.DatesInfo.QuestionsAndAnswers"},
+        {"$unwind": "$Patients.DatesInfo.QuestionsAndAnswers.Answers"},
+        {"$match": survey_sub_query},
+        # {"$match": patient_sub_query},
+        # {"$match": {"Patients.DatesInfo.QuestionsAndAnswers.Answers.Answer": {"$nin": ['null', ""]}}},
+
+        {"$match": {"Patients.DatesInfo.QuestionsAndAnswers.Question": {'$in': ["Question1"]}}},
+
+        {"$project": {'Patients.Name': 1, 'Patients.DatesInfo.QuestionsAndAnswers.Answers': 1, 'Patients._id': 1,
+                      "Patients.DatesInfo.QuestionsAndAnswers.Question": 1, "Patients.DatesInfo.SubmittedDate": 1}},
+
+        {"$group": {"_id": "$Patients.Name",
+                    "data": {"$push": {"question": "$Patients.DatesInfo.QuestionsAndAnswers.Question",
+                                       "answer": "$Patients.DatesInfo.QuestionsAndAnswers.Answers.Answer",
+                                       "SubmittedDate": "$Patients.DatesInfo.SubmittedDate",
+                                       "subjectName": "$Patients.Name", "subject_id": "$Patients._id"}}
+                    }}])
+
+    # query_data = mongo_db.db.Surveys.find(aggr)
+    # data = list(query_data)
+    data = list(aggr_data)
+    new_list = list()
+    for data_dict in data:
+        new_list.extend(data_dict["data"])
+    # print("list", data, ">>>>>>>", len(data))
+    print(new_list)
+
+
 if __name__ == "__main__":
     manager.run()
 
