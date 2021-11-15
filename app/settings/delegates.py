@@ -1,4 +1,5 @@
-from app.settings.services import RewardConfigurationService, ResourceConfigurationService, ResourceConfigurationUniqueService
+from app.settings.services import RewardConfigurationService, ResourceConfigurationService, \
+    ResourceConfigurationUniqueService, AuditLogListService
 
 
 class RewardConfigurationDelegate:
@@ -33,9 +34,16 @@ class ResourceConfigurationDelegate:
         response = ResourceConfigurationService.delete_resources_configuration_settings(payload)
         return response
 
+
 class ResourceConfigurationUniqueDelegate:
     @staticmethod
     def check_resources_configuration_uniqueness(parameters):
         response = ResourceConfigurationUniqueService.check_resources_configuration_uniqueness(parameters)
         return response
-        
+
+
+class AuditLogList:
+    @staticmethod
+    def list_audit_log(filters, parameters, user_identity):
+        response = AuditLogListService.list_audit_log(filters, parameters, user_identity)
+        return response

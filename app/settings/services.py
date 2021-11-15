@@ -84,6 +84,7 @@ class ResourceConfigurationService:
         except Exception as err:
             print(err)
 
+
 class ResourceConfigurationUniqueService:
     @staticmethod
     def check_resources_configuration_uniqueness(parameters):
@@ -99,3 +100,48 @@ class ResourceConfigurationUniqueService:
                 return {'is_unique': False, 'key': 'Link'}
             else:
                 return {'is_unique': True, 'key': 'Link'}
+
+
+class AuditLogListService:
+    @staticmethod
+    def list_audit_log(filters, parameters, user_identity):
+        limit_by = parameters.get('limit')
+        page = parameters.get("page")
+        order_by = -1
+        if 'from_date' in filters and filters['from_date']:
+            start_date = datetime.strptime(str(filters['from_date']) + " 00:00", "%m-%d-%Y %H:%M")
+        if 'to_date' in filters and filters['to_date']:
+            end_date = datetime.strptime(str(filters['to_date']) + " 23:59", "%m-%d-%Y %H:%M")
+        if not filters:
+            total_count = mongo_db.db.AuditLog.find({}).count()
+
+            query_data = list(
+                mongo_db.db.AuditLog.find().skip((page - 1) * limit_by).limit(limit_by).sort("created_at",
+                                                                                             order_by).limit(
+                    limit_by))
+        else:
+            filter_items = {
+                "action": {"$in": tuple(filters['action'])} if filters['action'] else [],
+                "action_type": {"$in": tuple(filters['action_type'])} if filters['action_type'] else [],
+                "actor._id": filters['actor'] if filters['actor'] else "",
+                "module": {"$in": tuple(filters['module'])} if filters['module'] else [],
+                "event": {"$in": tuple(filters['event'])} if filters['event'] else [],
+                "created_at": {"$lte": end_date, '$gt': start_date} if filters['from_date'] and filters['to_date'] else ""
+
+            }
+            new_dict = dict([(vkey, vdata) for vkey, vdata in filter_items.items() if (vdata)])
+            total_count = mongo_db.db.AuditLog.find(new_dict).count()
+            query_data = list(mongo_db.db.AuditLog.find(new_dict). \
+                              skip((page - 1) * limit_by).limit(limit_by).sort("created_at", order_by).limit(limit_by))
+
+        bs = dumps(query_data, json_options=RELAXED_JSON_OPTIONS)
+        resource_list = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            resource_list.append(val)
+        response_data = {
+            'audit_log': resource_list,
+            'total_count': total_count
+        }
+        return response_data
