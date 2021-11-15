@@ -3,7 +3,7 @@ from uuid import uuid4
 import pandas as pd
 import json
 from app import ma, response, mongo_db
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from app.subjects.schemas import SubjectImportSchema
 from app.surveys.export import export_table_data
 from bson.objectid import ObjectId
@@ -31,13 +31,14 @@ class SurveyService:
                 all_data1 = all_data[:]
 
                 for data in all_data:
+                    submitted_date = data['submittedDate'] + timedelta(hours=5, minutes=30)
                     dict = {
                         'Subject Name': data['subjectName'],
-                        'Submitted Date': data['submittedDate'].strftime("%d/%m/%Y"),
+                        'Submitted Date': submitted_date.strftime("%d/%m/%Y"),
                         data['question']: data['answer']
                     }
                     for rec in all_data1:
-                        if data['subjectName'] == rec['subjectName']:
+                        if data['subjectName'] == rec['subjectName'] and data['submittedDate'].date() == rec['submittedDate'].date():
                             dict1 = {
                                 rec['question']: rec['answer']
                             }
