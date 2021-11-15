@@ -282,7 +282,7 @@ class PainDetailGraphService:
 
         elif param == "week":
             date_today = date.today()
-            week_ago = date_today - timedelta(days=7)
+            week_ago = date_today - timedelta(days=6)
             start_date = datetime.strptime(str(week_ago) + " 00", "%Y-%m-%d %H")
             end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
             query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
@@ -300,7 +300,7 @@ class PainDetailGraphService:
 
         elif param == "month":
             date_today = date.today()
-            month_ago = date_today - timedelta(days=30)
+            month_ago = date_today - timedelta(days=29)
             start_date = datetime.strptime(str(month_ago) + " 00", "%Y-%m-%d %H")
             end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
             query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
