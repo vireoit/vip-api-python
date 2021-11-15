@@ -99,3 +99,31 @@ class ResourceConfigurationUniqueService:
                 return {'is_unique': False, 'key': 'Link'}
             else:
                 return {'is_unique': True, 'key': 'Link'}
+
+
+class AuditTrialFieldsListService:
+    @staticmethod
+    def get_audit_trial_fields_list(parameters):
+        field = parameters.get('field')
+        total_list = list(mongo_db.db.AuditLog.find({}))
+        action_list = []
+        event_list = []
+        action_type_list = []
+        module_list = []
+        if field == "action":
+            for val in total_list:
+                action_list.append(val['action'])
+            return {"action": list(set(action_list))}
+        elif field == "event":
+            for val in total_list:
+                event_list.append(val['event'])
+            return {"event": list(set(event_list))}
+        elif field == "action_type":
+            for val in total_list:
+                action_type_list.append(val['action_type'])
+            return {"action_type": list(set(action_type_list))}
+        elif field == "module":
+            for val in total_list:
+                module_list.append(val['module'])
+            return {"module": list(set(module_list))}
+
