@@ -1,4 +1,5 @@
-from app.settings.services import RewardConfigurationService, ResourceConfigurationService, ResourceConfigurationUniqueService
+from app.settings.services import RewardConfigurationService, ResourceConfigurationService, \
+    ResourceConfigurationUniqueService, AuditTrialFieldsListService
 
 
 class RewardConfigurationDelegate:
@@ -39,3 +40,9 @@ class ResourceConfigurationUniqueDelegate:
         response = ResourceConfigurationUniqueService.check_resources_configuration_uniqueness(parameters)
         return response
         
+class AuditTrialFieldsListDelegate:
+    @staticmethod
+    def get_audit_trial_fields_list(parameters):
+        response = AuditTrialFieldsListService.get_audit_trial_fields_list(parameters)
+        return response
+

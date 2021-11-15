@@ -10,7 +10,8 @@ from app.flask_jwt import jwt_required
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
-from app.settings.delegates import RewardConfigurationDelegate, ResourceConfigurationDelegate, ResourceConfigurationUniqueDelegate
+from app.settings.delegates import RewardConfigurationDelegate, ResourceConfigurationDelegate, ResourceConfigurationUniqueDelegate, \
+    AuditTrialFieldsListDelegate
 from app.settings.schemas import RewardSchema, ResourceConfigurationSchema
 from flask_restx import Api, Resource, fields
 
@@ -140,3 +141,15 @@ class MasterEventUnique(Resource):
                                 message="{0} is available".format(event_data['key']))
         else:
             return Response.error(event_data, HttpStatusCode.BAD_REQUEST, message='{0} already exist'.format(event_data['key']))
+
+@api.route("/settings/audit_trial/fields")
+class AuditTrialFieldsList(Resource):
+    @jwt_required()
+    def get(self):
+        parameters = {
+            'field': request.args.get('field')
+        }
+        data = AuditTrialFieldsListDelegate.get_audit_trial_fields_list(parameters)
+        return Response.success(response_data=data,
+                        status_code=HttpStatusCode.OK,
+                        message="Details successfully fetched")
