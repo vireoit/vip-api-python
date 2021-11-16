@@ -10,8 +10,10 @@ from app.flask_jwt import jwt_required
 from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
-from app.settings.delegates import RewardConfigurationDelegate, ResourceConfigurationDelegate, ResourceConfigurationUniqueDelegate, \
-    AuditTrialFieldsListDelegate
+
+from app.settings.delegates import RewardConfigurationDelegate, ResourceConfigurationDelegate,\
+    ResourceConfigurationUniqueDelegate, AuditLogList,AuditTrialFieldsListDelegate
+
 from app.settings.schemas import RewardSchema, ResourceConfigurationSchema
 from flask_restx import Api, Resource, fields
 
@@ -122,7 +124,8 @@ class ResourceConfigurationSettings(Resource):
         return Response.success(response_data={},
                     status_code=HttpStatusCode.OK,
                     message="Resource successfully deleted")
-        
+
+
 @api.route("/settings/resources/check")
 class MasterEventUnique(Resource):
     @jwt_required()
@@ -142,6 +145,44 @@ class MasterEventUnique(Resource):
         else:
             return Response.error(event_data, HttpStatusCode.BAD_REQUEST, message='{0} already exist'.format(event_data['key']))
 
+
+
+@api.route("/settings/audit-log")
+class ListAuditLog(Resource):
+    # @jwt_required()
+    def post(self):
+        """
+        API for list audit logs
+        """
+        claims = "get_jwt()"
+        parameters = {
+            'limit': 10,
+            'page': 1
+        }
+        if 'limit' in request.args and request.args.get('limit'):
+            parameters['limit'] = int(request.args.get('limit'))
+        if 'page_size' in request.args and request.args.get('page_size'):
+            parameters['page_size'] = int(request.args.get('page_size'))
+        if 'page' in request.args and request.args.get('page'):
+            parameters['page'] = int(request.args.get('page'))
+
+        payload = request.json
+        if payload:
+            data = {
+                "action": payload["action"] if "action" in payload else [],
+                "action_type": payload['action_type'] if "action_type" in payload else [],
+                "actor": payload['actor'] if "actor" in payload else "",
+                "module": payload['module'] if "module" in payload else [],
+                "event": payload['event'] if "event" in payload else [],
+                "from_date": payload['from_date'] if 'from_date' in payload else "",
+                "to_date": payload['to_date'] if 'to_date' in payload else ""
+            }
+        else:
+            data = {}
+        data = AuditLogList.list_audit_log(filters=data, parameters=parameters, user_identity=claims)
+        return Response.success(response_data=data,
+                                status_code=HttpStatusCode.OK, message="list Audit trial")
+
 @api.route("/settings/audit_trial/fields")
 class AuditTrialFieldsList(Resource):
     @jwt_required()
@@ -153,3 +194,4 @@ class AuditTrialFieldsList(Resource):
         return Response.success(response_data=data,
                         status_code=HttpStatusCode.OK,
                         message="Details successfully fetched")
+
