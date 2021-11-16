@@ -278,6 +278,8 @@ class PainDetailGraphService:
                 data_dict={}
                 data_dict['score'] = data['Percentage']
                 data_dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
+                time = data['AddedOn'] + timedelta(hours=5, minutes=30)
+                data_dict['time'] = time.strftime("%H:%M:%S")
                 all_data.append(data_dict)
 
         elif param == "week":
@@ -287,16 +289,15 @@ class PainDetailGraphService:
             end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
             query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
                                                      "SubjectId": subject, "IsActive": True}). \
-                              sort("AddedOn", 1))
-            data_dict = {}
-            for data in query_data:
-                data_dict.update({data['AddedOn'].strftime('%m-%d-%Y'): data['Percentage']})
-            dict_data = dict(sorted(data_dict.items(), key=lambda item: item[0], reverse=True))
-            for i,j in dict_data.items():
-                new_dict = {}
-                new_dict['score'] = j
-                new_dict['date'] = i
-                all_data.append(new_dict)
+                              sort("AddedOn", -1))
+            if query_data:
+                for data in query_data:
+                    data_dict = {}
+                    data_dict['score'] = data['Percentage']
+                    data_dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
+                    time = data['AddedOn'] + timedelta(hours=5, minutes=30)
+                    data_dict['time'] = time.strftime("%H:%M:%S")
+                    all_data.append(data_dict)
 
         elif param == "month":
             date_today = date.today()
@@ -306,15 +307,14 @@ class PainDetailGraphService:
             query_data = list(mongo_db.db.Pegs.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
                                                      "SubjectId": subject, "IsActive": True}). \
                               sort("AddedOn", -1))
-            data_dict = {}
-            for data in query_data:
-                data_dict.update({data['AddedOn'].strftime('%m-%d-%Y'): data['Percentage']})
-            dict_data = dict(sorted(data_dict.items(), key=lambda item: item[0], reverse=True))
-            for i, j in dict_data.items():
-                new_dict = {}
-                new_dict['score'] = j
-                new_dict['date'] = i
-                all_data.append(new_dict)
+            if query_data:
+                for data in query_data:
+                    data_dict = {}
+                    data_dict['score'] = data['Percentage']
+                    data_dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
+                    time = data['AddedOn'] + timedelta(hours=5, minutes=30)
+                    data_dict['time'] = time.strftime("%H:%M:%S")
+                    all_data.append(data_dict)
 
         return all_data
 
