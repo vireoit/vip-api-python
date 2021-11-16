@@ -11,8 +11,8 @@ from app.status_constants import HttpStatusCode
 from app.exceptions import FileNotSelected, FileUploadException, FileFormatException
 from app.utils import file_service_util
 
-from app.settings.delegates import RewardConfigurationDelegate, ResourceConfigurationDelegate, \
-    ResourceConfigurationUniqueDelegate, AuditTrialFieldsListDelegate
+from app.settings.delegates import RewardConfigurationDelegate, ResourceConfigurationDelegate,\
+    ResourceConfigurationUniqueDelegate, AuditLogList,AuditTrialFieldsListDelegate
 
 from app.settings.schemas import RewardSchema, ResourceConfigurationSchema
 from flask_restx import Api, Resource, fields
