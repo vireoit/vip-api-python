@@ -1,5 +1,5 @@
 class AuditLogEvents:
-    LOGS = {"user_log": {"name": "User Logs", "events": ["User-Signup-Initiated"
+    LOGS = {"user_log": {"name": "User Logs", "events": ["User-Signup-Initiated",
                                                          "User-Signup-Completed",
                                                          "User-signin-initiated",
                                                          "User-signin-completed",
@@ -7,8 +7,8 @@ class AuditLogEvents:
                                                          "Fitbit-Integration",
                                                          "Pain Score-submit",
                                                          "Pain Score-update",
-                                                         "Satisfaction Score- Submit",
-                                                         "Satisfaction Score- update",
+                                                         "Satisfaction Score-Submit",
+                                                         "Satisfaction Score-update",
                                                          "Recommendation-View",
                                                          "Rewards-View",
                                                          "Survey-Submit",
@@ -61,5 +61,8 @@ class AuditLogEvents:
                                                            "Setting-Profile-Submit",
                                                            "Setting-Profile-Update",
                                                            "Rewards-Submit",
-                                                           "Redemption-Submit"]}
+                                                           "Redemption-Submit",
+                                                           "Resource-Add",
+                                                           "Resource-Edit",
+                                                           "Resource-Delete"]}
             }

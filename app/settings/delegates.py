@@ -1,5 +1,5 @@
 from app.settings.services import RewardConfigurationService, ResourceConfigurationService, \
-    ResourceConfigurationUniqueService, AuditLogListService
+    ResourceConfigurationUniqueService, AuditLogListService, AuditTrialFieldsListService
 
 
 class RewardConfigurationDelegate:
@@ -12,6 +12,7 @@ class RewardConfigurationDelegate:
     def get_reward_configuration(user_identity):
         data = RewardConfigurationService.get_reward_configuration(user_identity)
         return data
+
 
 class ResourceConfigurationDelegate:
     @staticmethod
@@ -46,4 +47,11 @@ class AuditLogList:
     @staticmethod
     def list_audit_log(filters, parameters, user_identity):
         response = AuditLogListService.list_audit_log(filters, parameters, user_identity)
+        return response
+
+        
+class AuditTrialFieldsListDelegate:
+    @staticmethod
+    def get_audit_trial_fields_list(parameters):
+        response = AuditTrialFieldsListService.get_audit_trial_fields_list(parameters)
         return response
