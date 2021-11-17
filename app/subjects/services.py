@@ -289,11 +289,12 @@ class SubjectService:
             data['Subject Name'] = data['Subject']['Name']
             t = data['DateOfLog'].astimezone()
             data['Date'] = t.strftime('%m/%d/%Y')
-            data['Triggers'] = list_string_to_string(data['Triggers'])
+            data['Triggers'] = list_string_to_string(data['Triggers']) 
             data['PainType'] = list_string_to_string(data['PainType'])
             data['Sleep'] = list_string_to_string(data['Sleep'])
             data['Treatments'] = list_string_to_string(data['Treatments'])
             data['PainLocation'] = list_string_to_string(data['PainLocation'])
+            data['SleepOthersNotes'] = data.pop('SleepDisturbNotes')
             all_medications = []
             if data['Medications']:
                 for value in data['Medications']:
@@ -310,7 +311,7 @@ class SubjectService:
                 data['Pain Level'] = list_items['title']+", "+list_items['description']
             else:
                 data['Pain Level'] = None
-            keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'Notes', 'BodySide', 'DateOfLog', 'LevelOfPain']
+            keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'BodySide', 'DateOfLog', 'LevelOfPain']
             list(map(data.pop, keys))
             all_data.append(data)
         return all_data
@@ -357,6 +358,7 @@ class SubjectService:
             data['Sleep'] = list_string_to_string(data['Sleep'])
             data['Treatments'] = list_string_to_string(data['Treatments'])
             data['PainLocation'] = list_string_to_string(data['PainLocation'])
+            data['SleepOthersNotes'] = data.pop('SleepDisturbNotes')
             all_medications = []
             if data['Medications']:
                 for value in data['Medications']:
@@ -373,7 +375,7 @@ class SubjectService:
                 data['Pain Level'] = list_items['title']+", "+list_items['description']
             else:
                 data['Pain Level'] = None
-            keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'Notes', 'BodySide', 'DateOfLog', 'LevelOfPain']
+            keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'BodySide', 'DateOfLog', 'LevelOfPain']
             list(map(data.pop, keys))
             all_data.append(data)
         data_file = export_pain_data(all_data)
