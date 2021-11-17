@@ -21,3 +21,6 @@ def register_routes(api, app, root="api"):
     from app.settings import register_routes
     register_routes(api, app)
 
+    from app.general import register_routes
+    register_routes(api, app)
+

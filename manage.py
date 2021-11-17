@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from app import create_app
 from flask_cors import CORS
+from flask_mail import Mail
 
 env = os.getenv("FLASK_ENV") or "dev"
 print(f"Active environment: * {env} *")
@@ -16,6 +17,8 @@ migrate = Migrate(app, mongo_db)
 manager = Manager(app)
 
 jwt = JWTManager(app)
+
+mail = Mail(app)
 
 # CORS enabling
 

@@ -4,19 +4,23 @@ from flask_marshmallow import Marshmallow
 from .status_constants import HttpStatusCode, BusinessErrorCode
 from .response import Response
 from flask_pymongo import PyMongo
+from flask_mail import Mail
+
 
 ma = Marshmallow()
 mongo_db = PyMongo()
+mail = Mail()
 
 
 def create_app(env=None):
     from app.config import config_by_name
     from app.routes import register_routes
 
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder="templates")
     app.config.from_object(config_by_name[env or 'dev'])
     mongo_db.init_app(app)
     ma.init_app(app)
+    mail.init_app(app)
 
     from flask import Blueprint
 
