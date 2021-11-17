@@ -507,7 +507,7 @@ class AdminHomeUserRatingsService:
     @staticmethod
     def get_admin_home_user_ratings(parameters):
         excellent_count, good_count, neutral_count, bad_count, worst_count = 0, 0, 0, 0, 0
-        query_data = list(mongo_db.db.Feedback.find({}))
+        query_data = list(mongo_db.db.Feedback.find({"feedback": {"$ne": 0}}))
         total_count = len(query_data)
         for val in query_data:
             if val['feedback'] == 1:

@@ -60,7 +60,7 @@ class SurveyService:
     @staticmethod
     def get_survey_questions(in_survey_id, in_subject_ids, in_question_list):
 
-        survey_sub_query = {'_id': {'$in': [ObjectId(in_survey_id)]}}
+        survey_sub_query = {'_id': {'$in': in_survey_id}}
         patient_sub_query = {'Patients._id': {'$in': in_subject_ids}}
 
         aggr_data = mongo_db.db.Surveys.aggregate([
@@ -74,13 +74,14 @@ class SurveyService:
 
             {"$match": {"Patients.DatesInfo.QuestionsAndAnswers.Question": {'$in': in_question_list}}},
 
-            {"$project": {'Patients.Name': 1, 'Patients.DatesInfo.QuestionsAndAnswers.Answers': 1, 'Patients._id': 1,
+            {"$project": {'Name':1, 'Patients.Name': 1, 'Patients.DatesInfo.QuestionsAndAnswers.Answers': 1, 'Patients._id': 1,
                           "Patients.DatesInfo.QuestionsAndAnswers.Question": 1, "Patients.DatesInfo.SubmittedDate": 1}},
 
             {"$group": {"_id": "$Patients.Name",
                         "data": {"$push": {"question": "$Patients.DatesInfo.QuestionsAndAnswers.Question",
                                            "answer": "$Patients.DatesInfo.QuestionsAndAnswers.Answers.Answer",
                                            "submittedDate": "$Patients.DatesInfo.SubmittedDate",
+                                           "surveyName": "$Name",
                                            "subjectName": "$Patients.Name", "subject_id": "$Patients._id"}}
                         }}])
 
@@ -93,7 +94,7 @@ class SurveyService:
     @staticmethod
     def cleaned_inputs(payload):
 
-        in_survey_id = ObjectId(payload.get("survey_id"))
+        in_survey_id = [ObjectId(survey_id) for survey_id in payload.get("survey_id")]
         in_subject_ids = [ObjectId(subject_id) for subject_id in payload.get("subject_ids")]
         in_question_list = [data_dict['question'] for data_dict in payload.get("question_list") if data_dict.get('question')]
 
