@@ -23,6 +23,7 @@ flask-accepts==0.17.6
 Flask-Cors==3.0.9
 Flask-Filter==0.1.0.dev5
 Flask-JWT-Extended==4.1.0
+Flask-Mail==0.9.1
 flask-marshmallow==0.14.0
 Flask-Migrate==3.1.0
 Flask-PyMongo==2.3.0

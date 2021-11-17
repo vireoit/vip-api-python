@@ -10,6 +10,13 @@ class BaseConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = "super-secret"
     JWT_IDENTITY_CLAIM = "unique_name"
+    MAIL_SERVER = "smtp.gmail.com"
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_USERNAME = 'vip@tangentia.com'  # enter your email here
+    MAIL_DEFAULT_SENDER = 'vip@tangentia.com'  # enter your email here
+    MAIL_PASSWORD = 'VipTangentia@2021'
 
 
 class DevelopmentConfig(BaseConfig):
