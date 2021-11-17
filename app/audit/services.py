@@ -50,3 +50,15 @@ class AuditService:
         }
 
         return response_data
+
+    @staticmethod
+    def create_anonymous_audit_log(data):
+
+        data['actor'] = {}
+        data['action_type'] = request.method
+        data['updated_at'] = datetime.utcnow()
+        data['created_at'] = datetime.utcnow()
+        data['remote_ip_address'] = request.remote_addr
+        data['device_info'] = detect_device()
+
+        mongo_db.db.AuditLog.insert_one(data)
