@@ -584,7 +584,6 @@ class RatingAndFeedbackDetailsService:
             val = format_cursor_obj(json.loads(bs))
             query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(val['subject_id'])})
             val['subject_name'] = query_data['Name']
-            print(val)
             feedback_list.append(val)
         response_data = {
             'result': feedback_list,

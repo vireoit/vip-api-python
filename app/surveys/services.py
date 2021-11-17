@@ -26,7 +26,6 @@ class SurveyService:
             response_list = []
 
             all_data = SurveyService.get_survey_questions(in_survey_id, in_subject_ids, in_question_list)
-            print("*&*&", all_data)
             if all_data:
                 # all_data = response_data.get('data')
                 all_data1 = all_data[:]
