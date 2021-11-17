@@ -576,8 +576,8 @@ class RatingAndFeedbackDetailsService:
     def get_rating_feedback_details(parameters):
         limit_by = parameters.get('limit')
         page = parameters.get("page")
-        total_count = mongo_db.db.Feedback.find({}).count()
-        query_data = mongo_db.db.Feedback.find().sort("updated_on", -1).skip((page-1) * limit_by).limit(limit_by).limit(limit_by)
+        total_count = mongo_db.db.Feedback.find({"feedback": {"$ne": 0}}).count()
+        query_data = mongo_db.db.Feedback.find({"feedback": {"$ne": 0}}).sort("updated_on", -1).skip((page-1) * limit_by).limit(limit_by).limit(limit_by)
         feedback_list = []
         for data in query_data:
             bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
