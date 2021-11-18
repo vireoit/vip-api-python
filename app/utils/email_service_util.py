@@ -1,13 +1,16 @@
-from app import mail
+from app import mail, app
 from flask_mail import Message
-from flask import render_template
+from threading import Thread
+
+def _send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
 
 
-def send_email_patient_activation(data_list, message, subject, template):
-    with mail.connect() as conn:
-        for data in data_list:
-            msg = Message(recipients=[data['email_id']],
-                          body=message,
-                          subject=subject)
-            msg.html = render_template(template, sending_mail=True, data=data)
-            conn.send(msg)
+def send_email(subject, sender="vip@tangentia.com", recipients=[], text_body="", html_body=""):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    thr = Thread(target=_send_async_email, args=[app, msg])
+    thr.start()
+
