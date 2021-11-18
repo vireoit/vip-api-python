@@ -69,8 +69,10 @@ class OnGoingFeedbackService:
         data['subject_id'] = ObjectId(data['subject_id'])
         data['feedback'] = int(data['feedback'])
         data['added_on'] = datetime.utcnow()
-        create_data = mongo_db.db.Feedback.insert_one(data)
-        return create_data
+        mongo_db.db.Feedback.insert_one(data)
+        if int(data['feedback']) == 0:
+            return {"is_cancelled": True}
+        return {"is_cancelled": False}
 
 class SatisfactionService:
     @staticmethod

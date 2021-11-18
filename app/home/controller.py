@@ -74,8 +74,8 @@ class OnGoingFeedback(Resource):
             payload = request.json
             FeedBack().load(payload)
             data = OnGoingFeedBack.create_on_going_feedback(payload, user_identity=claims)
-            return Response.success(response_data={},
-                                    status_code=HttpStatusCode.OK, message="Feedback Successfully created")
+            return Response.success(response_data=data,
+                                    status_code=HttpStatusCode.OK, message="Feedback Successfully Saved")
         except ValidationError as err:
             return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message="Validation Error Occurred")
 

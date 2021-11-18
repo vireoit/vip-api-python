@@ -34,6 +34,7 @@ class SurveyService:
                     submitted_date = data['submittedDate'] + timedelta(hours=5, minutes=30)
                     dict = {
                         'Subject Name': data['subjectName'],
+                        'Survey Name': data['surveyName'],
                         'Submitted Date': submitted_date.strftime("%d/%m/%Y"),
                         data['question']: data['answer']
                     }
@@ -51,7 +52,17 @@ class SurveyService:
                     if new_tuple not in new_response_set:
                         new_response_set.add(new_tuple)
                         new_response_list.append(data)
-            data_file = export_table_data(new_response_list)
+            sur_list = []
+            for survey in new_response_list:
+                sur_list.append(survey['Survey Name'])
+                sur_list = list(set(sur_list))
+            
+            fields = {key: [] for key in sur_list}
+            for data in new_response_list:
+                for key, values in fields.items():
+                    if data['Survey Name'] == key:
+                        fields[key].append(data)    
+            data_file = export_table_data(fields)
             return data_file
         except Exception as e:
             print(e)
