@@ -76,3 +76,24 @@ class AuditLog(Resource):
         data = AuditLogDelegate.get_all_logs(filters=parameters, user_identity=current_user)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="Audit log list")
+
+
+@api.route("/audit/log/anonymous")
+class AnonymousAuditLog(Resource):
+    """
+    Audit log anonymous controller
+    """
+    @api.expect(audit_log_request_body)
+    def post(self):
+        """
+        Create audit log entries
+        """
+        try:
+            payload = request.json
+            CreateAuditLog().load(payload)
+
+            AuditLogDelegate.create_anonymous_audit_log(payload)
+            return Response.success(response_data={},
+                                    status_code=HttpStatusCode.OK, message="Audit log created successfully")
+        except ValidationError as err:
+            return Response.error(err.messages, HttpStatusCode.BAD_REQUEST, message="Validation Error Occurred")
