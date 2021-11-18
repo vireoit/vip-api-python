@@ -21,7 +21,8 @@ from app.base_urls import VIP_EMAIL_LINK
 from app.exceptions import RedeemedPoint
 
 from statistics import mode
-from app.utils.email_service_util import send_email_patient_activation
+from app.utils.email_service_util import send_email
+from flask import render_template
 
 class SubjectImportService:
     @staticmethod
@@ -95,10 +96,9 @@ class SubjectImportService:
                 pass
             inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})	
             data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
-            send_email_patient_activation(data_list=data, 
-                message="Dear", 
-                subject="Activation mail", 
-                template='PatientActivationMail.html')
+            for val in data:
+                context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
+                send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" , html_body=context_data)
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
             error = err.messages
@@ -140,10 +140,9 @@ class SubjectImportService:
                 pass
             inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})
             data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
-            send_email_patient_activation(data_list=data, 
-                message="Dear", 
-                subject="Activation mail", 
-                template='PatientActivationMail.html')
+            for val in data:
+                context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
+                send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" ,html_body=context_data)
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
             error = err.messages
