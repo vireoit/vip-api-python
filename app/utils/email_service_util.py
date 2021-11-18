@@ -3,15 +3,11 @@ from flask_mail import Message
 from flask import render_template
 
 
-def send_email():
+def send_email_patient_activation(data_list, message, subject, template):
     with mail.connect() as conn:
-        users = ['arunyajayan96@gmail.com', 'vishnu1998prasad@gmail.com']
-        for user in users:
-            message = 'Wellcome to VIP'
-            subject = "hello, %s" % user
-            msg = Message(recipients=[user],
+        for data in data_list:
+            msg = Message(recipients=[data['email_id']],
                           body=message,
                           subject=subject)
-            msg.html = render_template('verification_mail.html', sending_mail=True)
-
+            msg.html = render_template(template, sending_mail=True, data=data)
             conn.send(msg)

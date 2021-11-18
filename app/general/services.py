@@ -1,9 +1,9 @@
-from app.utils.email_service_util import send_email
+from app.utils.email_service_util import send_email_patient_activation
 
 
 class TestEmailService:
     @staticmethod
     def test_email():
-        send_email()
+        send_email_patient_activation()
 
 
