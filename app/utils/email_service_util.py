@@ -1,17 +1,16 @@
-from app import mail
+from app import mail, app
 from flask_mail import Message
-from flask import render_template
+from threading import Thread
 
 
-def send_email():
-    with mail.connect() as conn:
-        users = ['arunyajayan96@gmail.com', 'vishnu1998prasad@gmail.com']
-        for user in users:
-            message = 'Wellcome to VIP'
-            subject = "hello, %s" % user
-            msg = Message(recipients=[user],
-                          body=message,
-                          subject=subject)
-            msg.html = render_template('verification_mail.html', sending_mail=True)
+def _send_async_email(app, msg):
+    with app.app_context():
+        mail.send(msg)
 
-            conn.send(msg)
+
+def send_email(subject, sender, recipients, text_body, html_body):
+    msg = Message(subject, sender=sender, recipients=recipients)
+    msg.body = text_body
+    msg.html = html_body
+    thr = Thread(target=_send_async_email, args=[app, msg])
+    thr.start()
