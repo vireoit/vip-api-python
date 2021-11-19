@@ -14,4 +14,3 @@ def send_email(subject, sender="vip@tangentia.com", recipients=[], text_body="",
     msg.html = html_body
     thr = Thread(target=_send_async_email, args=[app, msg])
     thr.start()
-
