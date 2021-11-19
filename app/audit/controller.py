@@ -12,7 +12,6 @@ from app.status_constants import HttpStatusCode
 from app.audit.schemas import CreateAuditLog
 from app.audit.delegates import AuditLogDelegate
 from app.utils.general import detect_device
-from app.utils.email_service_util import send_email
 
 api = Namespace("Audit Log", description="Namespace for audit log")
 
@@ -73,11 +72,9 @@ class AuditLog(Resource):
 
         if 'page' in request.args and request.args.get('page'):
             parameters['page'] = int(request.args.get('page'))
-        # for i in range(10):
-        # send_email("test mail", "vip@tangentia.com'", ["ajayan@tangentia.com", ], "Hello Body",
-        #            "<H4>Hello HTML body</H4>")
+
         data = AuditLogDelegate.get_all_logs(filters=parameters, user_identity=current_user)
-        return Response.success(response_data={},
+        return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="Audit log list")
 
 
