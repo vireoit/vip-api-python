@@ -1,4 +1,5 @@
 import os
+from re import template
 import pandas as pd
 import json
 import pytz
@@ -16,23 +17,27 @@ from app.subjects.export import export_table_data, export_pain_data
 from app.utils.mongo_encoder import format_cursor_obj
 from app.utils.data_format_service_util import list_string_to_string
 from app.utils.http_service_util import perform_http_request
-from app.base_urls import VIP_ADMIN_URL, VIP_BACKEND_URL
+from app.base_urls import VIP_EMAIL_LINK
 from app.exceptions import RedeemedPoint
 
 from statistics import mode
-
+from app.utils.email_service_util import send_email
+from flask import render_template
 
 class SubjectImportService:
     @staticmethod
-    def send_activation_email(inactive_subjects_query, parameters):
+    def format_email_verification_data(inactive_subjects_query, parameters):
+        data_list= []
         for sub in inactive_subjects_query:
+            dict = {}
             bs = dumps(sub, json_options=RELAXED_JSON_OPTIONS)
             val  = format_cursor_obj(json.loads(bs))
-            email_id = val['Email']
-            user_id = val['_id']
-            response_data = perform_http_request(f'{VIP_BACKEND_URL}/api/Mail/Activation?email={email_id}&userId={user_id}', parameters['authorization'], 
-                body={}, request_method="POST")
-        return    
+            print(val)
+            dict['email_id'] = val['Email']
+            dict['name'] = val['Name']
+            dict['url'] = "https://" + VIP_EMAIL_LINK + "/activation?guid=" + val['_id']
+            data_list.append(dict)
+        return data_list
             
     @staticmethod
     def format_file(data):
@@ -90,7 +95,10 @@ class SubjectImportService:
             else:
                 pass
             inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})	
-            SubjectImportService.send_activation_email(inactive_subjects_query, parameters)
+            data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
+            for val in data:
+                context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
+                send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" , html_body=context_data)
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
             error = err.messages
@@ -131,7 +139,10 @@ class SubjectImportService:
             else:
                 pass
             inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})
-            SubjectImportService.send_activation_email(inactive_subjects_query, parameters)
+            data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
+            for val in data:
+                context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
+                send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" ,html_body=context_data)
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
             error = err.messages
