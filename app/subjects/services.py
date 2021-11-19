@@ -94,7 +94,7 @@ class SubjectImportService:
                 mongo_db.db.Subjects.insert_many(payload)
             else:
                 pass
-            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})	
+            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False}).sort('AddedOn', -1)	
             data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
             for val in data:
                 context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
@@ -138,7 +138,7 @@ class SubjectImportService:
                 mongo_db.db.Subjects.insert_many(payload)
             else:
                 pass
-            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False})
+            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False}).sort('AddedOn', -1)
             data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
             for val in data:
                 context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
