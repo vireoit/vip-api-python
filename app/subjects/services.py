@@ -281,6 +281,44 @@ class SubjectService:
         return format_cursor_obj(json.loads(bs))
 
     @staticmethod
+    def pain_type_list_to_string(pain_type, others):
+        if 'Others' in pain_type:
+            other_pain = 'Others - ' + others
+            pain_type = [sub.replace('Others', other_pain) for sub in pain_type]
+        format_data = (';'.join(pain_type))
+        return format_data
+
+    @staticmethod
+    def sleep_list_to_string(sleep, others):
+        if 'Others' in sleep:
+            other_pain = 'Others - ' + others
+            sleep = [sub.replace('Others', other_pain) for sub in sleep]
+        format_data = (';'.join(sleep))
+        return format_data
+
+    @staticmethod
+    def pain_detail(lop, json_data):
+        list_items = [data_dict for data_dict in json_data if str(data_dict["id"]) == lop]
+        if len(list_items) > 0:
+            list_items = list_items[0]
+            pain_def = list_items['id']+", "+list_items['title']
+        else:
+            pain_def = ""
+        return pain_def
+
+    @staticmethod
+    def pain_location_list_to_string(pain_location, level_of_pain, json_data):
+        i, j = 0, 0
+        l = []
+        while i < len(pain_location) and j < len(level_of_pain):
+            pain = pain_location[i] +"-"+ SubjectService.pain_detail(level_of_pain[j], json_data)
+            l.append(pain)
+            i += 1
+            j += 1
+        format_data = (';'.join(l))
+        return format_data
+    
+    @staticmethod
     def pain_details_fetch(data, user_identity):
         if data['from_date']:
             start_date = datetime.strptime(str(data['from_date']), "%m-%d-%Y")
@@ -304,29 +342,23 @@ class SubjectService:
         for data in query_data:
             data['Subject Name'] = data['Subject']['Name']
             t = data['DateOfLog'].astimezone()
-            data['Date'] = t.strftime('%m/%d/%Y')
+            data['Submitted Date'] = t.strftime('%m/%d/%Y')
             data['Triggers'] = list_string_to_string(data['Triggers']) 
-            data['PainType'] = list_string_to_string(data['PainType'])
-            data['Sleep'] = list_string_to_string(data['Sleep'])
+            data['PainType'] = SubjectService.pain_type_list_to_string(data['PainType'], data['PainTypeOthersNotes'])
+            data['Sleep'] = SubjectService.sleep_list_to_string(data['Sleep'], data['SleepDisturbNotes'])
             data['Treatments'] = list_string_to_string(data['Treatments'])
-            data['PainLocation'] = list_string_to_string(data['PainLocation'])
-            data['SleepOthersNotes'] = data.pop('SleepDisturbNotes')
+            json_file = open("app/configuration/pain_level.json")
+            json_data = json.load(json_file)
+            data['PainLocation'] = SubjectService.pain_location_list_to_string(data['PainLocation'], data['LevelOfPain'], json_data)
             all_medications = []
             if data['Medications']:
                 for value in data['Medications']:
+                    data['Feeback for vireo products'] = value['Feedback']
                     medications = value['Medication']['Name']+", " + value['Dosage']
                     all_medications.append(medications)
                 data['Medications'] = list_string_to_string(all_medications)
             else:
                 data['Medications'] = None
-            json_file = open("app/configuration/pain_level.json")
-            json_data = json.load(json_file)
-            list_items = [data_dict for data_dict in json_data if str(data_dict["id"]) in data['LevelOfPain']]
-            if len(list_items) > 0:
-                list_items = list_items[0]
-                data['Pain Level'] = list_items['title']+", "+list_items['description']
-            else:
-                data['Pain Level'] = None
             keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'BodySide', 'DateOfLog', 'LevelOfPain']
             list(map(data.pop, keys))
             all_data.append(data)
