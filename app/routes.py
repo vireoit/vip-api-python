@@ -24,3 +24,6 @@ def register_routes(api, app, root="api"):
     from app.general import register_routes
     register_routes(api, app)
 
+    from app.educational import register_routes
+    register_routes(api, app)
+
