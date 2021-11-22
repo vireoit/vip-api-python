@@ -10,8 +10,8 @@ def export_table_data(data, pain_details, insights_data):
     else:
         df2 = ""
     del df['_id']
-    df2 = df2[['Subject Name', 'Date', 'Triggers', 'PainType', 'Medications', 'Sleep', 'Treatments', 
-    'PainLocation', 'PainTypeOthersNotes', 'SleepOthersNotes', 'Pain Level', 'Notes']]
+    df2 = df2[['Subject Name', 'Submitted Date', 'Triggers', 'PainType', 'Medications', 'Sleep', 'Treatments', 
+    'PainLocation', 'Feeback for vireo products', 'Notes']]
     if insights_data:
         df3 = pd.DataFrame(insights_data)
     else:
