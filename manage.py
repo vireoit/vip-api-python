@@ -6,6 +6,8 @@ from app import create_app
 from flask_cors import CORS
 from flask_mail import Mail
 
+from app.notifications import Notification
+
 env = os.getenv("FLASK_ENV") or "dev"
 print(f"Active environment: * {env} *")
 
@@ -35,6 +37,16 @@ def do_expire_users():
     users = mongo_db.db.Subjects.find({})
     for user in users:
         print("users", user["Email"])
+
+
+@manager.command
+def do_notify_password_expiry():
+    Notification.password_expiry(mongo_db)
+
+
+@manager.command
+def do_expire_password():
+    Notification.do_expire_password(mongo_db)
 
 
 @manager.command
