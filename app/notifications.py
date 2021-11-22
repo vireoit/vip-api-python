@@ -23,9 +23,8 @@ class Notification:
                 days = (now - last_updated_date).days
                 if days == Notification.PASSWORD_EXPIRE_ALERT_DAYS:
                     print("send notification  --------")
-                    data_dict = {"name": user.get("Name", ""), "reset_link": "https://example.com"}
+                    data_dict = {"name": user.get("Name", ""), "reset_link": PASSWORD_RESET_LINK}
                     html_body = render_template('password_expiry_alert.html', sending_mail=True, context_data=data_dict)
-                    # TODO
                     send_email("VIP password expiry notification", sender="vip@tangentia.com", recipients=[email_id],
                                text_body="", html_body=html_body)
 
