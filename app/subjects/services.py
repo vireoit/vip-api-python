@@ -24,6 +24,7 @@ from statistics import mode
 from app.utils.email_service_util import send_email
 from flask import render_template
 
+
 class SubjectImportService:
     @staticmethod
     def format_email_verification_data(inactive_subjects_query, parameters):
@@ -96,9 +97,11 @@ class SubjectImportService:
                 pass
             inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False}).sort('AddedOn', -1)	
             data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
+
             for val in data:
                 context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
                 send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" , html_body=context_data)
+
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
             error = err.messages
@@ -140,9 +143,11 @@ class SubjectImportService:
                 pass
             inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False}).sort('AddedOn', -1)
             data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
+
             for val in data:
                 context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
                 send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" ,html_body=context_data)
+
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
             error = err.messages
