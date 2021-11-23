@@ -1,5 +1,6 @@
 import os
 from re import template
+from urllib.parse import uses_fragment
 import pandas as pd
 import json
 import pytz
@@ -158,6 +159,16 @@ class SubjectService:
     @staticmethod
     def export_subjects(data, user_identity):
         pain_details = SubjectService.pain_details_fetch(data, user_identity)
+        user_ratings = data.get('user_ratings')
+        ae_logs = data.get('ae_logs')
+        if ae_logs == True:
+            ae_list = SubjectService.get_ae_logs(data)
+        else:
+            ae_list = []
+        if user_ratings == True:
+            feedback_details = SubjectService.get_user_ratings()
+        else:
+            feedback_details = []
         insights = data.get('personal_insights')
         data = data.get('export_fields')
         if insights == True:
@@ -169,8 +180,52 @@ class SubjectService:
         all_data = []
         for data in query_data:
             all_data.append(data)
-        data_file = export_table_data(all_data, pain_details, insights_data)
+        data_file = export_table_data(all_data, pain_details, insights_data, feedback_details, ae_list)
         return data_file
+    
+    @staticmethod
+    def get_user_ratings():
+        query_data = mongo_db.db.Feedback.find({"feedback": {"$ne": 0}}).sort("updated_on", -1)
+        feedback_list = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(val['subject_id'])})
+            val['Subject Name'] = query_data['Name']
+            val['Reported Date'] = val['added_on'][0:10]
+            val['Rating'] = val['feedback']
+            keys = ['updated_on','added_on', '_id', 'subject_id', 'feedback']
+            list(map(val.pop, keys))
+            feedback_list.append(val)
+        return feedback_list
+    
+    @staticmethod
+    def get_ae_logs(data):
+        if data['ae_from_date']:
+            start_date = datetime.strptime(str(data['ae_from_date']) + " 00:00", "%m-%d-%Y %H:%M")
+        else:
+            start_date = ""
+        if data['ae_to_date']:
+            end_date = datetime.strptime(str(data['ae_to_date']) + " 23:59", "%m-%d-%Y %H:%M")
+        else:
+            end_date = ""
+        query_data = list(mongo_db.db.AdverseEvent.find({"AddedOn": {"$lte": end_date, '$gt': start_date}}).sort("AddedOn", -1))
+        resource_list = []
+        for data in query_data:
+            bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
+            val = format_cursor_obj(json.loads(bs))
+            val['Subject Name'] = val['Name']
+            val['Event Type'] = list_string_to_string(val['EventType'])
+            val['Start Date'] = val['StartDate'][0:10]
+            val['Reported Date'] = val['AddedOn'][0:10]
+            val['Ongoing or not'] = str(val['IsOngoing'])
+            val['Any relation with cannabis product'] = val['IsCannabisProduct']
+            val['Any treatment received for the event'] = val['TreatmentInfo']
+            keys = ['_id', 'IsOngoing', 'IsCannabisProduct', 'EventType', 'StartDate', 'AddedOn', 'Name',
+            'TreatmentInfo', 'SubjectId', 'IsActive']
+            list(map(val.pop, keys))
+            resource_list.append(val)
+        return resource_list
 
     @staticmethod
     def add_multiple_pains(lop_list):
