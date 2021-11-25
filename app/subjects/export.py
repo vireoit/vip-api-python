@@ -3,15 +3,18 @@ import xlsxwriter
 import pandas as pd
 
 def export_table_data(data, pain_details, insights_data, feedback_details, ae_list):
-    df = pd.DataFrame(data)
+    if data:
+        df = pd.DataFrame(data)
+        del df['_id']
+    else:
+        df = ""
     if pain_details:
         df2 = pd.DataFrame(pain_details)
         del df2['_id']
+        df2 = df2[['Subject Name', 'Submitted Date', 'Triggers', 'PainType', 'Medications', 'Sleep', 'Treatments', 
+        'PainLocation', 'Feeback for vireo products', 'Notes']]
     else:
         df2 = ""
-    del df['_id']
-    df2 = df2[['Subject Name', 'Submitted Date', 'Triggers', 'PainType', 'Medications', 'Sleep', 'Treatments', 
-    'PainLocation', 'Feeback for vireo products', 'Notes']]
     if insights_data:
         df3 = pd.DataFrame(insights_data)
     else:
@@ -27,8 +30,9 @@ def export_table_data(data, pain_details, insights_data, feedback_details, ae_li
         'Any treatment received for the event']]
     else:
         df5 = ""
-    with pd.ExcelWriter('subjects.xls') as writer:  
-        df.to_excel(writer, sheet_name='Subjects', index=False)
+    with pd.ExcelWriter('subjects.xls') as writer:
+        if data:  
+            df.to_excel(writer, sheet_name='Subjects', index=False)
         if pain_details:
             df2.to_excel(writer, sheet_name='Pain Details', index=False)
         if insights_data:
