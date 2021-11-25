@@ -94,6 +94,8 @@ class SatisfactionService:
     def take_integer_from_string(data):
         if data == "NA":
             return 0
+        elif data == "Any #":
+            return "Any #"
         else:
             return (int(re.search(r'\d+', data).group()))
 
@@ -154,9 +156,9 @@ class SatisfactionService:
             severity = SatisfactionService.take_integer_from_string(data['TSQMSeverity'])
             peg_score = SatisfactionService.take_integer_from_string(data['PEGScore'])
             if subject_side_effects == side_effects:
-                if satisfaction >= subject_satisfaction or satisfaction <= subject_satisfaction:
+                if satisfaction >= subject_satisfaction or satisfaction <= subject_satisfaction or satisfaction == "Any #":
                     if severity >= subject_severity or severity <= subject_severity:
-                        if peg_score >= subject_peg_score or peg_score <= subject_peg_score:
+                        if peg_score >= subject_peg_score or peg_score <= subject_peg_score or satisfaction == "Any #":
                             return data['Recomendation']['Name']
                         else:
                             return "No recommendations"
@@ -284,7 +286,7 @@ class AdminHomeGraphService:
         all_data = []
         if frequency == "Today":
             start_date, end_date = AdminHomeGraphService.format_dates(frequency)
-            query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).count()
+            query_data = mongo_db.db.Subjects.find().count()
             dict={}
             dict['patient_count'] = query_data
             dict['date'] = start_date.strftime('%m-%d-%Y')
@@ -300,7 +302,7 @@ class AdminHomeGraphService:
                     l1.append(str(data['AddedOn'].date()))
                     start_date = datetime.strptime(str(data['AddedOn'].date()) + " 00", "%Y-%m-%d %H")
                     end_date = datetime.strptime(str(data['AddedOn'].date()) + " 23", "%Y-%m-%d %H")
-                    query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).count()
+                    query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date}}).count()
                     dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
                     dict['patient_count'] = query_data
                     all_data.append(dict)
@@ -315,7 +317,7 @@ class AdminHomeGraphService:
                     l1.append(str(data['AddedOn'].date()))
                     start_date = datetime.strptime(str(data['AddedOn'].date()) + " 00", "%Y-%m-%d %H")
                     end_date = datetime.strptime(str(data['AddedOn'].date()) + " 23", "%Y-%m-%d %H")
-                    query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).count()
+                    query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date}}).count()
                     dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
                     dict['patient_count'] = query_data
                     all_data.append(dict)
@@ -358,7 +360,7 @@ class AdminHomeGraphService:
         all_data = []
         if frequency == "Today":
             start_date, end_date = AdminHomeGraphService.format_dates(frequency)
-            query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).count()
+            query_data = mongo_db.db.Surveys.find().count()
             dict={}
             dict['survey_count'] = query_data
             dict['date'] = start_date.strftime('%m-%d-%Y')
@@ -374,7 +376,7 @@ class AdminHomeGraphService:
                     l1.append(str(data['CreatedOn'].date()))
                     start_date = datetime.strptime(str(data['CreatedOn'].date()) + " 00", "%Y-%m-%d %H")
                     end_date = datetime.strptime(str(data['CreatedOn'].date()) + " 23", "%Y-%m-%d %H")
-                    query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).count()
+                    query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date}}).count()
                     dict['date'] = data['CreatedOn'].strftime('%m-%d-%Y')
                     dict['survey_count'] = query_data
                     all_data.append(dict)
@@ -389,7 +391,7 @@ class AdminHomeGraphService:
                     l1.append(str(data['CreatedOn'].date()))
                     start_date = datetime.strptime(str(data['CreatedOn'].date()) + " 00", "%Y-%m-%d %H")
                     end_date = datetime.strptime(str(data['CreatedOn'].date()) + " 23", "%Y-%m-%d %H")
-                    query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).count()
+                    query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date}}).count()
                     dict['date'] = data['CreatedOn'].strftime('%m-%d-%Y')
                     dict['survey_count'] = query_data
                     all_data.append(dict)

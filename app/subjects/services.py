@@ -445,7 +445,7 @@ class SubjectService:
             all_medications = []
             if data['Medications']:
                 for value in data['Medications']:
-                    data['Feeback for vireo products'] = value['Feedback']
+                    data['Feedback for vireo products'] = value['Feedback']
                     medications = value['Medication']['Name']+", " + value['Dosage']
                     all_medications.append(medications)
                 data['Medications'] = list_string_to_string(all_medications)
