@@ -6,6 +6,8 @@ def export_table_data(data, pain_details, insights_data, feedback_details, ae_li
     if data:
         df = pd.DataFrame(data)
         del df['_id']
+        if df.empty:
+            data = ""
     else:
         df = ""
     if pain_details:
