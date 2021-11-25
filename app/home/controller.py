@@ -131,7 +131,7 @@ class AdminHomeStatistics(Resource):
 @api.route("/home/admin/patients")
 @api.doc(paylod={'frequency': 'Today/Weekly/Monthly'})
 class AdminHomePatientsGraph(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         parameters = {
             "frequency": request.args.get("frequency")
