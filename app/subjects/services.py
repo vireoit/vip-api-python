@@ -198,17 +198,17 @@ class SubjectService:
         pain_details = SubjectService.pain_details_fetch(data, user_identity)
         user_ratings = data.get('user_ratings')
         ae_logs = data.get('ae_logs')
-        if ae_logs == True:
+        if ae_logs and isinstance(ae_logs, bool):
             ae_list = SubjectService.get_ae_logs(data)
         else:
             ae_list = []
-        if user_ratings == True:
+        if user_ratings and isinstance(user_ratings, bool):
             feedback_details = SubjectService.get_user_ratings()
         else:
             feedback_details = []
         insights = data.get('personal_insights')
         data = data.get('export_fields')
-        if insights == True:
+        if insights and isinstance(insights, bool):
             insights_data = SubjectService.get_personal_insights()
         else:
             insights_data = []
