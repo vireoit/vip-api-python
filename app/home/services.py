@@ -94,8 +94,8 @@ class SatisfactionService:
     def take_integer_from_string(data):
         if data == "NA":
             return 0
-        elif data == "Any #":
-            return "Any #"
+        elif data == "Any Value":
+            return "Any Value"
         else:
             return (int(re.search(r'\d+', data).group()))
 
@@ -156,9 +156,9 @@ class SatisfactionService:
             severity = SatisfactionService.take_integer_from_string(data['TSQMSeverity'])
             peg_score = SatisfactionService.take_integer_from_string(data['PEGScore'])
             if subject_side_effects == side_effects:
-                if satisfaction >= subject_satisfaction or satisfaction <= subject_satisfaction or satisfaction == "Any #":
+                if satisfaction >= subject_satisfaction or satisfaction <= subject_satisfaction or satisfaction == "Any Value":
                     if severity >= subject_severity or severity <= subject_severity:
-                        if peg_score >= subject_peg_score or peg_score <= subject_peg_score or satisfaction == "Any #":
+                        if peg_score >= subject_peg_score or peg_score <= subject_peg_score or satisfaction == "Any Value":
                             return data['Recomendation']['Name']
                         else:
                             return "No recommendations"
