@@ -14,7 +14,7 @@ def export_table_data(data, pain_details, insights_data, feedback_details, ae_li
         df2 = pd.DataFrame(pain_details)
         del df2['_id']
         df2 = df2[['Subject Name', 'Submitted Date', 'Triggers', 'PainType', 'Medications', 'Sleep', 'Treatments', 
-        'PainLocation', 'Feeback for vireo products', 'Notes']]
+        'PainLocation', 'Feedback for vireo products', 'Notes']]
     else:
         df2 = ""
     if insights_data:
