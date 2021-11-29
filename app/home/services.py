@@ -23,7 +23,7 @@ class PegScoreService:
                 if data_dict['eventType'] == "My pain score":
                     dict = {}
                     dict['RewardAccumulated'] = data_dict['points']
-                    dict['SubjectId'] = ObjectId(data['SubjectId'])
+                    dict['SubjectId'] = data['SubjectId']
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
                     dict['AddedOn'] = datetime.utcnow()
@@ -84,7 +84,7 @@ class SatisfactionService:
                 if data_dict['eventType'] == "My satisfaction score":
                     dict = {}
                     dict['RewardAccumulated'] = data_dict['points']
-                    dict['SubjectId'] = ObjectId(data['SubjectId'])
+                    dict['SubjectId'] = data['SubjectId']
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
                     dict['AddedOn'] = datetime.utcnow()
