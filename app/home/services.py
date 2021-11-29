@@ -23,7 +23,7 @@ class PegScoreService:
                 if data_dict['eventType'] == "My pain score":
                     dict = {}
                     dict['RewardAccumulated'] = data_dict['points']
-                    dict['SubjectId'] = ObjectId(data['SubjectId'])
+                    dict['SubjectId'] = data['SubjectId']
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
                     dict['AddedOn'] = datetime.utcnow()
@@ -84,7 +84,7 @@ class SatisfactionService:
                 if data_dict['eventType'] == "My satisfaction score":
                     dict = {}
                     dict['RewardAccumulated'] = data_dict['points']
-                    dict['SubjectId'] = ObjectId(data['SubjectId'])
+                    dict['SubjectId'] = data['SubjectId']
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
                     dict['AddedOn'] = datetime.utcnow()
@@ -453,7 +453,7 @@ class RewardRedemptionService:
     @staticmethod
     def list_accumulated_reward_redemption(data, user_identity):
         if data['subject']:
-            subject = ObjectId(data['subject'])
+            subject = data['subject']
         else:
             subject = ""
         frequency = data['frequency'] if data['frequency'] else ""
