@@ -79,6 +79,7 @@ class SatisfactionService:
     def update_allowed_rewards(data):
         configured_reward = mongo_db.db.Rewards.find_one()
         query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(data['SubjectId'])})
+        print(query_data)
         if configured_reward:
             for data_dict in configured_reward['RewardConfig']:
                 if data_dict['eventType'] == "My satisfaction score":
@@ -158,7 +159,7 @@ class SatisfactionService:
             if subject_side_effects == side_effects:
                 if satisfaction >= subject_satisfaction or satisfaction <= subject_satisfaction or satisfaction == "Any Value":
                     if severity >= subject_severity or severity <= subject_severity:
-                        if peg_score >= subject_peg_score or peg_score <= subject_peg_score or satisfaction == "Any Value":
+                        if peg_score >= subject_peg_score or peg_score <= subject_peg_score or peg_score == "Any Value":
                             return data['Recomendation']['Name']
                         else:
                             return "No recommendations"

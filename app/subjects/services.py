@@ -604,7 +604,7 @@ class RewardRedemptionService:
     @staticmethod
     def list_accumulated_reward_redemption(data, user_identity):
         if data['subject']:
-            subject = ObjectId(data['subject'])
+            subject = data['subject']
         else:
             subject = ""
         event_type = data['event_type'] if data['event_type'] else []
