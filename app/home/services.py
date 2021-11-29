@@ -453,7 +453,7 @@ class RewardRedemptionService:
     @staticmethod
     def list_accumulated_reward_redemption(data, user_identity):
         if data['subject']:
-            subject = ObjectId(data['subject'])
+            subject = data['subject']
         else:
             subject = ""
         frequency = data['frequency'] if data['frequency'] else ""
