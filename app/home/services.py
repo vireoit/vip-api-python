@@ -22,7 +22,7 @@ class PegScoreService:
             for data_dict in configured_reward['RewardConfig']:
                 if data_dict['eventType'] == "My pain score":
                     dict = {}
-                    dict['RewardAccumulated'] = data_dict['points']
+                    dict['RewardAccumulated'] = int(data_dict['points'])
                     dict['SubjectId'] = data['SubjectId']
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
@@ -84,7 +84,7 @@ class SatisfactionService:
             for data_dict in configured_reward['RewardConfig']:
                 if data_dict['eventType'] == "My satisfaction score":
                     dict = {}
-                    dict['RewardAccumulated'] = data_dict['points']
+                    dict['RewardAccumulated'] = int(data_dict['points'])
                     dict['SubjectId'] = data['SubjectId']
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
