@@ -18,20 +18,20 @@ class SurveyService:
     @staticmethod
     def export_survey_reports(data, parameters):
 
-        in_survey_id, in_subject_ids, in_question_list = SurveyService.cleaned_inputs(data)
+        in_survey_id = SurveyService.cleaned_inputs(data)
         try:
             # response_data = perform_http_request(f'{VIP_BACKEND_URL}/api/Surveys/Reports', parameters['authorization'],
             #     body=data, request_method="POST")
             # is_valid = response_data.get('responseCode') == 200 and response_data.get('data')
             response_list = []
 
-            all_data = SurveyService.get_survey_questions(in_survey_id, in_subject_ids, in_question_list)
+            all_data = SurveyService.get_survey_details(in_survey_id)
             if all_data:
                 # all_data = response_data.get('data')
                 all_data1 = all_data[:]
 
                 for data in all_data:
-                    submitted_date = data['submittedDate'] + timedelta(hours=5, minutes=30)
+                    submitted_date = data['submittedDate']
                     dict = {
                         'Subject Name': data['subjectName'],
                         'Survey Name': data['surveyName'],
@@ -69,10 +69,9 @@ class SurveyService:
             return None
 
     @staticmethod
-    def get_survey_questions(in_survey_id, in_subject_ids, in_question_list):
+    def get_survey_details(in_survey_id):
 
         survey_sub_query = {'_id': {'$in': in_survey_id}}
-        patient_sub_query = {'Patients._id': {'$in': in_subject_ids}}
 
         aggr_data = mongo_db.db.Surveys.aggregate([
             {"$unwind": "$Patients"},
@@ -80,10 +79,7 @@ class SurveyService:
             {"$unwind": "$Patients.DatesInfo.QuestionsAndAnswers"},
             {"$unwind": "$Patients.DatesInfo.QuestionsAndAnswers.Answers"},
             {"$match": survey_sub_query},
-            {"$match": patient_sub_query},
             {"$match": {"Patients.DatesInfo.QuestionsAndAnswers.Answers.Answer": {"$nin": ['null', ""]}}},
-
-            {"$match": {"Patients.DatesInfo.QuestionsAndAnswers.Question": {'$in': in_question_list}}},
 
             {"$project": {'Name':1, 'Patients.Name': 1, 'Patients.DatesInfo.QuestionsAndAnswers.Answers': 1, 'Patients._id': 1,
                           "Patients.DatesInfo.QuestionsAndAnswers.Question": 1, "Patients.DatesInfo.SubmittedDate": 1}},
@@ -106,9 +102,7 @@ class SurveyService:
     def cleaned_inputs(payload):
 
         in_survey_id = [ObjectId(survey_id) for survey_id in payload.get("survey_id")]
-        in_subject_ids = [ObjectId(subject_id) for subject_id in payload.get("subject_ids")]
-        in_question_list = [data_dict['question'] for data_dict in payload.get("question_list") if data_dict.get('question')]
 
-        return in_survey_id, in_subject_ids, in_question_list
+        return in_survey_id
 
 
