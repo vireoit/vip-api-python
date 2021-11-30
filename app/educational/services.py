@@ -17,10 +17,11 @@ class EducationalService:
         educational_video = payload.get("educational_video")
         thumb_image_path = payload.get("thumb_image_path")
         educational_id = payload.get("educational_id")
-        data = list(mongo_db.db.EducationalVideos.find({"SubjectList.IsMailSend": False, "_id": ObjectId(educational_id)}))
+        data = list(mongo_db.db.EducationalVideos.find({"_id": ObjectId(educational_id)}))
         if data:
-            subject_list = [subject['SubjectList'] for subject in data]
-            subject_ids = [data['_id'] for data in subject_list[0]]
+            subject_list = [subject['SubjectList'] for subject in data][0]
+            subject_list = [subject for subject in subject_list if subject.get('IsEmailSent') == False]
+            subject_ids = [data['_id'] for data in subject_list]
             data = list(mongo_db.db.Subjects.find({"_id": {"$in": subject_ids}}))
             for data_dict in data:
                 data_dict['educational_name'] = educational_name
@@ -29,7 +30,7 @@ class EducationalService:
                 html_body = render_template('educational_video.html', sending_mail=True, context_data=data_dict)
                 subject = "Educational Campaign"
                 send_email(subject, sender="vip@tangentia.com", recipients=[data_dict['Email']], text_body="", html_body=html_body)
-                for data in subject_list[0]:
+                for data in subject_list:
                     my_query = {"SubjectList._id": data["_id"]}
-                    my_values = {"$set": {"SubjectList.$.IsMailSend": True}}
+                    my_values = {"$set": {"SubjectList.$.IsEmailSent": True}}
                     mongo_db.db.EducationalVideos.update(my_query, my_values)
