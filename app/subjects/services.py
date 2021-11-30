@@ -592,7 +592,7 @@ class RewardRedemptionService:
 
     @staticmethod
     def reward_redemption(data, user_identity):
-        rewards = list(mongo_db.db.RewardAccumulate.find({"SubjectId": ObjectId(data['subject'])}))
+        rewards = list(mongo_db.db.RewardAccumulate.find({"SubjectId": data['subject']}))
         redemption_data = RewardRedemptionService.calculate_redemption(rewards)
         if redemption_data['balance_reward'] < data['points']:
             raise RedeemedPoint()
