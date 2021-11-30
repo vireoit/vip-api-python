@@ -24,6 +24,7 @@ def export_table_data(data, pain_details, insights_data, feedback_details, ae_li
     if feedback_details:
         df4 = pd.DataFrame(feedback_details)
         df4.drop_duplicates(subset=['Subject Name' ,'Reported Date'], inplace=True)
+        df4 = df4[['Subject Name', 'Reported Date', 'Rating', 'suggestions']]
     else:
         df4 = ""
     if ae_list:
