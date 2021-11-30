@@ -214,29 +214,6 @@ class ListRedemption(Resource):
 
         data = RewardRedemption.list_accumulated_reward_redemption(filters=data, user_identity=claims)
         return Response.success(response_data=data,
-                                status_code=HttpStatusCode.OK, message="Pain Details")
-
-
-@api.route("/subject/reward-redeem")
-@api.doc(payload={'subject': 'Array of Subject IDs- 60bb10c89cf5432080d40346 ', "event_type": "Array of event type names"})
-class ListRedemption(Resource):
-    """
-    Class for list Redemption
-    """
-    @jwt_required()
-    def post(self):
-        """
-        Return all Redemption
-        """
-        claims = ""
-        payload = request.json
-        data = {
-            'subject': payload['subject'] if 'subject' in payload else "",
-            "event_type": payload['event_type'] if 'event_type' in payload else []
-        }
-
-        data = RewardRedemption.list_accumulated_reward_redemption(filters=data, user_identity=claims)
-        return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="Redemption Details")
 
 

@@ -22,7 +22,7 @@ class PegScoreService:
             for data_dict in configured_reward['RewardConfig']:
                 if data_dict['eventType'] == "My pain score":
                     dict = {}
-                    dict['RewardAccumulated'] = data_dict['points']
+                    dict['RewardAccumulated'] = int(data_dict['points'])
                     dict['SubjectId'] = data['SubjectId']
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
@@ -84,7 +84,7 @@ class SatisfactionService:
             for data_dict in configured_reward['RewardConfig']:
                 if data_dict['eventType'] == "My satisfaction score":
                     dict = {}
-                    dict['RewardAccumulated'] = data_dict['points']
+                    dict['RewardAccumulated'] = int(data_dict['points'])
                     dict['SubjectId'] = data['SubjectId']
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
@@ -472,7 +472,7 @@ class RewardRedemptionService:
                 start_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
                 end_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
                 query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gte': start_date},
-                                                         "SubjectId": subject, "IsActive": True}). \
+                                                         "SubjectId": subject}). \
                                   sort("AddedOn", -1))
 
             elif frequency == "week":
