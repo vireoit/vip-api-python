@@ -440,7 +440,7 @@ class RewardRedemptionService:
             subject = data[0]['SubjectId']
             for data_dict in data:
                 total_reward_accumulated = total_reward_accumulated + data_dict['RewardAccumulated']
-            redemption = list(mongo_db.db.RedeemedRecord.find({"SubjectId": subject}))
+            redemption = list(mongo_db.db.RedeemedRecord.find({"SubjectId": ObjectId(subject)}))
             if redemption:
                 for data_dict in redemption:
                     total_redeemed_point = total_redeemed_point + data_dict['redeemed_points']
