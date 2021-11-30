@@ -255,7 +255,7 @@ class SubjectService:
             val['Event Type'] = list_string_to_string(val['EventType'])
             val['Start Date'] = val['StartDate'][0:10]
             val['Reported Date'] = val['AddedOn'][0:10]
-            val['Ongoing or not'] = str(val['IsOngoing'])
+            val['Ongoing or not'] = "Yes" if val['IsOngoing'] == True else "No"
             val['Any relation with cannabis product'] = val['IsCannabisProduct']
             val['Any treatment received for the event'] = val['TreatmentInfo']
             keys = ['_id', 'IsOngoing', 'IsCannabisProduct', 'EventType', 'StartDate', 'AddedOn', 'Name',
