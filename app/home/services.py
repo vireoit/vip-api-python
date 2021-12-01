@@ -18,14 +18,16 @@ class PegScoreService:
     def update_allowed_rewards(data):
         configured_reward = mongo_db.db.Rewards.find_one()
         query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(data['SubjectId'])})
+        print(data['SubjectId'])
         if configured_reward:
             for data_dict in configured_reward['RewardConfig']:
                 if data_dict['eventType'] == "My pain score":
                     dict = {}
                     dict['RewardAccumulated'] = int(data_dict['points'])
-                    dict['SubjectId'] = data['SubjectId']
+                    dict['SubjectId'] = str(data['SubjectId'])
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
+                    dict['Action'] = "Submit"
                     dict['AddedOn'] = datetime.utcnow()
                     create_date = mongo_db.db.RewardAccumulate.insert_one(dict)
 
@@ -79,15 +81,15 @@ class SatisfactionService:
     def update_allowed_rewards(data):
         configured_reward = mongo_db.db.Rewards.find_one()
         query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(data['SubjectId'])})
-        print(query_data)
         if configured_reward:
             for data_dict in configured_reward['RewardConfig']:
                 if data_dict['eventType'] == "My satisfaction score":
                     dict = {}
                     dict['RewardAccumulated'] = int(data_dict['points'])
-                    dict['SubjectId'] = data['SubjectId']
+                    dict['SubjectId'] = str(data['SubjectId'])
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
+                    dict['Action'] = "Submit"
                     dict['AddedOn'] = datetime.utcnow()
                     create_date = mongo_db.db.RewardAccumulate.insert_one(dict)
 
