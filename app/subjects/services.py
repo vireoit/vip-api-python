@@ -129,15 +129,18 @@ class SubjectImportService:
                     "ReplacedByToken": ""
                 }]
             if payload:
-                mongo_db.db.Subjects.insert_many(payload)
-            else:
-                pass
-            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False}).sort('AddedOn', -1)	
-            data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
+                email_list = []
+                for imported_subjects in payload:
+                    email_list.append(imported_subjects['Email'])
 
-            for val in data:
-                context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
-                send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" , html_body=context_data)
+                result = mongo_db.db.Subjects.insert_many(payload)
+                created_ids = result.inserted_ids
+                SubjectImportService.add_subject_to_survey(created_ids)
+                new_subjects_query = mongo_db.db.Subjects.find({"Email": {"$in": tuple(email_list)}}).sort('AddedOn', -1)
+                data = SubjectImportService.format_email_verification_data(new_subjects_query, parameters)
+                for val in data:
+                    context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
+                    send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" , html_body=context_data)
 
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
@@ -175,16 +178,18 @@ class SubjectImportService:
                     "ReplacedByToken": ""
                 }]
             if payload:
+                email_list = []
+                for imported_subjects in payload:
+                    email_list.append(imported_subjects['Email'])
+
                 result = mongo_db.db.Subjects.insert_many(payload)
                 created_ids = result.inserted_ids
                 SubjectImportService.add_subject_to_survey(created_ids)
-
-            inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False}).sort('AddedOn', -1)
-            data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
-
-            for val in data:
-                context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
-                send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" ,html_body=context_data)
+                new_subjects_query = mongo_db.db.Subjects.find({"Email": {"$in": tuple(email_list)}}).sort('AddedOn', -1)
+                data = SubjectImportService.format_email_verification_data(new_subjects_query, parameters)
+                for val in data:
+                    context_data = render_template('PatientActivationMail.html', sending_mail=True, data=val)
+                    send_email(subject="Activation mail", recipients=[val['email_id']], text_body="" ,html_body=context_data)
 
             return {"message": "Subject imported successfully", "value": True}
         except Exception as err:
@@ -321,7 +326,6 @@ class SubjectService:
             for subs in total_subs:
                 subs_id = subs['_id']
                 subs_name = subs['Name']
-
                 start_date, end_date = SubjectService.format_dates("Today")
                 todays_insight = SubjectService.format_insight_datas(start_date, end_date, subs_id)
                 pain_level_today, sleep_today = SubjectService.extract_pain_data(todays_insight, json_data)
@@ -333,7 +337,7 @@ class SubjectService:
                 start_date, end_date = SubjectService.format_dates("Monthly")
                 monthly_insight = SubjectService.format_insight_datas(start_date, end_date, subs_id)
                 pain_level_last_month, sleep_last_month = SubjectService.extract_pain_data(monthly_insight, json_data)
- 
+            
                 if (pain_level_today and sleep_today) or (
                     pain_level_last_week and sleep_last_week) or (
                     pain_level_last_month and sleep_last_month):
