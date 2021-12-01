@@ -236,7 +236,10 @@ class SubjectService:
             val['Subject Name'] = query_data['Name']
             val['Reported Date'] = val['added_on'][0:10]
             val['Rating'] = val['feedback']
+            val['Feedback'] = val['suggestions'] if 'suggestions' in data else ""
             keys = ['updated_on','added_on', '_id', 'subject_id', 'feedback']
+            if 'suggestions' in data:
+                keys.append('suggestions')
             list(map(val.pop, keys))
             feedback_list.append(val)
         return feedback_list
