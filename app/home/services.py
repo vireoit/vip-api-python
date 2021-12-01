@@ -94,7 +94,7 @@ class SatisfactionService:
     @staticmethod
     def take_integer_from_string(data):
         if data == "NA":
-            return 0
+            return "NA"
         elif data == "Any Value":
             return "Any Value"
         else:
@@ -158,7 +158,7 @@ class SatisfactionService:
             peg_score = SatisfactionService.take_integer_from_string(data['PEGScore'])
             if subject_side_effects == side_effects:
                 if satisfaction >= subject_satisfaction or satisfaction <= subject_satisfaction or satisfaction == "Any Value":
-                    if severity >= subject_severity or severity <= subject_severity:
+                    if severity >= subject_severity or severity <= subject_severity or severity == "NA":
                         if peg_score >= subject_peg_score or peg_score <= subject_peg_score or peg_score == "Any Value":
                             return data['Recomendation']['Name']
                         else:
