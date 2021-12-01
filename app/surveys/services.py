@@ -102,7 +102,5 @@ class SurveyService:
     def cleaned_inputs(payload):
 
         in_survey_id = [ObjectId(survey_id) for survey_id in payload.get("survey_id")]
-
         return in_survey_id
-
-
+    

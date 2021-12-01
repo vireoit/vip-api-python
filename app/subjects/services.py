@@ -546,38 +546,7 @@ class RewardRedemptionService:
         else:
             end_date = ""
         query_data = list(mongo_db.db.RewardAccumulate.find().sort("AddedOn", -1))
-        # if all_subjects:
-        #     print("subject")
-        #     query_data = list(mongo_db.db.RewardAccumulate.find({"SubjectId": {"$in": tuple(all_subjects)}}).\
-        #         sort("AddedOn", -1))
-        #
-        # if event_type:
-        #     print("event")
-        #     query_data = list(mongo_db.db.RewardAccumulate.find({"EventType": {"$in": tuple(event_type)}}).\
-        #         sort("AddedOn", -1))
-        #
-        # if all_subjects and event_type:
-        #     print("with event")
-        #     query_data = list(mongo_db.db.RewardAccumulate.find({"EventType": {"$in": tuple(event_type)},
-        #                                                          "SubjectId": {"$in": tuple(all_subjects)}}). \
-        #         sort("AddedOn", -1))
-        #
-        # if all_subjects and start_date and end_date:
-        #     print("sub date")
-        #     query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
-        #                                                          "SubjectId": {"$in": tuple(all_subjects)}}).sort(
-        #         "AddedOn", -1))
-        # if event_type and start_date and end_date:
-        #     print("event date")
-        #     query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
-        #                                                          "EventType": {"$in": tuple(event_type)}}).sort(
-        #         "AddedOn", -1))
-        # if start_date and end_date:
-        #     print("date")
-        #     query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date}}).sort(
-        #         "AddedOn", -1))
         if all_subjects and event_type and start_date and end_date:
-            print("all filter")
             query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
                                                 "SubjectId": {"$in": all_subjects}, "EventType": {"$in": tuple(event_type)}}).sort("AddedOn", -1))
 
