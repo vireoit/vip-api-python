@@ -6,13 +6,15 @@ def export_table_data(data, pain_details, insights_data, feedback_details, ae_li
     if data:
         df = pd.DataFrame(data)
         del df['_id']
+        if df.empty:
+            data = ""
     else:
         df = ""
     if pain_details:
         df2 = pd.DataFrame(pain_details)
         del df2['_id']
         df2 = df2[['Subject Name', 'Submitted Date', 'Triggers', 'PainType', 'Medications', 'Sleep', 'Treatments', 
-        'PainLocation', 'Feeback for vireo products', 'Notes']]
+        'PainLocation', 'Feedback for vireo products', 'Notes']]
     else:
         df2 = ""
     if insights_data:
@@ -22,6 +24,7 @@ def export_table_data(data, pain_details, insights_data, feedback_details, ae_li
     if feedback_details:
         df4 = pd.DataFrame(feedback_details)
         df4.drop_duplicates(subset=['Subject Name' ,'Reported Date'], inplace=True)
+        df4 = df4[['Subject Name', 'Reported Date', 'Rating', 'suggestions']]
     else:
         df4 = ""
     if ae_list:

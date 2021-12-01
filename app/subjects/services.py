@@ -27,18 +27,54 @@ from flask import render_template
 
 
 class SubjectImportService:
+
+    @staticmethod
+    def add_subject_to_survey(subjects):
+        """Add new subject to survey with empty values"""
+        try:
+            surveys = mongo_db.db.Surveys.find({"IsSelectedAll": True})
+            for survey in surveys:
+                patients = survey.get("Patients")
+                if patients:
+                    for subject_id in subjects:
+                        subject = mongo_db.db.Subjects.find_one({'_id': subject_id})
+                        patient_dict = {"_id": ObjectId(subject["_id"]), "Name": subject["Name"], "Gender": subject["Gender"]}
+                        dates_info = patients[0].get("DatesInfo", [])
+
+                        if len(dates_info) > 0:
+                            for date_info in dates_info:
+                                date_info["SubmittedDate"] = None
+                                date_info["TotalFilledInputQuestions"] = 0
+                                date_info["CompletionPercent"] = 0
+                                date_info["IsCompleted"] = False
+                                questions_answers = date_info.get("QuestionsAndAnswers", [])
+
+                                if len(questions_answers) > 0:
+                                    for question_answer in questions_answers:
+                                        answers = question_answer.get("Answers", [])
+                                        if len(answers) > 0:
+                                            for answer in answers:
+                                                answer["Answer"] = ""
+                                                answer["Image"] = ""
+                                                answer["Title"] = ""
+                                                answer["Description"] = ""
+
+                        patient_dict.update({"DatesInfo": dates_info})
+                        mongo_db.db.Surveys.update({"IsSelectedAll": True}, {"$push": {"Patients": patient_dict}}, multi=True)
+        except Exception as e:
+            print(e)
+
     @staticmethod
     def format_email_verification_data(inactive_subjects_query, parameters):
-        data_list= []
+        data_list = []
         for sub in inactive_subjects_query:
-            dict = {}
+            data_dict = dict()
             bs = dumps(sub, json_options=RELAXED_JSON_OPTIONS)
-            val  = format_cursor_obj(json.loads(bs))
-            print(val)
-            dict['email_id'] = val['Email']
-            dict['name'] = val['Name']
-            dict['url'] = "https://" + VIP_EMAIL_LINK + "/activation?guid=" + val['_id']
-            data_list.append(dict)
+            val = format_cursor_obj(json.loads(bs))
+            data_dict['email_id'] = val['Email']
+            data_dict['name'] = val['Name']
+            data_dict['url'] = "https://" + VIP_EMAIL_LINK + "/activation?guid=" + val['_id']
+            data_list.append(data_dict)
         return data_list
             
     @staticmethod
@@ -139,9 +175,10 @@ class SubjectImportService:
                     "ReplacedByToken": ""
                 }]
             if payload:
-                mongo_db.db.Subjects.insert_many(payload)
-            else:
-                pass
+                result = mongo_db.db.Subjects.insert_many(payload)
+                created_ids = result.inserted_ids
+                SubjectImportService.add_subject_to_survey(created_ids)
+
             inactive_subjects_query = mongo_db.db.Subjects.find({"IsActive": False}).sort('AddedOn', -1)
             data = SubjectImportService.format_email_verification_data(inactive_subjects_query, parameters)
 
@@ -161,17 +198,17 @@ class SubjectService:
         pain_details = SubjectService.pain_details_fetch(data, user_identity)
         user_ratings = data.get('user_ratings')
         ae_logs = data.get('ae_logs')
-        if ae_logs == True:
+        if ae_logs and isinstance(ae_logs, bool):
             ae_list = SubjectService.get_ae_logs(data)
         else:
             ae_list = []
-        if user_ratings == True:
+        if user_ratings and isinstance(user_ratings, bool):
             feedback_details = SubjectService.get_user_ratings()
         else:
             feedback_details = []
         insights = data.get('personal_insights')
         data = data.get('export_fields')
-        if insights == True:
+        if insights and isinstance(insights, bool):
             insights_data = SubjectService.get_personal_insights()
         else:
             insights_data = []
@@ -218,7 +255,7 @@ class SubjectService:
             val['Event Type'] = list_string_to_string(val['EventType'])
             val['Start Date'] = val['StartDate'][0:10]
             val['Reported Date'] = val['AddedOn'][0:10]
-            val['Ongoing or not'] = str(val['IsOngoing'])
+            val['Ongoing or not'] = "Yes" if val['IsOngoing'] == True else "No"
             val['Any relation with cannabis product'] = val['IsCannabisProduct']
             val['Any treatment received for the event'] = val['TreatmentInfo']
             keys = ['_id', 'IsOngoing', 'IsCannabisProduct', 'EventType', 'StartDate', 'AddedOn', 'Name',
