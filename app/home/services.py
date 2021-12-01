@@ -152,14 +152,18 @@ class SatisfactionService:
         subject_severity = satisfaction['TSQMSeverity']
         recommendation = list(mongo_db.db.Dosings.find({"IsActive": True}))
         for data in recommendation:
+            print("first")
             side_effects = SatisfactionService.take_integer_from_string(data['TSQMSideEffects'])
             satisfaction = SatisfactionService.take_integer_from_string(data['TSQMSatisfaction'])
             severity = SatisfactionService.take_integer_from_string(data['TSQMSeverity'])
             peg_score = SatisfactionService.take_integer_from_string(data['PEGScore'])
             if subject_side_effects == side_effects:
-                if satisfaction >= subject_satisfaction or satisfaction <= subject_satisfaction or satisfaction == "Any Value":
-                    if severity >= subject_severity or severity <= subject_severity or severity == "NA":
-                        if peg_score >= subject_peg_score or peg_score <= subject_peg_score or peg_score == "Any Value":
+                print("side")
+                if satisfaction == "Any Value" or satisfaction >= subject_satisfaction or satisfaction <= subject_satisfaction:
+                    print("satisfaction")
+                    if severity == "NA" or severity >= subject_severity or severity <= subject_severity:
+                        print("severity")
+                        if peg_score == "Any Value" or peg_score >= subject_peg_score or peg_score <= subject_peg_score:
                             return data['Recomendation']['Name']
                         else:
                             return "No recommendations"
@@ -167,8 +171,8 @@ class SatisfactionService:
                         return "No recommendations"
                 else:
                     return "No recommendations"
-            else:
-                return "No recommendations"
+        else:
+            return "No recommendations"
 
 
 class AdminHomeStatisticsService:
