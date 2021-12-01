@@ -15,21 +15,21 @@ from app.base_urls import VIP_BACKEND_URL
 
 class PegScoreService:
     @staticmethod
-    def update_allowed_rewards(data):
+    def update_allowed_rewards(data, action):
         configured_reward = mongo_db.db.Rewards.find_one()
         query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(data['SubjectId'])})
         print(data['SubjectId'])
         if configured_reward:
             for data_dict in configured_reward['RewardConfig']:
-                if data_dict['eventType'] == "My pain score":
+                if data_dict['eventType'] == "My pain score" and data_dict['action'] == action:
                     dict = {}
                     dict['RewardAccumulated'] = int(data_dict['points'])
                     dict['SubjectId'] = str(data['SubjectId'])
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
-                    dict['Action'] = "Submit"
+                    dict['Action'] = action
                     dict['AddedOn'] = datetime.utcnow()
-                    create_date = mongo_db.db.RewardAccumulate.insert_one(dict)
+                    create_data = mongo_db.db.RewardAccumulate.insert_one(dict)
 
     @staticmethod
     def create_peg_score_record(data, user_identity):
@@ -42,9 +42,17 @@ class PegScoreService:
             total = total+record['value']
         data['Percentage'] = int(total/3)
         data['IsActive'] = True
-        create_date = mongo_db.db.Pegs.insert_one(data)
-        PegScoreService.update_allowed_rewards(data)
-        return create_date
+        create_data = mongo_db.db.Pegs.insert_one(data)
+        date_today = date.today()
+        start_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        end_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
+        total_record = mongo_db.db.Pegs.find({"SubjectId": ObjectId(data['SubjectId']),"AddedOn": {"$lte": start_date, '$gte': end_date}}).count()
+        if total_record > 1:
+            action = "Update"
+        else:
+            action = "Submit"
+        PegScoreService.update_allowed_rewards(data, action)
+        return create_data
 
     @staticmethod
     def peg_score_details(data, user_identity):
@@ -76,22 +84,23 @@ class OnGoingFeedbackService:
             return {"is_cancelled": True}
         return {"is_cancelled": False}
 
+
 class SatisfactionService:
     @staticmethod
-    def update_allowed_rewards(data):
+    def update_allowed_rewards(data, action):
         configured_reward = mongo_db.db.Rewards.find_one()
         query_data = mongo_db.db.Subjects.find_one({"_id": ObjectId(data['SubjectId'])})
         if configured_reward:
             for data_dict in configured_reward['RewardConfig']:
-                if data_dict['eventType'] == "My satisfaction score":
+                if data_dict['eventType'] == "My satisfaction score" and data_dict['action'] == action:
                     dict = {}
                     dict['RewardAccumulated'] = int(data_dict['points'])
                     dict['SubjectId'] = str(data['SubjectId'])
                     dict['Name'] = query_data['Name']
                     dict['EventType'] = data_dict['eventType']
-                    dict['Action'] = "Submit"
+                    dict['Action'] = action
                     dict['AddedOn'] = datetime.utcnow()
-                    create_date = mongo_db.db.RewardAccumulate.insert_one(dict)
+                    create_data = mongo_db.db.RewardAccumulate.insert_one(dict)
 
     @staticmethod
     def take_integer_from_string(data):
@@ -110,7 +119,16 @@ class SatisfactionService:
         data['SubjectId'] = ObjectId(data['SubjectId'])
         data['IsActive'] = True
         create_date = mongo_db.db.Satisfaction.insert_one(data)
-        SatisfactionService.update_allowed_rewards(data)
+        date_today = date.today()
+        start_date = datetime.strptime(str(date_today) + " 23", "%Y-%m-%d %H")
+        end_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
+        total_record = mongo_db.db.Satisfaction.find(
+            {"SubjectId": ObjectId(data['SubjectId']), "AddedOn": {"$lte": start_date, '$gte': end_date}}).count()
+        if total_record > 1:
+            action = "Update"
+        else:
+            action = "Submit"
+        SatisfactionService.update_allowed_rewards(data, action)
         return create_date
 
     @staticmethod

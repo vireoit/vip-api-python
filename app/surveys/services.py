@@ -108,7 +108,4 @@ class SurveyService:
         in_survey_id = [ObjectId(survey_id) for survey_id in payload.get("survey_id")]
         in_subject_ids = [ObjectId(subject_id) for subject_id in payload.get("subject_ids")]
         in_question_list = [data_dict['question'] for data_dict in payload.get("question_list") if data_dict.get('question')]
-
         return in_survey_id, in_subject_ids, in_question_list
-
-
