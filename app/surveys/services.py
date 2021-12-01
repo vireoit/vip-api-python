@@ -31,7 +31,7 @@ class SurveyService:
                 all_data1 = all_data[:]
 
                 for data in all_data:
-                    submitted_date = data['submittedDate']
+                    submitted_date = data['submittedDate'] + timedelta(hours=5, minutes=30)
                     dict = {
                         'Subject Name': data['subjectName'],
                         'Survey Name': data['surveyName'],
