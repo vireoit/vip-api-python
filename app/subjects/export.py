@@ -1,8 +1,12 @@
-import tablib
-import xlsxwriter
+import os
+from os.path import exists
+import openpyxl
 import pandas as pd
 
+
 def export_table_data(data, pain_details, insights_data, feedback_details, ae_list):
+
+    valid_file_name = 'subjects.xlsx'
     if data:
         df = pd.DataFrame(data)
         del df['_id']
@@ -33,7 +37,7 @@ def export_table_data(data, pain_details, insights_data, feedback_details, ae_li
         'Any treatment received for the event']]
     else:
         df5 = ""
-    with pd.ExcelWriter('subjects.xls') as writer:
+    with pd.ExcelWriter(valid_file_name) as writer:
         if data:  
             df.to_excel(writer, sheet_name='Subjects', index=False)
         if pain_details:
@@ -44,7 +48,14 @@ def export_table_data(data, pain_details, insights_data, feedback_details, ae_li
             df4.to_excel(writer, sheet_name='Ratings and Feedback', index=False)
         if ae_list:
             df5.to_excel(writer, sheet_name='AE Logs', index=False)
-    file = pd.read_excel('subjects.xls', engine='xlrd')
+
+    workbook = openpyxl.load_workbook(valid_file_name)
+    workbook.save('subjects.xls')
+    file = pd.read_excel('subjects.xls')
+
+    if os.path.exists(valid_file_name):
+        os.unlink(valid_file_name)
+
     return file
 
 
