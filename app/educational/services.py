@@ -30,7 +30,7 @@ class EducationalService:
                 html_body = render_template('educational_video.html', sending_mail=True, context_data=data_dict)
                 subject = "Educational Campaign"
                 send_email(subject, sender="vip@tangentia.com", recipients=[data_dict['Email']], text_body="", html_body=html_body)
-                for record in subject_list:
-                    my_query = {"SubjectList._id": record["_id"]}
-                    my_values = {"$set": {"SubjectList.$.IsEmailSent": True}}
-                    mongo_db.db.EducationalVideos.update(my_query, my_values)
+            for record in subject_list:
+                my_query = {"SubjectList._id": record["_id"]}
+                my_values = {"$set": {"SubjectList.$.IsEmailSent": True}}
+                mongo_db.db.EducationalVideos.update(my_query, my_values)
