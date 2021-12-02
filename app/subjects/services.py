@@ -374,6 +374,7 @@ class SubjectService:
         end_date = datetime.strptime(str(in_date)+" 23", "%Y-%m-%d %H")
         query_data = mongo_db.db.Logs.find_one({"DateOfLog": {"$lte": end_date, '$gt': start_date},
                                             "Subject._id": ObjectId(data['subject']), "IsActive": True})
+        print(query_data)
 
         bs = dumps(query_data, json_options=RELAXED_JSON_OPTIONS)
 
@@ -449,13 +450,17 @@ class SubjectService:
             json_file = open("app/configuration/pain_level.json")
             json_data = json.load(json_file)
             data['PainLocation'] = SubjectService.pain_location_list_to_string(data['PainLocation'], data['LevelOfPain'], json_data)
-            all_medications = []
             if data['Medications']:
+                feedback = []
+                medication = []
                 for value in data['Medications']:
-                    data['Feedback for vireo products'] = value['Feedback']
-                    medications = value['Medication']['Name']+", " + value['Dosage']
-                    all_medications.append(medications)
-                data['Medications'] = list_string_to_string(all_medications)
+                    if value['Feedback']:
+                        feedback_string = str(value['Medication']['Name']) + " - "+ str(value['Feedback'])
+                        feedback.append(feedback_string)
+                    medications = value['Medication']['Name']+" - " + value['Dosage']
+                    medication.append(medications)
+                data['Medications'] = (", ".join(medication))
+                data['Feedback for vireo products'] = (", ".join(feedback))
             else:
                 data['Medications'] = None
             keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'BodySide', 'DateOfLog', 'LevelOfPain']
