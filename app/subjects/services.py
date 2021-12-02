@@ -552,8 +552,11 @@ class RewardRedemptionService:
         if all_subjects and event_type and start_date and end_date:
             query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
                                                 "SubjectId": {"$in": all_subjects}, "EventType": {"$in": tuple(event_type)}}).sort("AddedOn", -1))
+            total_count = 0
         else:
-            list(mongo_db.db.RewardAccumulate.find(). \
+            total_count = mongo_db.db.RewardAccumulate.find().count()
+
+            query_data = list(mongo_db.db.RewardAccumulate.find(). \
                  skip((page - 1) * limit_by).limit(limit_by).sort("AddedOn", order_by).limit(limit_by))
 
         all_data = []
@@ -561,7 +564,10 @@ class RewardRedemptionService:
             bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
             val = format_cursor_obj(json.loads(bs))
             all_data.append(val)
-        return all_data
+        return {
+                    "results":all_data,
+                    "total_count":total_count
+        }
 
     @staticmethod
     def calculate_redemption(data):
