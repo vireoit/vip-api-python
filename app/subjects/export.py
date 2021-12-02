@@ -44,7 +44,7 @@ def export_table_data(data, pain_details, insights_data, feedback_details, ae_li
             df4.to_excel(writer, sheet_name='Ratings and Feedback', index=False)
         if ae_list:
             df5.to_excel(writer, sheet_name='AE Logs', index=False)
-    file = pd.read_excel(open('subjects.xls', "r"))
+    file = pd.read_excel(r'subjects.xls')
     return file
 
 
