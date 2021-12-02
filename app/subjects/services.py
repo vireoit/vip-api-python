@@ -77,6 +77,22 @@ class SubjectImportService:
                 patients = videos.get("SubjectList")
                 patients.extend(plist)
                 mongo_db.db.EducationalVideos.update({"_id":videos['_id']}, {"$set": {"SubjectList": patients}})
+                educational_name = videos["Title"]
+                educational_video = videos["VideoPath"]
+                thumb_image_path = videos["ThumbImagePath"]
+                educational_id = videos["_id"]
+                data = list(mongo_db.db.Subjects.find({"_id": {"$in": subjects}}))
+                for data_dict in data:
+                    data_dict['educational_name'] = educational_name
+                    data_dict['educational_video'] = educational_video
+                    data_dict['thumb_image_path'] = thumb_image_path
+                    html_body = render_template('educational_video.html', sending_mail=True, context_data=data_dict)
+                    subject = "Educational Campaign"
+                    send_email(subject, sender="vip@tangentia.com", recipients=[data_dict['Email']], text_body="", html_body=html_body)
+                    for data in plist:
+                        my_query = {"SubjectList._id": data["_id"]}
+                        my_values = {"$set": {"SubjectList.$.IsEmailSent": True}}
+                        mongo_db.db.EducationalVideos.update(my_query, my_values)
         except Exception as e:
             print(e)
 
