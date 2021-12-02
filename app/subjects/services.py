@@ -24,7 +24,7 @@ from app.exceptions import RedeemedPoint
 from statistics import mode
 from app.utils.email_service_util import send_email
 from flask import render_template
-
+from collections import Counter
 
 class SubjectImportService:
 
@@ -320,7 +320,8 @@ class SubjectService:
             for data in query_list:
                 sleep_list.append(data['Sleep'][0])
                 sum = sum + int(SubjectService.add_multiple_pains(data['LevelOfPain']))
-            sleep = mode(sleep_list)   
+            sleep_data = Counter(sleep_list) 
+            sleep = sleep_data.most_common(1)[0][0]  
             lop = sum//len(query_list)
             lop_list = list(str(lop))
             for data_dict in json_data:
