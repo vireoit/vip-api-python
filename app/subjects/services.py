@@ -65,6 +65,22 @@ class SubjectImportService:
             print(e)
 
     @staticmethod
+    def add_subject_to_educational_videos(subjects):
+        try:
+            plist = []
+            for subject_id in subjects:
+                subject = mongo_db.db.Subjects.find_one({'_id': subject_id})
+                patient_dict = {"_id": ObjectId(subject["_id"]), "Name": subject["Name"], "IsEmailSent": False}
+                plist.append(patient_dict)
+            educational_videos = mongo_db.db.EducationalVideos.find({"IsAllPatient": True})
+            for videos in educational_videos:
+                patients = videos.get("SubjectList")
+                patients.extend(plist)
+                mongo_db.db.EducationalVideos.update({"_id":videos['_id']}, {"$set": {"SubjectList": patients}})
+        except Exception as e:
+            print(e)
+
+    @staticmethod
     def format_email_verification_data(inactive_subjects_query, parameters):
         data_list = []
         for sub in inactive_subjects_query:
@@ -136,6 +152,7 @@ class SubjectImportService:
                 result = mongo_db.db.Subjects.insert_many(payload)
                 created_ids = result.inserted_ids
                 SubjectImportService.add_subject_to_survey(created_ids)
+                SubjectImportService.add_subject_to_educational_videos(created_ids)
                 new_subjects_query = mongo_db.db.Subjects.find({"Email": {"$in": tuple(email_list)}}).sort('AddedOn', -1)
                 data = SubjectImportService.format_email_verification_data(new_subjects_query, parameters)
                 for val in data:
@@ -185,6 +202,7 @@ class SubjectImportService:
                 result = mongo_db.db.Subjects.insert_many(payload)
                 created_ids = result.inserted_ids
                 SubjectImportService.add_subject_to_survey(created_ids)
+                SubjectImportService.add_subject_to_educational_videos(created_ids)
                 new_subjects_query = mongo_db.db.Subjects.find({"Email": {"$in": tuple(email_list)}}).sort('AddedOn', -1)
                 data = SubjectImportService.format_email_verification_data(new_subjects_query, parameters)
                 for val in data:
@@ -374,6 +392,7 @@ class SubjectService:
         end_date = datetime.strptime(str(in_date)+" 23", "%Y-%m-%d %H")
         query_data = mongo_db.db.Logs.find_one({"DateOfLog": {"$lte": end_date, '$gt': start_date},
                                             "Subject._id": ObjectId(data['subject']), "IsActive": True})
+        print(query_data)
 
         bs = dumps(query_data, json_options=RELAXED_JSON_OPTIONS)
 
@@ -449,13 +468,17 @@ class SubjectService:
             json_file = open("app/configuration/pain_level.json")
             json_data = json.load(json_file)
             data['PainLocation'] = SubjectService.pain_location_list_to_string(data['PainLocation'], data['LevelOfPain'], json_data)
-            all_medications = []
             if data['Medications']:
+                feedback = []
+                medication = []
                 for value in data['Medications']:
-                    data['Feedback for vireo products'] = value['Feedback']
-                    medications = value['Medication']['Name']+", " + value['Dosage']
-                    all_medications.append(medications)
-                data['Medications'] = list_string_to_string(all_medications)
+                    if value['Feedback']:
+                        feedback_string = str(value['Medication']['Name']) + " - "+ str(value['Feedback'])
+                        feedback.append(feedback_string)
+                    medications = value['Medication']['Name']+" - " + value['Dosage']
+                    medication.append(medications)
+                data['Medications'] = (", ".join(medication))
+                data['Feedback for vireo products'] = (", ".join(feedback))
             else:
                 data['Medications'] = None
             keys = ['Subject', 'IsActive', 'LastUpdatedOn', 'AddedOn', 'BodySide', 'DateOfLog', 'LevelOfPain']
@@ -531,7 +554,10 @@ class SubjectService:
 
 class RewardRedemptionService:
     @staticmethod
-    def list_accumulated_rewards(data, user_identity):
+    def list_accumulated_rewards(data, user_identity, parameters):
+        limit_by = parameters.get('limit')
+        page = parameters.get("page")
+        order_by = -1
         all_subjects = []
         for subject in data['subject']:
             subject = subject
@@ -549,13 +575,22 @@ class RewardRedemptionService:
         if all_subjects and event_type and start_date and end_date:
             query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
                                                 "SubjectId": {"$in": all_subjects}, "EventType": {"$in": tuple(event_type)}}).sort("AddedOn", -1))
+            total_count = 0
+        else:
+            total_count = mongo_db.db.RewardAccumulate.find().count()
+
+            query_data = list(mongo_db.db.RewardAccumulate.find(). \
+                 skip((page - 1) * limit_by).limit(limit_by).sort("AddedOn", order_by).limit(limit_by))
 
         all_data = []
         for data in query_data:
             bs = dumps(data, json_options=RELAXED_JSON_OPTIONS)
             val = format_cursor_obj(json.loads(bs))
             all_data.append(val)
-        return all_data
+        return {
+                    "results":all_data,
+                    "total_count":total_count
+        }
 
     @staticmethod
     def calculate_redemption(data):
