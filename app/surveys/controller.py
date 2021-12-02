@@ -27,9 +27,7 @@ class SurveyReportExport(Resource):
         payload = request.json
         parameters = {"authorization": request.headers.get('Authorization')}
         data = {
-            'survey_id': payload['survey_id'] if 'survey_id' in payload else " ",
-            'subject_ids': payload['subject_ids'] if 'subject_ids' in payload else [],
-            'question_list': payload['question_list'] if 'question_list' in payload else []
+            'survey_id': payload['survey_id'] if 'survey_id' in payload else " "
         }
         SurveyDelegate.export_survey_reports(filters=data, parameters=parameters)
         resp = make_response('survey_reports.xls')

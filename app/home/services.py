@@ -318,34 +318,27 @@ class AdminHomeGraphService:
             all_data.append(dict)
 
         elif frequency == "Weekly":
-            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
-            query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).sort('AddedOn', -1)
-            l1 = []
-            for data in query_data:
+            date_today = date.today()
+            for i in range(0,7):
                 dict = {}
-                if str(data['AddedOn'].date()) not in l1:
-                    l1.append(str(data['AddedOn'].date()))
-                    start_date = datetime.strptime(str(data['AddedOn'].date()) + " 00", "%Y-%m-%d %H")
-                    end_date = datetime.strptime(str(data['AddedOn'].date()) + " 23", "%Y-%m-%d %H")
-                    query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date}}).count()
-                    dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
-                    dict['patient_count'] = query_data
-                    all_data.append(dict)
-               
+                weekly_date = date_today - timedelta(days=i)
+                end_date = datetime.strptime(str(weekly_date) + " 23", "%Y-%m-%d %H")
+                query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date}}).count()
+                dict['date'] = end_date.strftime('%m-%d-%Y')
+                dict['patient_count'] = query_data
+                all_data.append(dict)
+       
         elif frequency == "Monthly":
-            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
-            query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date, '$gte': start_date}}).sort('AddedOn', -1)
-            l1 = []
-            for data in query_data:
+            date_today = date.today()
+            for i in range(0,30):
                 dict = {}
-                if str(data['AddedOn'].date()) not in l1:
-                    l1.append(str(data['AddedOn'].date()))
-                    start_date = datetime.strptime(str(data['AddedOn'].date()) + " 00", "%Y-%m-%d %H")
-                    end_date = datetime.strptime(str(data['AddedOn'].date()) + " 23", "%Y-%m-%d %H")
-                    query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date}}).count()
-                    dict['date'] = data['AddedOn'].strftime('%m-%d-%Y')
-                    dict['patient_count'] = query_data
-                    all_data.append(dict)
+                monthly_date = date_today - timedelta(days=i)
+                end_date = datetime.strptime(str(monthly_date) + " 23", "%Y-%m-%d %H")
+                query_data = mongo_db.db.Subjects.find({"AddedOn": {"$lte": end_date}}).count()
+                dict['date'] = end_date.strftime('%m-%d-%Y')
+                dict['patient_count'] = query_data
+                all_data.append(dict)
+
         return all_data
 
     @staticmethod
@@ -392,34 +385,27 @@ class AdminHomeGraphService:
             all_data.append(dict)
 
         elif frequency == "Weekly":
-            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
-            query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).sort('CreatedOn', -1)
-            l1 = []
-            for data in query_data:
+            date_today = date.today()
+            for i in range(0,7):
                 dict = {}
-                if str(data['CreatedOn'].date()) not in l1:
-                    l1.append(str(data['CreatedOn'].date()))
-                    start_date = datetime.strptime(str(data['CreatedOn'].date()) + " 00", "%Y-%m-%d %H")
-                    end_date = datetime.strptime(str(data['CreatedOn'].date()) + " 23", "%Y-%m-%d %H")
-                    query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date}}).count()
-                    dict['date'] = data['CreatedOn'].strftime('%m-%d-%Y')
-                    dict['survey_count'] = query_data
-                    all_data.append(dict)
+                weekly_date = date_today - timedelta(days=i)
+                end_date = datetime.strptime(str(weekly_date) + " 23", "%Y-%m-%d %H")
+                query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date}}).count()
+                dict['date'] = end_date.strftime('%m-%d-%Y')
+                dict['survey_count'] = query_data
+                all_data.append(dict)
                
         elif frequency == "Monthly":
-            start_date, end_date = AdminHomeGraphService.format_dates(frequency)
-            query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date, '$gte': start_date}}).sort('CreatedOn', -1)
-            l1 = []
-            for data in query_data:
+            date_today = date.today()
+            for i in range(0,30):
                 dict = {}
-                if str(data['CreatedOn'].date()) not in l1:
-                    l1.append(str(data['CreatedOn'].date()))
-                    start_date = datetime.strptime(str(data['CreatedOn'].date()) + " 00", "%Y-%m-%d %H")
-                    end_date = datetime.strptime(str(data['CreatedOn'].date()) + " 23", "%Y-%m-%d %H")
-                    query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date}}).count()
-                    dict['date'] = data['CreatedOn'].strftime('%m-%d-%Y')
-                    dict['survey_count'] = query_data
-                    all_data.append(dict)
+                monthly_date = date_today - timedelta(days=i)
+                end_date = datetime.strptime(str(monthly_date) + " 23", "%Y-%m-%d %H")
+                query_data = mongo_db.db.Surveys.find({"CreatedOn": {"$lte": end_date}}).count()
+                dict['date'] = end_date.strftime('%m-%d-%Y')
+                dict['survey_count'] = query_data
+                all_data.append(dict)
+
         return all_data
 
     @staticmethod
