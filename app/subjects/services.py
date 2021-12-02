@@ -65,6 +65,22 @@ class SubjectImportService:
             print(e)
 
     @staticmethod
+    def add_subject_to_educational_videos(subjects):
+        try:
+            plist = []
+            for subject_id in subjects:
+                subject = mongo_db.db.Subjects.find_one({'_id': subject_id})
+                patient_dict = {"_id": ObjectId(subject["_id"]), "Name": subject["Name"], "IsEmailSent": False}
+                plist.append(patient_dict)
+            educational_videos = mongo_db.db.EducationalVideos.find({"IsAllPatient": True})
+            for videos in educational_videos:
+                patients = videos.get("SubjectList")
+                patients.extend(plist)
+                mongo_db.db.EducationalVideos.update({"_id":videos['_id']}, {"$set": {"SubjectList": patients}})
+        except Exception as e:
+            print(e)
+
+    @staticmethod
     def format_email_verification_data(inactive_subjects_query, parameters):
         data_list = []
         for sub in inactive_subjects_query:
@@ -136,6 +152,7 @@ class SubjectImportService:
                 result = mongo_db.db.Subjects.insert_many(payload)
                 created_ids = result.inserted_ids
                 SubjectImportService.add_subject_to_survey(created_ids)
+                SubjectImportService.add_subject_to_educational_videos(created_ids)
                 new_subjects_query = mongo_db.db.Subjects.find({"Email": {"$in": tuple(email_list)}}).sort('AddedOn', -1)
                 data = SubjectImportService.format_email_verification_data(new_subjects_query, parameters)
                 for val in data:
@@ -185,6 +202,7 @@ class SubjectImportService:
                 result = mongo_db.db.Subjects.insert_many(payload)
                 created_ids = result.inserted_ids
                 SubjectImportService.add_subject_to_survey(created_ids)
+                SubjectImportService.add_subject_to_educational_videos(created_ids)
                 new_subjects_query = mongo_db.db.Subjects.find({"Email": {"$in": tuple(email_list)}}).sort('AddedOn', -1)
                 data = SubjectImportService.format_email_verification_data(new_subjects_query, parameters)
                 for val in data:
