@@ -1,0 +1,40 @@
+[Unit]
+Description=VIP QA application
+After=network.target
+
+[Service]
+User=developer
+Environment="FLASK_ENV=test"
+WorkingDirectory=/mnt/vip/qa/vip_backend_python
+ExecStart=/mnt/vip/qa/env/bin/gunicorn --certfile cert/vip_cert.pem --keyfile cert/vip_key.pem -b 0.0.0.0:6001 -w 4 manage:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+sudo nano /etc/systemd/system/vipqa.service
+
+sudo systemctl stop vipqa
+sudo fuser -k 6001/tcp
+sudo chmod -R 777 /mnt/vip/qa/vip_backend_python
+sudo systemctl status vipqa
+sudo systemctl start vipqa
+sudo systemctl status vipqa
+
+sudo journalctl -xn
+sudo systemctl daemon-reload
+sudo systemctl enable vipqa.service
+
+pkill -f gunicorn
+ps ax|grep gunicorn
+
+
+# remove specific file from git cache
+git rm --cached filename
+
+# remove all files from git cache
+git rm -r --cached .
+git add .
+git commit -m ".gitignore is now working"
