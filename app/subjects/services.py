@@ -90,7 +90,7 @@ class SubjectImportService:
                     subject = "Educational Campaign"
                     send_email(subject, sender="vip@tangentia.com", recipients=[data_dict['Email']], text_body="", html_body=html_body)
                     for data in plist:
-                        my_query = {"SubjectList._id": data["_id"]}
+                        my_query = {"SubjectList._id": data["_id"], "_id": educational_id}
                         my_values = {"$set": {"SubjectList.$.IsEmailSent": True}}
                         mongo_db.db.EducationalVideos.update(my_query, my_values)
         except Exception as e:
