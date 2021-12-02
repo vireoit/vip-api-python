@@ -33,8 +33,8 @@ class SubjectDelegate:
 
 class RewardRedemption:
     @staticmethod
-    def list_accumulated_rewards(filters, user_identity):
-        data = RewardRedemptionService.list_accumulated_rewards(filters, user_identity)
+    def list_accumulated_rewards(filters, user_identity, parameters):
+        data = RewardRedemptionService.list_accumulated_rewards(filters, user_identity, parameters)
         return data
 
     @staticmethod

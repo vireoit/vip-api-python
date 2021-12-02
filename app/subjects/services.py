@@ -524,7 +524,10 @@ class SubjectService:
 
 class RewardRedemptionService:
     @staticmethod
-    def list_accumulated_rewards(data, user_identity):
+    def list_accumulated_rewards(data, user_identity, parameters):
+        limit_by = parameters.get('limit')
+        page = parameters.get("page")
+        order_by = -1
         all_subjects = []
         for subject in data['subject']:
             subject = subject
@@ -542,6 +545,9 @@ class RewardRedemptionService:
         if all_subjects and event_type and start_date and end_date:
             query_data = list(mongo_db.db.RewardAccumulate.find({"AddedOn": {"$lte": end_date, '$gt': start_date},
                                                 "SubjectId": {"$in": all_subjects}, "EventType": {"$in": tuple(event_type)}}).sort("AddedOn", -1))
+        else:
+            list(mongo_db.db.RewardAccumulate.find(). \
+                 skip((page - 1) * limit_by).limit(limit_by).sort("AddedOn", order_by).limit(limit_by))
 
         all_data = []
         for data in query_data:

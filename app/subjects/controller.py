@@ -181,6 +181,16 @@ class ListRewards(Resource):
         Return all rewards
         """
         claims = ""
+        parameters = {
+            'limit': 10,
+            'page': 1
+        }
+        if 'limit' in request.args and request.args.get('limit'):
+            parameters['limit'] = int(request.args.get('limit'))
+        if 'page_size' in request.args and request.args.get('page_size'):
+            parameters['page_size'] = int(request.args.get('page_size'))
+        if 'page' in request.args and request.args.get('page'):
+            parameters['page'] = int(request.args.get('page'))
         payload = request.json
         data = {
             'subject': payload['subject'] if 'subject' in payload else [],
@@ -189,7 +199,7 @@ class ListRewards(Resource):
             "to_date": payload['to_date'] if 'to_date' in payload else ""
         }
 
-        data = RewardRedemption.list_accumulated_rewards(filters=data, user_identity=claims)
+        data = RewardRedemption.list_accumulated_rewards(filters=data, user_identity=claims, parameters=parameters)
         return Response.success(response_data=data,
                                 status_code=HttpStatusCode.OK, message="List rewards")
 
