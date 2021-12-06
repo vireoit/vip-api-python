@@ -435,16 +435,16 @@ class SubjectService:
     def triggers_list_to_string(triggers, others):
         if 'Others' in triggers:
             other_triggers = 'Others - ' + others
-            trigger = [sub.replace('Others', other_triggers) for sub in triggers]
-        format_data = (';'.join(trigger))
+            triggers = [sub.replace('Others', other_triggers) for sub in triggers]
+        format_data = (';'.join(triggers))
         return format_data
     
     @staticmethod
     def treatments_list_to_string(treatments, others):
         if 'Others' in treatments:
             other_treatment = 'Others - ' + others
-            treatment = [sub.replace('Others', other_treatment) for sub in treatments]
-        format_data = (';'.join(treatment))
+            treatments = [sub.replace('Others', other_treatment) for sub in treatments]
+        format_data = (';'.join(treatments))
         return format_data
 
     @staticmethod
