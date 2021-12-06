@@ -16,7 +16,7 @@ class BaseConfig:
     MAIL_USE_SSL = False
     MAIL_USERNAME = 'vip@tangentia.com'  # enter your email here
     MAIL_DEFAULT_SENDER = 'vip@tangentia.com'  # enter your email here
-    MAIL_PASSWORD = 'VipTangentia@2021'
+    MAIL_PASSWORD = 'Tang@122021'
 
 
 class DevelopmentConfig(BaseConfig):
