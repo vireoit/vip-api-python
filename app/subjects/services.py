@@ -432,6 +432,22 @@ class SubjectService:
         return format_data
 
     @staticmethod
+    def triggers_list_to_string(triggers, others):
+        if 'Others' in triggers:
+            other_triggers = 'Others - ' + others
+            trigger = [sub.replace('Others', other_triggers) for sub in triggers]
+        format_data = (';'.join(trigger))
+        return format_data
+    
+    @staticmethod
+    def treatments_list_to_string(treatments, others):
+        if 'Others' in treatments:
+            other_treatment = 'Others - ' + others
+            treatment = [sub.replace('Others', other_treatment) for sub in treatments]
+        format_data = (';'.join(treatment))
+        return format_data
+
+    @staticmethod
     def pain_detail(lop, json_data):
         list_items = [data_dict for data_dict in json_data if str(data_dict["id"]) == lop]
         if len(list_items) > 0:
@@ -478,10 +494,10 @@ class SubjectService:
             data['Subject Name'] = data['Subject']['Name']
             t = data['DateOfLog'].astimezone()
             data['Submitted Date'] = t.strftime('%m/%d/%Y')
-            data['Triggers'] = list_string_to_string(data['Triggers']) 
+            data['Triggers'] = SubjectService.triggers_list_to_string(data['Triggers'], data.get('TriggersOtherNotes', ''))
+            data['Treatments'] = SubjectService.treatments_list_to_string(data['Treatments'], data.get('TreatmentsOtherNotes', '')) 
             data['PainType'] = SubjectService.pain_type_list_to_string(data['PainType'], data['PainTypeOthersNotes'])
             data['Sleep'] = SubjectService.sleep_list_to_string(data['Sleep'], data['SleepDisturbNotes'])
-            data['Treatments'] = list_string_to_string(data['Treatments'])
             json_file = open("app/configuration/pain_level.json")
             json_data = json.load(json_file)
             data['PainLocation'] = SubjectService.pain_location_list_to_string(data['PainLocation'], data['LevelOfPain'], json_data)
