@@ -659,7 +659,7 @@ class RewardRedemptionService:
             redemption_data = RewardRedemptionService.calculate_redemption(query_data)
 
         if subject and event_type:
-            query_data = list(mongo_db.db.RewardAccumulate.find({"SubjectId": subject, "EventType": {"$in": tuple(event_type)}}))
+            query_data = list(mongo_db.db.RewardAccumulate.find({"SubjectId": subject, "EventType": {"$in": tuple(event_type)}}).sort('AddedOn', -1))
 
         all_data = []
         for data in query_data:
