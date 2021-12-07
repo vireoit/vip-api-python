@@ -524,6 +524,7 @@ class AdminHomeUserRatingsService:
         excellent_count, good_count, neutral_count, bad_count, worst_count = 0, 0, 0, 0, 0
         query_data = list(mongo_db.db.Feedback.find({"feedback": {"$ne": 0}}))
         total_count = len(query_data)
+        print("*********", total_count)
         for val in query_data:
             if val['feedback'] == 1:
                 worst_count += 1
@@ -535,7 +536,7 @@ class AdminHomeUserRatingsService:
                 good_count += 1
             elif val['feedback'] == 5:
                 excellent_count += 1
-        excellent = (excellent_count//total_count)*100
+        excellent = (excellent_count/total_count)*100
         good = (good_count/total_count)*100
         neutral = (neutral_count/total_count)*100
         bad = (bad_count/total_count)*100
