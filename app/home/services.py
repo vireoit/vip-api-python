@@ -48,9 +48,9 @@ class PegScoreService:
         end_date = datetime.strptime(str(date_today) + " 00", "%Y-%m-%d %H")
         total_record = mongo_db.db.Pegs.find({"SubjectId": ObjectId(data['SubjectId']),"AddedOn": {"$lte": start_date, '$gte': end_date}}).count()
         if total_record > 1:
-            action = "Update"
+            action = "UPDATE"
         else:
-            action = "Submit"
+            action = "SUBMIT"
         PegScoreService.update_allowed_rewards(data, action)
         return create_data
 
@@ -125,9 +125,9 @@ class SatisfactionService:
         total_record = mongo_db.db.Satisfaction.find(
             {"SubjectId": ObjectId(data['SubjectId']), "AddedOn": {"$lte": start_date, '$gte': end_date}}).count()
         if total_record > 1:
-            action = "Update"
+            action = "UPDATE"
         else:
-            action = "Submit"
+            action = "SUBMIT"
         SatisfactionService.update_allowed_rewards(data, action)
         return create_date
 
