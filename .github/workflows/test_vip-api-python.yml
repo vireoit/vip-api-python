@@ -60,5 +60,4 @@ jobs:
         with:
           app-name: 'vip-api-python'
           slot-name: 'Production'
-          startup-command: gunicorn -b 0.0.0.0:5000 -w 4 manage:app
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9443B2085C7847E5AE08BBC28DDF6F3B }}
