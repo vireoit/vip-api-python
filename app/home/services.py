@@ -115,6 +115,10 @@ class SatisfactionService:
             return "<=2"
         elif data == "<=4" or data == "=<4":
             return "<=4"
+        elif data == "<=7":
+            return "<=7"
+        elif data == "=<3" or data == "<=3":
+            return "<=3"
         else:
             s1 = int()
             for i in data:
@@ -192,26 +196,42 @@ class SatisfactionService:
                     if severity == "<=2" and subject_severity <= 2:
                         if peg_score == "AnyValue" or peg_score == "4-7":
                             return data['Recomendation']['Name']
-                        elif subject_peg_score > 7 or subject_peg_score <= peg_score:
+                        elif peg_score == "<=7" and subject_peg_score <= 7:
+                            return data['Recomendation']['Name']
+                        elif peg_score == "<=3" and subject_peg_score <= 3:
+                            return data['Recomendation']['Name']
+                        elif subject_peg_score > 7:
                             return data['Recomendation']['Name']
 
                     elif severity == "NA" or severity == subject_severity or subject_severity >= severity:
                         if peg_score == "AnyValue" or peg_score == "4-7":
                             return data['Recomendation']['Name']
-                        elif subject_peg_score > 7 or subject_peg_score <= peg_score:
+                        elif peg_score == "<=7" and subject_peg_score <= 7:
+                            return data['Recomendation']['Name']
+                        elif peg_score == "<=3" and subject_peg_score <= 3:
+                            return data['Recomendation']['Name']
+                        elif subject_peg_score > 7:
                             return data['Recomendation']['Name']
 
                 elif satisfaction == "AnyValue" or subject_satisfaction > satisfaction:
                     if severity == "<=2" and subject_severity <= 2:
                         if peg_score == "AnyValue" or peg_score == "4-7":
                             return data['Recomendation']['Name']
-                        elif subject_peg_score > 7 or subject_peg_score <= peg_score:
+                        elif peg_score == "<=7" and subject_peg_score <= 7:
+                            return data['Recomendation']['Name']
+                        elif peg_score == "<=3" and subject_peg_score <= 3:
+                            return data['Recomendation']['Name']
+                        elif subject_peg_score > 7:
                             return data['Recomendation']['Name']
 
                     elif severity == "NA" or severity == subject_severity or subject_severity >= severity:
                         if peg_score == "AnyValue" or peg_score == "4-7":
                             return data['Recomendation']['Name']
-                        elif subject_peg_score > 7 or subject_peg_score <= peg_score:
+                        elif peg_score == "<=7" and subject_peg_score <= 7:
+                            return data['Recomendation']['Name']
+                        elif peg_score == "<=3" and subject_peg_score <= 3:
+                            return data['Recomendation']['Name']
+                        elif subject_peg_score > 7:
                             return data['Recomendation']['Name']
         else:
             return "No recommendations"
