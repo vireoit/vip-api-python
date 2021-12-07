@@ -104,12 +104,23 @@ class SatisfactionService:
 
     @staticmethod
     def take_integer_from_string(data):
+        data = "".join(data.split())
         if data == "NA":
             return "NA"
-        elif data == "Any Value":
-            return "Any Value"
+        elif data == "AnyValue":
+            return "AnyValue"
+        elif data == "4-7":
+            return "4-7"
+        elif data == "<=2":
+            return "<=2"
+        elif data == "<=4" or data == "=<4":
+            return "<=4"
         else:
-            return (int(re.search(r'\d+', data).group()))
+            s1 = int()
+            for i in data:
+                if i.isdigit():
+                    s1 = int(i)
+            return s1
 
     @staticmethod
     def create_Satisfaction_score_record(data, user_identity):
@@ -133,8 +144,8 @@ class SatisfactionService:
 
     @staticmethod
     def satisfaction_score_details(data, user_identity):
-        if ObjectId(data['subject']) != ObjectId(user_identity["unique_name"]):
-            raise InvalidUser
+        # if ObjectId(data['subject']) != ObjectId(user_identity["unique_name"]):
+        #     raise InvalidUser
         peg_query_data = list(mongo_db.db.Pegs.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}). \
                           sort("AddedOn", -1))
         satisfaction_query_data = list(mongo_db.db.Satisfaction.find({"SubjectId": ObjectId(data['subject']), "IsActive": True}). \
@@ -166,31 +177,42 @@ class SatisfactionService:
 
     @staticmethod
     def recommendation(peg_score, satisfaction):
-        subject_side_effects = satisfaction['TSQMSideEffects']
-        subject_peg_score = peg_score['Percentage']
-        subject_satisfaction = satisfaction['TSQMSatisfaction']
-        subject_severity = satisfaction['TSQMSeverity']
+        subject_side_effects = int(satisfaction['TSQMSideEffects'])
+        subject_peg_score = int(peg_score['Percentage'])
+        subject_satisfaction = int(satisfaction['TSQMSatisfaction'])
+        subject_severity = int(satisfaction['TSQMSeverity'])
         recommendation = list(mongo_db.db.Dosings.find({"IsActive": True}))
         for data in recommendation:
-            print("first")
             side_effects = SatisfactionService.take_integer_from_string(data['TSQMSideEffects'])
             satisfaction = SatisfactionService.take_integer_from_string(data['TSQMSatisfaction'])
             severity = SatisfactionService.take_integer_from_string(data['TSQMSeverity'])
             peg_score = SatisfactionService.take_integer_from_string(data['PEGScore'])
             if subject_side_effects == side_effects:
-                print("side")
-                if satisfaction == "Any Value" or satisfaction >= subject_satisfaction or satisfaction <= subject_satisfaction:
-                    print("satisfaction")
-                    if severity == "NA" or severity >= subject_severity or severity <= subject_severity:
-                        print("severity")
-                        if peg_score == "Any Value" or peg_score >= subject_peg_score or peg_score <= subject_peg_score:
+                if (satisfaction == "<=4" or satisfaction == "=<4") and subject_satisfaction <= 4:
+                    if severity == "<=2" and subject_severity <= 2:
+                        if peg_score == "AnyValue" or peg_score == "4-7":
                             return data['Recomendation']['Name']
-                        else:
-                            return "No recommendations"
-                    else:
-                        return "No recommendations"
-                else:
-                    return "No recommendations"
+                        elif subject_peg_score > 7 or subject_peg_score <= peg_score:
+                            return data['Recomendation']['Name']
+
+                    elif severity == "NA" or severity == subject_severity or subject_severity >= severity:
+                        if peg_score == "AnyValue" or peg_score == "4-7":
+                            return data['Recomendation']['Name']
+                        elif subject_peg_score > 7 or subject_peg_score <= peg_score:
+                            return data['Recomendation']['Name']
+
+                elif satisfaction == "AnyValue" or subject_satisfaction > satisfaction:
+                    if severity == "<=2" and subject_severity <= 2:
+                        if peg_score == "AnyValue" or peg_score == "4-7":
+                            return data['Recomendation']['Name']
+                        elif subject_peg_score > 7 or subject_peg_score <= peg_score:
+                            return data['Recomendation']['Name']
+
+                    elif severity == "NA" or severity == subject_severity or subject_severity >= severity:
+                        if peg_score == "AnyValue" or peg_score == "4-7":
+                            return data['Recomendation']['Name']
+                        elif subject_peg_score > 7 or subject_peg_score <= peg_score:
+                            return data['Recomendation']['Name']
         else:
             return "No recommendations"
 
